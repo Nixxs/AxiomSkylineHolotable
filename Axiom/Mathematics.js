@@ -18,53 +18,84 @@ function YPRToQuat(yRad, pRad, rRad) {
   return r;
 }
 
-function QuatYAxis(q, l) {
+function QuatConjugate(q) {
+  return [-q[0], -q[1], -q[2], q[3]];
+}
 
-  var ret = [
+function GetXAxis(q, v) {
+  return [
+    v * (q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]),
+    v * (2 * (q[0] * q[1] + q[2] * q[3])),
+    v * (2 * (q[0] * q[2] - q[1] * q[3]))
+  ]
+}
+
+function GetYAxis(q, v) {
+  return [
+    v * (2 * (q[1] * q[0] - q[2] * q[3])),
+    v * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
+    v * (2 * (q[1] * q[2] + q[0] * q[3]))
+  ]
+}
+
+function GetPitch(q) {
+  let forward = GetYAxis(q, 1);
+  let ret = Math.asin(forward[2]);
+  if (isNaN(ret)) {
+    return Math.PI / 2 * Math.sign(forward[2]);
+  }
+  return ret;
+}
+
+function GetYaw(q) {
+  // We use right because up may be zero in xy
+  let right = GetXAxis(q, 1);
+  return Math.atan2(right[1], right[0]);
+}
+
+function QuatMul(a, b) {
+  return [
+    a[3] * b[0] + b[3] * a[0] + a[1] * b[2] - a[2] * b[1],
+    a[3] * b[1] + b[3] * a[0] + a[2] * b[3] - a[3] * b[2],
+    a[3] * b[2] + b[3] * a[0] + a[3] * b[1] - a[1] * b[3],
+    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
+  ];
+}
+
+function QuatYAxis(q, l) {
+  return [
     l * (2 * (q[1] * q[0] - q[2] * q[3])),
     l * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
     l * (2 * (q[1] * q[2] + q[0] * q[3]))
   ];
-
-  return ret;
 }
 
 function cross(a, b) {
-
-  var ret = [
+  return [
     a[1] * b[2] - b[1] * a[2],
     a[2] * b[0] - b[2] * a[0],
     a[0] * b[1] - b[0] * a[1]
   ];
-
-  return ret;
 }
 
 function vecAdd(a, b) {
-
   var ret = [];
   for (var i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] + b[i]);
   }
-
   return ret;
 }
 
 function vecSub(a, b) {
-
   var ret = [];
   for (var i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] - b[i]);
   }
-
   return ret;
 }
 
 function vecMul(a, s) {
-
-  var ret = a.map(function (e) { return e * s; });
-
-  return ret;
+  return a.map(function (e) { return e * s; });
 }
 
 function QuatApply(q, v) {

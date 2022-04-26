@@ -21,7 +21,7 @@ interface IPosition {
   MoveToward: unknown;
   ToAbsolute: unknown;
   ToRelative: unknown;
-  ToString: unknown;
+  ToString(): string;
 }
 
 declare const enum IActionCode {
@@ -377,7 +377,18 @@ interface ITerrain3DRectBase extends ITerraExplorerObject {
 }
 
 type ISpatialOperator = unknown;
-type ISpatialRelation = unknown;
+
+interface ISpatialRelation {
+  Contains: unknown;
+  Crosses: unknown;
+  Disjoint: unknown;
+  Equals: unknown;
+  Intersects: unknown;
+  Overlaps: unknown;
+  Touches(otherGeometry: IGeometry): boolean;
+  Within: unknown;
+}
+
 type IWks = unknown;
 
 interface IGeometry {
@@ -573,7 +584,7 @@ interface ICreator {
   CreatePolygonFromArray: unknown; //Creates an ITerrainPolygon73 representing the polygon by connecting the points in an array of points.
   CreatePolyline(Geometry: IGeometry, LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, in the 3D Window.
   CreatePolylineFromArray(verticesArray: [number, number, number][], LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, by connecting the points in an array of points.
-  CreatePopupMessage: unknown; //Creates an IPopupMessage73, representing a message that displays in a floating browser or floating popup.
+  CreatePopupMessage(Caption: string, Src: string | undefined, Left: number, Top: number, Width: number, Height: number, Timeout: number): IPopupMessage; //Creates an IPopupMessage73, representing a message that displays in a floating browser or floating popup.
   CreatePosition(X: number, Y: number, Altitude: number, AltitudeType: number, Yaw?: number, Pitch?: number, Roll?: number, Distance?: number): IPosition; //Creates an IPosition73, representing the coordinate position.
   CreatePresentation: unknown; //Creates an IPresentation73, representing the presentation.
   CreatePyramid: unknown; //Creates an ITerrain3DRectBase73, representing the pyramid, in the 3D Window.
@@ -664,7 +675,42 @@ type IProject = unknown;
 type ISGServer = unknown;
 type ITerrain = unknown;
 type IVersion = unknown;
-type IWindow = unknown;
+
+interface IWorldPointInfo {
+  ObjectID: string;
+  Position: IPosition;
+  Type: number;
+}
+
+interface IMouseInfo {
+  Delta: never;
+  Flags: number;
+  X: number;
+  Y: number;
+}
+
+interface IWindow {
+  Cursor: unknown;
+  DisablePresentationControl: unknown;
+  Rect: unknown;
+  CenterPixelToWorld(TypeFilterFlags: number): IWorldPointInfo;
+  GetControls: unknown;
+  GetInputMode: unknown;
+  GetMouseInfo(): IMouseInfo;
+  GetPopupByCaption: unknown;
+  GetPopups: unknown;
+  GetSnapShot: unknown;
+  HideMessageBarText: unknown;
+  PixelFromWorld: unknown;
+  PixelToObjects: unknown;
+  PixelToWorld(PixelX: number, PixelY: number, TypeFilterFlags: number): IWorldPointInfo;
+  RemovePopup: unknown;
+  RemovePopupByCaption: unknown;
+  SetInputMode: unknown;
+  ShowControls: unknown;
+  ShowMessageBarText: unknown;
+  ShowPopup: unknown;
+}
 
 interface ISGWorld {
   Analysis: IAnalysis;

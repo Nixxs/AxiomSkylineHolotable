@@ -1,16 +1,18 @@
 "use strict";
+var gMediaFolder = "\\\\adf01\\LCSP";
 ;
+var gControlMode = 1 /* Table */;
 ;
-var modelPath;
-var modelObject;
 var UserModeManager = /** @class */ (function () {
     function UserModeManager(laser) {
         this.laser = laser;
+        this.userMode = 0 /* Standard */;
         this.spacing = 5000;
         this.numRings = 5;
         this.measurementModeFirstPoint = null;
         this.measurementModeLineID = null;
         this.measurementTextLabelID = null;
+        this.rangeID = null;
         this.measurementLineWidth = 3;
         this.decimalPlaces = 3;
         this.labelStyle = SGWorld.Creator.CreateLabelStyle(0);
@@ -19,78 +21,84 @@ var UserModeManager = /** @class */ (function () {
         this.measurementLabelStyle.PivotAlignment = "Top";
         this.measurementLabelStyle.MultilineJustification = "Left";
     }
+    UserModeManager.prototype.jumpToSydney = function () {
+        console.log("sydney");
+        SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(151.2067675, -33.8667266, 5000, 3, 0, -80, 0, 5000));
+        this.userMode = 0 /* Standard */;
+    };
+    UserModeManager.prototype.jumpToWhyalla = function () {
+        console.log("whyalla");
+        SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(137.5576346, -33.0357364, 5000, 3, 0, -80, 0, 5000));
+        this.userMode = 0 /* Standard */;
+    };
     UserModeManager.prototype.toggleMeasurementMode = function () {
-        if (userMode == 1 /* Measurement */) {
+        if (this.userMode == 1 /* Measurement */) {
             if (this.measurementModeLineID !== null) {
                 SGWorld.Creator.DeleteObject(this.measurementModeLineID);
                 SGWorld.Creator.DeleteObject(this.measurementTextLabelID);
             }
-            userMode = 0 /* Standard */;
+            this.userMode = 0 /* Standard */;
         }
         else {
-            userMode = 1 /* Measurement */;
+            this.userMode = 1 /* Measurement */;
         }
         this.measurementModeLineID = null;
         this.measurementTextLabelID = null;
         this.measurementModeFirstPoint = null;
     };
-    
     UserModeManager.prototype.toggleModelModeArtRange = function () {
-        if (userMode == 3 /* Place Model */) {
+        if (this.userMode == 3 /* PlaceModel */) {
             console.log("end model mode");
-            userMode = 0 /* Standard */;
+            this.userMode = 0 /* Standard */;
         }
         else {
-            modelPath = "\\\\adf01\\LCSP\\Models\\Models_XPL\\HotwitzerRange.xpl2";
-            var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
+            var modelPath = "model/HowitzerWithRangeIndicator.xpl2";
+            var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
             pos.Pitch = 0;
             console.log("creating model");
-            modelObject = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HotwitzerRange model");
-
-            userMode = 3 /* Measurement */;
+            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HotwitzerRange model").ID;
+            this.userMode = 3 /* PlaceModel */;
         }
     };
     UserModeManager.prototype.toggleModelModeArtillary = function () {
-        if (userMode == 3 /* Place Model */) {
+        if (this.userMode == 3 /* PlaceModel */) {
             console.log("end model mode");
-            userMode = 0 /* Standard */;
+            this.userMode = 0 /* Standard */;
         }
         else {
-            modelPath = "\\\\adf01\\LCSP\\Models\\Models_XPL\\Hotwitzer.xpl2";
-            var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
+            var modelPath = "model/Support by Fire.xpl2";
+            var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
             pos.Pitch = 0;
             console.log("creating model");
-            modelObject = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Hotwitzer model");
-
-            userMode = 3 /* Measurement */;
+            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Hotwitzer model").ID;
+            this.userMode = 3 /* PlaceModel */;
         }
     };
     UserModeManager.prototype.setStandardMode = function () {
-        userMode = 0 /* Standard */;
+        this.userMode = 0 /* Standard */;
     };
     UserModeManager.prototype.toggleRangeRingMode = function () {
-        if (userMode == 2 /* DropRangeRing */)
-            userMode = 0 /* Standard */;
+        if (this.userMode == 2 /* DropRangeRing */)
+            this.userMode = 0 /* Standard */;
         else
-            userMode = 2 /* DropRangeRing */;
+            this.userMode = 2 /* DropRangeRing */;
     };
     UserModeManager.prototype.dropRangeRing = function () {
         console.log("dropRangeRing");
-        var linecolor = SGWorld.Creator.CreateColor(0, 0, 0, 255); //red for customer requirements
+        var linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
         var fillcolor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
         var pos = this.laser.collision.hitPoint.Copy();
         var objNamePrefix = pos.X + "long" + pos.Y + "lat" + pos.Altitude + "mAlt_";
-
         //create centre circle
-        var centerFillColour = SGWorld.Creator.CreateColor(0, 0, 0, 255); 
+        var centerFillColour = SGWorld.Creator.CreateColor(0, 0, 0, 255);
         SGWorld.Creator.CreateCircle(pos, 500, linecolor, centerFillColour, "", "Centre Range Ring");
-
         for (var i = 1; i <= this.numRings; i++) {
             var radius = this.spacing * i;
             var itemName = objNamePrefix + "RangeRing" + radius + "m";
             if (radius >= 25000) {
                 linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
-            } else {
+            }
+            else {
                 linecolor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
             }
             var circle = SGWorld.Creator.CreateCircle(pos, radius, linecolor, fillcolor, "", itemName);
@@ -99,12 +107,11 @@ var UserModeManager = /** @class */ (function () {
             SGWorld.Creator.CreateTextLabel(newPos, radius + "m", this.labelStyle, "", itemName);
         }
     };
-
     UserModeManager.prototype.Update = function () {
-        var _a, _b, _c;
-        switch (userMode) {
+        var _a, _b, _c, _d;
+        switch (this.userMode) {
             case 0 /* Standard */:
-                switch (controlMode) {
+                switch (gControlMode) {
                     case 1 /* Table */:
                         tableMode();
                         break;
@@ -170,20 +177,20 @@ var UserModeManager = /** @class */ (function () {
                     ControllerReader.controllerInfo.button1Pressed = false;
                 }
                 break;
-            case 3 /* Model Mode */:
-                if ((_c = ControllerReader.controllerInfo) === null || _c === void 0 ? void 0 : _c.button1Pressed) {
+            case 3 /* PlaceModel */:
+                if ((_d = ControllerReader.controllerInfo) === null || _d === void 0 ? void 0 : _d.button1Pressed) {
                     this.setStandardMode();
                     // consume the button press
                     ControllerReader.controllerInfo.button1Pressed = false;
-                } else {
-                    try {
+                }
+                else {
+                    if (this.laser.collision !== undefined) {
                         var newModelPosition = this.laser.collision.hitPoint.Copy();
                         newModelPosition.Pitch = 0;
                         newModelPosition.Yaw = newModelPosition.Roll * 2;
                         newModelPosition.Roll = 0;
+                        var modelObject = SGWorld.Creator.GetObject(this.rangeID);
                         modelObject.Position = newModelPosition;
-                    } catch (error) {
-                        console.log("no position");
                     }
                 }
                 break;
@@ -191,15 +198,13 @@ var UserModeManager = /** @class */ (function () {
     };
     return UserModeManager;
 }());
-var userMode = 0 /* Standard */;
-var controlMode = 1 /* Table */;
 var ControllerReader = /** @class */ (function () {
     function ControllerReader() {
     }
     ControllerReader.Update = function () {
         var _a, _b, _c, _d;
         var VRControllersInfo = getVRControllersInfo();
-        if (VRControllersInfo != undefined) {
+        if (VRControllersInfo !== undefined) {
             var prevButton1 = (_b = (_a = this.controllerInfo) === null || _a === void 0 ? void 0 : _a.button1) !== null && _b !== void 0 ? _b : false;
             var prevButton2 = (_d = (_c = this.controllerInfo) === null || _c === void 0 ? void 0 : _c.button2) !== null && _d !== void 0 ? _d : false;
             this.controllerInfo = {};
@@ -242,37 +247,46 @@ var ControllerReader = /** @class */ (function () {
     return ControllerReader;
 }());
 var Button = /** @class */ (function () {
-    function Button(roomPosition, textureName, callback) {
+    function Button(name, roomPosition, textureName, callback) {
+        var _a;
         this.roomPosition = roomPosition;
         this.textureName = textureName;
         this.callback = callback;
+        var newButton = document.createElement("button");
+        var buttonIcon = document.createElement("img");
+        buttonIcon.src = textureName;
+        buttonIcon.width = 40;
+        newButton.appendChild(buttonIcon);
+        newButton.addEventListener("click", function () {
+            console.log("simulating click on " + name);
+            OneFrame = callback;
+        });
+        (_a = document.getElementById("buttons")) === null || _a === void 0 ? void 0 : _a.appendChild(newButton);
     }
-    Button.prototype.Update = function (selectedID) {
-        var _a;
-        if (this.ID !== undefined && this.ID === selectedID && ((_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.button1Pressed)) {
+    Button.prototype.Update = function (button1Pressed, selectedID) {
+        if (this.ID !== undefined && this.ID === selectedID && button1Pressed) {
             this.callback();
-            // consume the button press
-            ControllerReader.controllerInfo.button1Pressed = false;
+            return false;
         }
+        return button1Pressed;
     };
     // buttonPressed is whether the button was down this frame but not last frame
     Button.prototype.Draw = function () {
         var _a, _b;
-        var customScaler = 2;
         var pos = roomToWorldCoord(this.roomPosition);
         if (this.ID === undefined) {
-            var obj_1 = SGWorld.Creator.CreateBox(pos, 1, 1, 0.001, 0xFF000000, 0xFF000000, "", "button");
+            var obj_1 = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
             this.ID = obj_1.ID;
             obj_1.FillStyle.Texture.FileName = this.textureName;
             return;
         }
         // Move the button to be in the right spot
-        var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 20.0;
+        var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 10.0;
         var obj = SGWorld.Creator.GetObject(this.ID);
         obj.Position = pos;
-        obj.Width = boxSize * customScaler;
-        obj.Height = boxSize * 0.001;
-        obj.Depth = boxSize * customScaler;
+        obj.Width = boxSize;
+        obj.Height = boxSize * 0.1;
+        obj.Depth = boxSize;
     };
     return Button;
 }());
@@ -330,8 +344,8 @@ var Laser = /** @class */ (function () {
         this.ray = new Ray();
         this.tip = new Sphere();
     }
-    Laser.prototype.Update = function (position) {
-        var _a, _b, _c, _d, _e, _f, _g;
+    Laser.prototype.UpdateTable = function (position) {
+        var _a;
         SGWorld.SetParam(8300, position); // Pick ray
         var hitObjectID = SGWorld.GetParam(8310);
         var distToHitPoint = SGWorld.GetParam(8312); // Get distance to hit point
@@ -343,7 +357,7 @@ var Laser = /** @class */ (function () {
         if (isNothing !== ((_a = this.collision) === null || _a === void 0 ? void 0 : _a.isNothing)) {
             console.log(isNothing ? "Nothing" : "Something");
         }
-        var hitPosition = position.Copy().Move(distToHitPoint, (_d = (_c = (_b = ControllerReader.controllerInfo) === null || _b === void 0 ? void 0 : _b.wandPosition) === null || _c === void 0 ? void 0 : _c.Yaw) !== null && _d !== void 0 ? _d : 0, (_g = (_f = (_e = ControllerReader.controllerInfo) === null || _e === void 0 ? void 0 : _e.wandPosition) === null || _f === void 0 ? void 0 : _f.Pitch) !== null && _g !== void 0 ? _g : 0);
+        var hitPosition = position.Copy().Move(distToHitPoint, position.Yaw, position.Pitch);
         hitPosition.Cartesian = true;
         this.collision = {
             originPoint: position,
@@ -353,23 +367,76 @@ var Laser = /** @class */ (function () {
             isNothing: isNothing
         };
     };
+    Laser.prototype.UpdateDesktop = function () {
+        var _a, _b;
+        if (((_a = this.collision) === null || _a === void 0 ? void 0 : _a.isNothing) && DesktopInputManager.getCursor().ObjectID !== '') {
+            console.log("hitting " + DesktopInputManager.getCursor().ObjectID);
+        }
+        else if (!((_b = this.collision) === null || _b === void 0 ? void 0 : _b.isNothing) && DesktopInputManager.getCursor().ObjectID === '') {
+            console.log('Not hitting');
+        }
+        this.collision = {
+            originPoint: SGWorld.Navigate.GetPosition(3),
+            hitPoint: DesktopInputManager.getCursorPosition(),
+            rayLength: SGWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
+            objectID: DesktopInputManager.getCursor().ObjectID,
+            isNothing: DesktopInputManager.getCursor().ObjectID === ''
+        };
+    };
     Laser.prototype.Draw = function () {
         this.ray.Draw(this.collision);
         this.tip.Draw(this.collision);
     };
     return Laser;
 }());
+function roomToWorldCoordEx(position) {
+    return SGWorld.SetParamEx(9014, position);
+}
+function worldToRoomCoordEx(position) {
+    return SGWorld.SetParamEx(9013, position);
+}
+function roomToWorldCoordD(position) {
+    var ret = SGWorld.Navigate.GetPosition(3);
+    ret.X += position.X / 40000;
+    ret.Y += (position.Altitude + 2) / 40000;
+    ret.Altitude += position.Y - 3;
+    //const posQuat = YPRToQuat(position.Yaw, position.Pitch, position.Pitch);
+    //const worldQuat = YPRToQuat(ret.Yaw, ret.Pitch, ret.Pitch);
+    //const retQuat = QuatMul(posQuat, worldQuat);
+    ret.Yaw = position.Yaw; //GetYaw(retQuat);
+    ret.Pitch = position.Pitch; //GetPitch(retQuat);
+    ret.Roll = position.Roll;
+    return ret;
+}
+function worldToRoomCoordD(position) {
+    var ret = SGWorld.Navigate.GetPosition(3);
+    ret.Cartesian = true;
+    ret.X = 40000 * position.X - ret.X;
+    ret.Y = 40000 * position.Altitude - ret.Y;
+    ret.Y -= 2;
+    ret.Altitude = position.Y - ret.Altitude;
+    ret.Altitude += 3;
+    //const posQuat = YPRToQuat(position.Yaw, position.Pitch, position.Pitch);
+    //const worldQuat = YPRToQuat(ret.Yaw, ret.Pitch, ret.Pitch);
+    //const retQuat = QuatMul(QuatConjugate(worldQuat), posQuat);
+    ret.Yaw = position.Yaw; //GetYaw(retQuat);
+    ret.Pitch = position.Pitch; //GetPitch(retQuat);
+    ret.Roll = position.Roll;
+    return ret;
+}
+var roomToWorldCoordF = roomToWorldCoordEx;
+var worldToRoomCoordF = worldToRoomCoordEx;
 function roomToWorldCoord(position) {
     var temp = position.Y;
     position.Y = position.Altitude;
     position.Altitude = temp;
-    var ret = SGWorld.SetParamEx(9014, position);
+    var ret = roomToWorldCoordF(position);
     position.Altitude = position.Y;
     position.Y = temp;
     return ret;
 }
 function worldToRoomCoord(position) {
-    var ret = SGWorld.SetParamEx(9013, position);
+    var ret = worldToRoomCoordF(position);
     var temp = ret.Y;
     ret.Y = ret.Altitude;
     ret.Altitude = temp;
@@ -390,16 +457,6 @@ function getRoomExtent() {
     var extent = SGWorld.SetParamEx(9015); // get the VR controls status
     var roomExtent = JSON.parse(extent);
     return roomExtent;
-}
-function jumpToSydney() {
-    console.log("sydney");
-    SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(151.2067675, -33.8667266, 5000, 3, 0, -80, 0, 5000));
-    userMode = 0 /* Standard */;
-}
-function jumpToWhyalla() {
-    console.log("whyalla");
-    SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(137.5576346, -33.0357364, 5000, 3, 0, -80, 0, 5000));
-    userMode = 0 /* Standard */;
 }
 var DebugBox = /** @class */ (function () {
     function DebugBox(roomCoords) {
@@ -570,40 +627,180 @@ function entityMovement() {
     // if we're moving an entity (id != null)
     //   set its position to raycasted collision point (SetPosition(id, collisionPoint))
 }
-//entityMovement.entityId = null;
+var DesktopInput = /** @class */ (function () {
+    function DesktopInput() {
+        this.leftButton = false;
+        this.rightButton = false;
+        this.middleButton = false;
+        this.shift = false;
+        this.control = false;
+    }
+    return DesktopInput;
+}());
+var DesktopInputManager = /** @class */ (function () {
+    function DesktopInputManager() {
+    }
+    DesktopInputManager.Update = function () {
+        this.pressed.leftButton = this.getLeftButton() && !this.getLeftButtonPressed();
+        this.pressed.rightButton = this.getRightButton() && !this.getRightButton();
+        this.pressed.middleButton = this.getMiddleButton() && !this.getMiddleButton();
+        this.pressed.shift = this.getShift() && !this.getShift();
+        this.pressed.control = this.getControl() && !this.getControl();
+        this.state.leftButton = this.getLeftButton();
+        this.state.rightButton = this.getRightButton();
+        this.state.middleButton = this.getMiddleButton();
+        this.state.shift = this.getShift();
+        this.state.control = this.getControl();
+    };
+    DesktopInputManager.getLeftButton = function () { return this.state.leftButton; };
+    DesktopInputManager.getRightButton = function () { return this.state.rightButton; };
+    DesktopInputManager.getMiddleButton = function () { return this.state.middleButton; };
+    DesktopInputManager.getShift = function () { return this.state.shift; };
+    DesktopInputManager.getControl = function () { return this.state.control; };
+    DesktopInputManager.getLeftButtonPressed = function () { return this.pressed.leftButton; };
+    DesktopInputManager.getRightButtonPressed = function () { return this.pressed.rightButton; };
+    DesktopInputManager.getMiddleButtonPressed = function () { return this.pressed.middleButton; };
+    DesktopInputManager.getShiftPressed = function () { return this.pressed.shift; };
+    DesktopInputManager.getControlPressed = function () { return this.pressed.control; };
+    DesktopInputManager.setLeftButtonPressed = function (pressed) { this.pressed.leftButton = pressed; };
+    DesktopInputManager.getCursor = function () {
+        var pX = SGWorld.Window.GetMouseInfo().X;
+        var pY = SGWorld.Window.GetMouseInfo().Y;
+        return SGWorld.Window.PixelToWorld(pX, pY, 4);
+    };
+    DesktopInputManager.getCursorPosition = function () {
+        return this.getCursor().Position;
+    };
+    DesktopInputManager.state = new DesktopInput();
+    DesktopInputManager.pressed = new DesktopInput();
+    return DesktopInputManager;
+}());
 var ProgramManager = /** @class */ (function () {
     function ProgramManager() {
+        this.mode = 0 /* Unknown */;
+        this.modeTimer = 0;
         this.buttons = [];
         this.laser = new Laser();
         this.userModeManager = new UserModeManager(this.laser);
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(-0.45, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\sydney.png", jumpToSydney));
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(-0.30, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\whyalla.png", jumpToWhyalla));
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(-0.10, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\measurement.png", this.userModeManager.toggleMeasurementMode));
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(0.05, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\rangefinder.png", this.userModeManager.toggleRangeRingMode));
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(0.30, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\placeartillery.png", this.userModeManager.toggleModelModeArtillary));
-        this.buttons.push(new Button(SGWorld.Creator.CreatePosition(0.45, -1.1, 0.7, 3), "\\\\adf01\\LCSP\\Axiom\\placeartilleryrange.png", this.userModeManager.toggleModelModeArtRange));
-		//this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", this.userModeManager.jumpToSydney));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", this.userModeManager.toggleMeasurementMode));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", this.userModeManager.toggleRangeRingMode));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", this.userModeManager.jumpToWhyalla));
+        this.buttons.push(new Button("Artillary", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeartillery.png", this.userModeManager.toggleModelModeArtillary));
+        this.buttons.push(new Button("ArtillaryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeartilleryrange.png", this.userModeManager.toggleModelModeArtRange));
+        //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
     }
-    ProgramManager.prototype.Update = function () {
-        ControllerReader.Update(); // Read controllers info
-        this.laser.Update(ControllerReader.controllerInfo.wandPosition);
-        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
-            var button = _a[_i];
-            button.Update(this.laser.collision.objectID);
+    ProgramManager.prototype.getMode = function () { return this.mode; };
+    ProgramManager.prototype.setMode = function (newMode) {
+        var _this = this;
+        if (this.modeTimer != 0)
+            // Don't revert back to unknown mode yet
+            clearTimeout(this.modeTimer);
+        this.modeTimer = setTimeout(function () {
+            // revert back to unknown mode if no updates after some time
+            _this.mode = 0 /* Unknown */;
+        }, 2000);
+        if (this.mode < newMode) {
+            // upgrade mode
+            this.mode = newMode;
+            console.log("Entered " + (this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown") + " mode");
         }
-        this.userModeManager.Update();
+    };
+    ProgramManager.prototype.getButton1Pressed = function () {
+        var _a, _b;
+        switch (this.mode) {
+            case 2 /* Table */:
+                return (_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.button1Pressed) !== null && _b !== void 0 ? _b : false;
+            case 1 /* Desktop */:
+                return DesktopInputManager.getLeftButtonPressed();
+        }
+        return false;
+    };
+    ProgramManager.prototype.setButton1Pressed = function (pressed) {
+        switch (this.mode) {
+            case 2 /* Table */:
+                ControllerReader.controllerInfo.button1Pressed = pressed;
+            case 1 /* Desktop */:
+                DesktopInputManager.setLeftButtonPressed(pressed);
+        }
+    };
+    ProgramManager.prototype.getButton2Pressed = function () {
+        var _a, _b;
+        switch (this.mode) {
+            case 2 /* Table */:
+                return (_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.button2Pressed) !== null && _b !== void 0 ? _b : false;
+            case 1 /* Desktop */:
+                return DesktopInputManager.getRightButtonPressed();
+        }
+        return false;
+    };
+    ProgramManager.prototype.getButton3 = function () {
+        var _a, _b;
+        switch (this.mode) {
+            case 2 /* Table */:
+                return (_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.trigger) !== null && _b !== void 0 ? _b : false;
+            case 1 /* Desktop */:
+                return DesktopInputManager.getMiddleButton();
+        }
+        return false;
+    };
+    ProgramManager.prototype.getCursorPosition = function () {
+        switch (this.mode) {
+            case 2 /* Table */:
+                return ControllerReader.controllerInfo.wandPosition;
+            case 1 /* Desktop */:
+                return DesktopInputManager.getCursorPosition();
+        }
+    };
+    ProgramManager.prototype.Update = function () {
+        switch (this.mode) {
+            case 2 /* Table */:
+                ControllerReader.Update(); // Read controllers info
+                this.laser.UpdateTable(this.getCursorPosition());
+                for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
+                    var button = _a[_i];
+                    this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision.objectID));
+                }
+                this.userModeManager.Update();
+                break;
+            case 1 /* Desktop */:
+                this.laser.UpdateDesktop();
+                for (var _b = 0, _c = this.buttons; _b < _c.length; _b++) {
+                    var button = _c[_b];
+                    this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision.objectID));
+                }
+                break;
+        }
     };
     ProgramManager.prototype.Draw = function () {
-        this.laser.Draw();
-        for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
-            var button = _a[_i];
-            button.Draw();
+        switch (this.mode) {
+            case 2 /* Table */:
+                this.laser.Draw();
+                for (var _i = 0, _a = this.buttons; _i < _a.length; _i++) {
+                    var button = _a[_i];
+                    button.Draw();
+                }
+                this.debugBox.Draw(this.laser.collision.objectID === this.debugBox.ID);
+                break;
+            case 1 /* Desktop */:
+                this.laser.Draw();
+                for (var _b = 0, _c = this.buttons; _b < _c.length; _b++) {
+                    var button = _c[_b];
+                    button.Draw();
+                }
+                break;
         }
-        //this.debugBox.Draw(this.laser.collision.objectID === this.debugBox.ID);
     };
     return ProgramManager;
 }());
 (function () {
+    var programManager;
+    var recentProblems = 0;
+    function getProgramManager() {
+        if (programManager === undefined)
+            programManager = new ProgramManager();
+        return programManager;
+    }
     function Init() {
         var _a;
         try {
@@ -612,15 +809,27 @@ var ProgramManager = /** @class */ (function () {
             SGWorld.AttachEvent("OnFrame", function () {
                 var prev = OneFrame;
                 OneFrame = function () { };
-                prev();
-                OnFrame();
+                getProgramManager().setMode(1 /* Desktop */);
+                if (getProgramManager().getMode() == 1 /* Desktop */) {
+                    roomToWorldCoordF = roomToWorldCoordD;
+                    worldToRoomCoordF = worldToRoomCoordD;
+                    prev();
+                    OnFrame();
+                    Update();
+                    Draw();
+                    roomToWorldCoordF = roomToWorldCoordEx;
+                    worldToRoomCoordF = worldToRoomCoordEx;
+                }
             }); // Sent from TE AFTER rendering of a frame
             SGWorld.AttachEvent("OnSGWorld", function (eventID, eventParam) {
                 if (eventID == 14) {
                     // This is the place were you need to read wand information and respond to it.
-                    Update();
-                    Draw();
-                    debugHandleRefreshGestur();
+                    getProgramManager().setMode(2 /* Table */);
+                    if (getProgramManager().getMode() == 2 /* Table */) {
+                        Update();
+                        Draw();
+                        debugHandleRefreshGestur();
+                    }
                 }
             });
             setComClientForcedInputMode();
@@ -630,17 +839,10 @@ var ProgramManager = /** @class */ (function () {
             console.log(e);
         }
     }
-    var programManager;
-    var recentProblems = 0;
-    function U() {
-        if (programManager === undefined)
-            programManager = new ProgramManager();
-        programManager.Update();
-    }
     function Update() {
         if (recentProblems > 0) {
             try {
-                U();
+                getProgramManager().Update();
             }
             catch (e) {
                 ++recentProblems;
@@ -657,20 +859,14 @@ var ProgramManager = /** @class */ (function () {
         }
         else {
             ++recentProblems;
-            U();
+            getProgramManager().Update();
             --recentProblems;
         }
-    }
-    function D() {
-        if (programManager === undefined)
-            alert("Program manager not defined");
-        else
-            programManager.Draw();
     }
     function Draw() {
         if (recentProblems > 0) {
             try {
-                D();
+                getProgramManager().Draw();
             }
             catch (e) {
                 ++recentProblems;
@@ -687,7 +883,7 @@ var ProgramManager = /** @class */ (function () {
         }
         else {
             ++recentProblems;
-            D();
+            getProgramManager().Draw();
             --recentProblems;
         }
     }
