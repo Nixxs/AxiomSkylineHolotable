@@ -1,7 +1,5 @@
 declare var SGWorld: ISGWorld;
 
-const gMediaFolder = "\\\\adf01\\LCSP";
-
 const enum ControlMode {
   Wand,
   Table,
@@ -69,7 +67,7 @@ class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = gMediaFolder + "/Models/Models_XPL/HotwitzerRange.xpl2";
+      const modelPath = "model/HowitzerWithRangeIndicator.xpl2";
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model");
@@ -84,7 +82,7 @@ class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = gMediaFolder + "/Models/Models_XPL/Hotwitzer.xpl2";
+      const modelPath = "model/Support by Fire.xpl2";
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model");
@@ -800,18 +798,18 @@ class ProgramManager {
   laser: Laser;
   userModeManager: UserModeManager;
   buttons: Button[] = [];
-  debugBox: DebugBox;
+  //debugBox: DebugBox;
 
   constructor() {
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.jumpToSydney));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.toggleMeasurementMode));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.toggleRangeRingMode));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.jumpToWhyalla));
-    this.buttons.push(new Button("Artillary", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.toggleModelModeArtillary));
-    this.buttons.push(new Button("ArtillaryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), gMediaFolder + "/button/button.png", this.userModeManager.toggleModelModeArtRange));
-    this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", this.userModeManager.jumpToSydney));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", this.userModeManager.toggleMeasurementMode));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", this.userModeManager.toggleRangeRingMode));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", this.userModeManager.jumpToWhyalla));
+    this.buttons.push(new Button("Artillary", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeartillery.png", this.userModeManager.toggleModelModeArtillary));
+    this.buttons.push(new Button("ArtillaryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeartilleryrange.png", this.userModeManager.toggleModelModeArtRange));
+    //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
   getButton1Pressed() {
@@ -885,7 +883,7 @@ class ProgramManager {
         this.laser.Draw();
         for (let button of this.buttons)
           button.Draw();
-        this.debugBox.Draw(this.laser.collision!.objectID === this.debugBox.ID);
+        //this.debugBox.Draw(this.laser.collision!.objectID === this.debugBox.ID);
         break;
       case ProgramMode.Desktop:
         this.laser.Draw();
