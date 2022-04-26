@@ -1,5 +1,4 @@
 "use strict";
-var gMediaFolder = "\\\\adf01\\LCSP";
 ;
 var gControlMode = 1 /* Table */;
 ;
@@ -137,7 +136,7 @@ var UserModeManager = /** @class */ (function () {
                     // Update the label
                     var direction = teStartPos.Yaw.toFixed(this.decimalPlaces);
                     var distance = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
-                    var strLabelText = direction + " " + String.fromCharCode(176) + " / " + distance + "m";
+                    var strLabelText = "".concat(direction, " ").concat(String.fromCharCode(176), " / ").concat(distance, "m");
                     var teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
                     var mLabel = SGWorld.Creator.GetObject(this.measurementTextLabelID);
                     mLabel.Text = strLabelText;
@@ -258,7 +257,7 @@ var Button = /** @class */ (function () {
         buttonIcon.width = 40;
         newButton.appendChild(buttonIcon);
         newButton.addEventListener("click", function () {
-            console.log("simulating click on " + name);
+            console.log("simulating click on ".concat(name));
             OneFrame = callback;
         });
         (_a = document.getElementById("buttons")) === null || _a === void 0 ? void 0 : _a.appendChild(newButton);
@@ -370,7 +369,7 @@ var Laser = /** @class */ (function () {
     Laser.prototype.UpdateDesktop = function () {
         var _a, _b;
         if (((_a = this.collision) === null || _a === void 0 ? void 0 : _a.isNothing) && DesktopInputManager.getCursor().ObjectID !== '') {
-            console.log("hitting " + DesktopInputManager.getCursor().ObjectID);
+            console.log("hitting ".concat(DesktopInputManager.getCursor().ObjectID));
         }
         else if (!((_b = this.collision) === null || _b === void 0 ? void 0 : _b.isNothing) && DesktopInputManager.getCursor().ObjectID === '') {
             console.log('Not hitting');
@@ -676,6 +675,7 @@ var DesktopInputManager = /** @class */ (function () {
     return DesktopInputManager;
 }());
 var ProgramManager = /** @class */ (function () {
+    //debugBox: DebugBox;
     function ProgramManager() {
         this.mode = 0 /* Unknown */;
         this.modeTimer = 0;
@@ -703,7 +703,7 @@ var ProgramManager = /** @class */ (function () {
         if (this.mode < newMode) {
             // upgrade mode
             this.mode = newMode;
-            console.log("Entered " + (this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown") + " mode");
+            console.log("Entered ".concat(this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown", " mode"));
         }
     };
     ProgramManager.prototype.getButton1Pressed = function () {
@@ -780,7 +780,7 @@ var ProgramManager = /** @class */ (function () {
                     var button = _a[_i];
                     button.Draw();
                 }
-                this.debugBox.Draw(this.laser.collision.objectID === this.debugBox.ID);
+                //this.debugBox.Draw(this.laser.collision!.objectID === this.debugBox.ID);
                 break;
             case 1 /* Desktop */:
                 this.laser.Draw();

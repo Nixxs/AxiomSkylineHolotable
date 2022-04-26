@@ -1,14 +1,14 @@
 {
   "files": [
-    "Axiom/Axiom.ts",
-    "Axiom/Debug.js",
-    "Axiom/Mathematics.js",
-    "Axiom/Axiom.d.ts"
+    "src/Axiom.ts",
+    "src/Debug.js",
+    "src/Mathematics.js",
+    "src/Axiom.d.ts"
   ],
   "compilerOptions": {
     "strict": true,
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "Axiom",
     "target": "ES3",
     "module": "None"
   }
