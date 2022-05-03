@@ -1,6 +1,6 @@
 "use strict";
 ;
-var basePath = "C:\\Users\\davidw\\Downloads\\GIS CAPABILITY WORKSHOP 06 - TerraExplorer\\";
+var basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
 // unc path of model
 var gControlMode = 1 /* Table */;
 ;
@@ -391,7 +391,10 @@ var Laser = /** @class */ (function () {
     return Laser;
 }());
 function roomToWorldCoordEx(position) {
-    return SGWorld.SetParamEx(9014, position);
+    var pos = SGWorld.SetParamEx(9014, position);
+    // bug? got a object mismatch using this postion when se on an object
+    pos = SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
+    return pos;
 }
 function worldToRoomCoordEx(position) {
     return SGWorld.SetParamEx(9013, position);
@@ -563,6 +566,8 @@ function tableMode() {
         var planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
         var newIntersect = planeCollisionPoint;
         var deadzone = 1;
+        console.log(table.firstIntersect);
+        console.log(newIntersect);
         var pan = vecSub(table.firstIntersect, newIntersect);
         if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
             // Scale
@@ -685,12 +690,12 @@ var ProgramManager = /** @class */ (function () {
         this.buttons = [];
         this.laser = new Laser();
         this.userModeManager = new UserModeManager(this.laser);
-        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", function () { return _this.userModeManager.jumpToSydney(); }));
-        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", function () { return _this.userModeManager.toggleMeasurementMode(); }));
-        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", function () { return _this.userModeManager.toggleRangeRingMode(); }));
-        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", function () { return _this.userModeManager.jumpToWhyalla(); }));
-        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeArtillery.png", function () { return _this.userModeManager.toggleModelModeArtillery(); }));
-        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeArtilleryRange.png", function () { return _this.userModeManager.toggleModelModeArtRange(); }));
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", function () { return _this.userModeManager.jumpToSydney(); }));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath + "img/measurement.png", function () { return _this.userModeManager.toggleMeasurementMode(); }));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath + "img/rangefinder.png", function () { return _this.userModeManager.toggleRangeRingMode(); }));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath + "img/whyalla.png", function () { return _this.userModeManager.jumpToWhyalla(); }));
+        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", function () { return _this.userModeManager.toggleModelModeArtillery(); }));
+        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", function () { return _this.userModeManager.toggleModelModeArtRange(); }));
         //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
     }
     ProgramManager.prototype.getMode = function () { return this.mode; };
@@ -892,180 +897,3 @@ var ProgramManager = /** @class */ (function () {
     }
     window.addEventListener("load", Init);
 })();
-var debug = {
-    info: undefined,
-    stacktrace: function stacktrace(f) {
-        var args = [];
-        if (f) {
-            if (f.arguments)
-                for (var i = 0; i < f.arguments.length; i++) {
-                    args.push(f.arguments[i]);
-                }
-            var function_name = f.toString().split('(')[0].substring(9);
-            if (f == f.caller)
-                return "[recursive] " + function_name + '(' + args.join(', ') + ')' + "\n";
-            return debug.stacktrace(f.caller) + function_name + '(' + args.join(', ') + ')' + "\n";
-        }
-        else {
-            return "";
-        }
-    },
-    test: function test(i) {
-        if (i <= 1)
-            console.log(debug.stacktrace(arguments.callee));
-        else
-            debug.test(i - 1);
-    }
-};
-function debugHandleRefreshGesture() {
-    // Point the wand directly up for 2 sec to refresh page
-    if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGesture.timer == undefined) {
-        debugHandleRefreshGesture.timer = setTimeout(function () {
-            window.location.reload();
-        }, 2000);
-    }
-    else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGesture.timer) {
-        clearTimeout(debugHandleRefreshGesture.timer);
-        debugHandleRefreshGesture.timer = undefined;
-    }
-}
-debugHandleRefreshGesture.timer = undefined;
-// interactive debug console
-var console = {
-    log: function (str) {
-        var el = document.getElementById("consoleOutput");
-        var wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
-        el.textContent += str + "\n";
-        if (wasNearBottom)
-            el.scrollTop = el.scrollHeight - el.clientHeight;
-    }
-};
-function runConsole() {
-    var input = document.getElementById("consoleInput").value;
-    console.log("> " + input);
-    try {
-        console.log("= " + String(eval.call(window, input)));
-    }
-    catch (e) {
-        console.log("! " + String(e));
-    }
-    document.getElementById("consoleInput").value = "";
-}
-function YPRToQuat(yRad, pRad, rRad) {
-    var r = [0, 0, 0, 1];
-    var cy = Math.cos(yRad / 2.0); // cos(Yaw)
-    var sy = Math.sin(yRad / 2.0); // sin(Yaw)
-    var cp = Math.cos(pRad / 2.0); // cos(Pitch)
-    var sp = Math.sin(pRad / 2.0); // sin(Pitch)
-    var cr = Math.cos(rRad / 2.0); // cos(Roll)
-    var sr = Math.sin(rRad / 2.0); // sin(Roll)
-    r[0] = cy * sp * cr - sy * cp * sr;
-    r[1] = cy * cp * sr + sy * sp * cr;
-    r[2] = cy * sp * sr + sy * cp * cr;
-    r[3] = cy * cp * cr - sy * sp * sr;
-    return r;
-}
-function QuatConjugate(q) {
-    return [-q[0], -q[1], -q[2], q[3]];
-}
-function GetXAxis(q, v) {
-    return [
-        v * (q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]),
-        v * (2 * (q[0] * q[1] + q[2] * q[3])),
-        v * (2 * (q[0] * q[2] - q[1] * q[3]))
-    ];
-}
-function GetYAxis(q, v) {
-    return [
-        v * (2 * (q[1] * q[0] - q[2] * q[3])),
-        v * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
-        v * (2 * (q[1] * q[2] + q[0] * q[3]))
-    ];
-}
-function GetPitch(q) {
-    var forward = GetYAxis(q, 1);
-    var ret = Math.asin(forward[2]);
-    if (isNaN(ret)) {
-        return Math.PI / 2 * Math.sign(forward[2]);
-    }
-    return ret;
-}
-function GetYaw(q) {
-    // We use right because up may be zero in xy
-    var right = GetXAxis(q, 1);
-    return Math.atan2(right[1], right[0]);
-}
-function QuatMul(a, b) {
-    return [
-        a[3] * b[0] + b[3] * a[0] + a[1] * b[2] - a[2] * b[1],
-        a[3] * b[1] + b[3] * a[0] + a[2] * b[3] - a[3] * b[2],
-        a[3] * b[2] + b[3] * a[0] + a[3] * b[1] - a[1] * b[3],
-        a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
-    ];
-}
-function QuatYAxis(q, l) {
-    return [
-        l * (2 * (q[1] * q[0] - q[2] * q[3])),
-        l * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
-        l * (2 * (q[1] * q[2] + q[0] * q[3]))
-    ];
-}
-function cross(a, b) {
-    return [
-        a[1] * b[2] - b[1] * a[2],
-        a[2] * b[0] - b[2] * a[0],
-        a[0] * b[1] - b[0] * a[1]
-    ];
-}
-function vecAdd(a, b) {
-    var ret = [];
-    for (var i = 0; i < a.length && i < b.length; ++i) {
-        ret.push(a[i] + b[i]);
-    }
-    return ret;
-}
-function vecSub(a, b) {
-    var ret = [];
-    for (var i = 0; i < a.length && i < b.length; ++i) {
-        ret.push(a[i] - b[i]);
-    }
-    return ret;
-}
-function vecMul(a, s) {
-    return a.map(function (e) { return e * s; });
-}
-function QuatApply(q, v) {
-    var u = [q[0], q[1], q[2]];
-    var crossUV = cross(u, v);
-    var ret = vecAdd(v, vecMul((vecAdd(vecMul(crossUV, q[3]), cross(u, crossUV))), 2));
-    return ret;
-}
-function dot(a, b) {
-    var ret = 0;
-    for (var i = 0; i < a.length && i < b.length; ++i)
-        ret += a[i] * b[i];
-    return ret;
-}
-function mag(v) {
-    var ret = Math.sqrt(v.reduce(function (p, e) { return p + e * e; }, 0));
-    return ret;
-}
-function normalize(v) {
-    var vMag = mag(v);
-    var ret = v.map(function (e) { return e / vMag; });
-    return ret;
-}
-function intersectRayOnPlane(planeNormal, laserStart, laserDirection, alignPoint) {
-    var denom = dot(laserDirection, planeNormal);
-    if (denom == 0.0)
-        return null;
-    var t = (dot(vecSub(alignPoint, laserStart), planeNormal)) / denom;
-    if (t < 0.0)
-        return null;
-    var ret = vecAdd(laserStart, vecMul(laserDirection, t));
-    return ret;
-}
-function radsToDegs(rads) {
-    var ret = rads / Math.PI * 180;
-    return ret;
-}
