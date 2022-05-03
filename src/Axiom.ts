@@ -6,7 +6,7 @@ const enum ControlMode {
   Wall
 };
 
-const basePath = "C:\\Users\\davidw\\Downloads\\GIS CAPABILITY WORKSHOP 06 - TerraExplorer\\"
+const basePath = "D:\\Work\\ADF"
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -442,7 +442,9 @@ class Laser {
 }
 
 function roomToWorldCoordEx(position: IPosition) {
-  return SGWorld.SetParamEx(9014, position) as IPosition;
+  const pos = SGWorld.SetParamEx(9014, position) as IPosition;
+  // bug? got a object mismatch using this postion when se on an object
+  return SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, pos.AltitudeType);
 }
 function worldToRoomCoordEx(position: IPosition) {
   return SGWorld.SetParamEx(9013, position) as IPosition;

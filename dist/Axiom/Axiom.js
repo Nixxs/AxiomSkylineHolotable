@@ -1,6 +1,6 @@
 "use strict";
 ;
-var basePath = "C:\\Users\\davidw\\Downloads\\GIS CAPABILITY WORKSHOP 06 - TerraExplorer\\";
+var basePath = "D:\\Work\\ADF";
 // unc path of model
 var gControlMode = 1 /* Table */;
 ;
@@ -391,7 +391,9 @@ var Laser = /** @class */ (function () {
     return Laser;
 }());
 function roomToWorldCoordEx(position) {
-    return SGWorld.SetParamEx(9014, position);
+    var pos = SGWorld.SetParamEx(9014, position);
+    // bug? got a object mismatch using this postion when se on an object
+    return SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, pos.AltitudeType);
 }
 function worldToRoomCoordEx(position) {
     return SGWorld.SetParamEx(9013, position);
