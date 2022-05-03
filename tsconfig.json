@@ -8,8 +8,8 @@
   "compilerOptions": {
     "strict": true,
     "allowJs": true,
-    "outDir": "Axiom",
-    "target": "ES3",
-    "module": "None"
+    "outFile": "dist/Axiom/axiom.js",
+    "target": "ES5",
+    "module": "AMD"
   }
 }

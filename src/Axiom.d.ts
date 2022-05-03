@@ -1,3 +1,6 @@
+
+/* cSpell:disable */
+
 interface IPosition {
   Altitude: number;
   AltitudeType: 0 | 1 | 2 | 3 | 4;

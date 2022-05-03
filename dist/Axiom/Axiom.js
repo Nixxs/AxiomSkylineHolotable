@@ -1,5 +1,7 @@
 "use strict";
 ;
+var basePath = "C:\\Users\\davidw\\Downloads\\GIS CAPABILITY WORKSHOP 06 - TerraExplorer\\";
+// unc path of model
 var gControlMode = 1 /* Table */;
 ;
 var UserModeManager = /** @class */ (function () {
@@ -51,25 +53,25 @@ var UserModeManager = /** @class */ (function () {
             this.userMode = 0 /* Standard */;
         }
         else {
-            var modelPath = "model/HowitzerWithRangeIndicator.xpl2";
+            var modelPath = basePath + "model/HowitzerWithRangeIndicator.xpl2";
             var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
             pos.Pitch = 0;
-            console.log("creating model");
-            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HotwitzerRange model").ID;
+            console.log("creating model:: " + modelPath);
+            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HowitzerRange model").ID;
             this.userMode = 3 /* PlaceModel */;
         }
     };
-    UserModeManager.prototype.toggleModelModeArtillary = function () {
+    UserModeManager.prototype.toggleModelModeArtillery = function () {
         if (this.userMode == 3 /* PlaceModel */) {
             console.log("end model mode");
             this.userMode = 0 /* Standard */;
         }
         else {
-            var modelPath = "model/Support by Fire.xpl2";
+            var modelPath = basePath + "axiom/model/Support by Fire.xpl2";
             var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
             pos.Pitch = 0;
-            console.log("creating model");
-            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Hotwitzer model").ID;
+            console.log("creating model:: " + modelPath);
+            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Howitzer model").ID;
             this.userMode = 3 /* PlaceModel */;
         }
     };
@@ -84,23 +86,23 @@ var UserModeManager = /** @class */ (function () {
     };
     UserModeManager.prototype.dropRangeRing = function () {
         console.log("dropRangeRing");
-        var linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
-        var fillcolor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
+        var lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
+        var fillColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
         var pos = this.laser.collision.hitPoint.Copy();
         var objNamePrefix = pos.X + "long" + pos.Y + "lat" + pos.Altitude + "mAlt_";
         //create centre circle
         var centerFillColour = SGWorld.Creator.CreateColor(0, 0, 0, 255);
-        SGWorld.Creator.CreateCircle(pos, 500, linecolor, centerFillColour, "", "Centre Range Ring");
+        SGWorld.Creator.CreateCircle(pos, 500, fillColor, centerFillColour, "", "Centre Range Ring");
         for (var i = 1; i <= this.numRings; i++) {
             var radius = this.spacing * i;
             var itemName = objNamePrefix + "RangeRing" + radius + "m";
             if (radius >= 25000) {
-                linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
+                lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
             }
             else {
-                linecolor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
+                lineColor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
             }
-            var circle = SGWorld.Creator.CreateCircle(pos, radius, linecolor, fillcolor, "", itemName);
+            var circle = SGWorld.Creator.CreateCircle(pos, radius, lineColor, fillColor, "", itemName);
             circle.NumberOfSegments = 50;
             var newPos = pos.Move(radius, 270, 0);
             SGWorld.Creator.CreateTextLabel(newPos, radius + "m", this.labelStyle, "", itemName);
@@ -467,7 +469,7 @@ var DebugBox = /** @class */ (function () {
         var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 20.0;
         if (this.ID == undefined) {
             var box = SGWorld.Creator.CreateBox(roomCenterInWorldCoordinates, boxSize, boxSize, boxSize * 1.5, 0xFFFFFFFF, 0xFFFFFFFF, SGWorld.ProjectTree.NotInTreeID, "Box");
-            box.SetParam(200, 0x2); // Makes the objectwithout z write so no other object can obfuscate it.
+            box.SetParam(200, 0x2); // Makes the object without z write so no other object can obfuscate it.
             this.ID = box.ID;
         }
         else {
@@ -677,17 +679,18 @@ var DesktopInputManager = /** @class */ (function () {
 var ProgramManager = /** @class */ (function () {
     //debugBox: DebugBox;
     function ProgramManager() {
+        var _this = this;
         this.mode = 0 /* Unknown */;
         this.modeTimer = 0;
         this.buttons = [];
         this.laser = new Laser();
         this.userModeManager = new UserModeManager(this.laser);
-        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", this.userModeManager.jumpToSydney));
-        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", this.userModeManager.toggleMeasurementMode));
-        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", this.userModeManager.toggleRangeRingMode));
-        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", this.userModeManager.jumpToWhyalla));
-        this.buttons.push(new Button("Artillary", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeartillery.png", this.userModeManager.toggleModelModeArtillary));
-        this.buttons.push(new Button("ArtillaryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeartilleryrange.png", this.userModeManager.toggleModelModeArtRange));
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", function () { return _this.userModeManager.jumpToSydney(); }));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", function () { return _this.userModeManager.toggleMeasurementMode(); }));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", function () { return _this.userModeManager.toggleRangeRingMode(); }));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", function () { return _this.userModeManager.jumpToWhyalla(); }));
+        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeArtillery.png", function () { return _this.userModeManager.toggleModelModeArtillery(); }));
+        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeArtilleryRange.png", function () { return _this.userModeManager.toggleModelModeArtRange(); }));
         //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
     }
     ProgramManager.prototype.getMode = function () { return this.mode; };
@@ -828,7 +831,7 @@ var ProgramManager = /** @class */ (function () {
                     if (getProgramManager().getMode() == 2 /* Table */) {
                         Update();
                         Draw();
-                        debugHandleRefreshGestur();
+                        debugHandleRefreshGesture();
                     }
                 }
             });
@@ -889,3 +892,180 @@ var ProgramManager = /** @class */ (function () {
     }
     window.addEventListener("load", Init);
 })();
+var debug = {
+    info: undefined,
+    stacktrace: function stacktrace(f) {
+        var args = [];
+        if (f) {
+            if (f.arguments)
+                for (var i = 0; i < f.arguments.length; i++) {
+                    args.push(f.arguments[i]);
+                }
+            var function_name = f.toString().split('(')[0].substring(9);
+            if (f == f.caller)
+                return "[recursive] " + function_name + '(' + args.join(', ') + ')' + "\n";
+            return debug.stacktrace(f.caller) + function_name + '(' + args.join(', ') + ')' + "\n";
+        }
+        else {
+            return "";
+        }
+    },
+    test: function test(i) {
+        if (i <= 1)
+            console.log(debug.stacktrace(arguments.callee));
+        else
+            debug.test(i - 1);
+    }
+};
+function debugHandleRefreshGesture() {
+    // Point the wand directly up for 2 sec to refresh page
+    if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGesture.timer == undefined) {
+        debugHandleRefreshGesture.timer = setTimeout(function () {
+            window.location.reload();
+        }, 2000);
+    }
+    else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGesture.timer) {
+        clearTimeout(debugHandleRefreshGesture.timer);
+        debugHandleRefreshGesture.timer = undefined;
+    }
+}
+debugHandleRefreshGesture.timer = undefined;
+// interactive debug console
+var console = {
+    log: function (str) {
+        var el = document.getElementById("consoleOutput");
+        var wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
+        el.textContent += str + "\n";
+        if (wasNearBottom)
+            el.scrollTop = el.scrollHeight - el.clientHeight;
+    }
+};
+function runConsole() {
+    var input = document.getElementById("consoleInput").value;
+    console.log("> " + input);
+    try {
+        console.log("= " + String(eval.call(window, input)));
+    }
+    catch (e) {
+        console.log("! " + String(e));
+    }
+    document.getElementById("consoleInput").value = "";
+}
+function YPRToQuat(yRad, pRad, rRad) {
+    var r = [0, 0, 0, 1];
+    var cy = Math.cos(yRad / 2.0); // cos(Yaw)
+    var sy = Math.sin(yRad / 2.0); // sin(Yaw)
+    var cp = Math.cos(pRad / 2.0); // cos(Pitch)
+    var sp = Math.sin(pRad / 2.0); // sin(Pitch)
+    var cr = Math.cos(rRad / 2.0); // cos(Roll)
+    var sr = Math.sin(rRad / 2.0); // sin(Roll)
+    r[0] = cy * sp * cr - sy * cp * sr;
+    r[1] = cy * cp * sr + sy * sp * cr;
+    r[2] = cy * sp * sr + sy * cp * cr;
+    r[3] = cy * cp * cr - sy * sp * sr;
+    return r;
+}
+function QuatConjugate(q) {
+    return [-q[0], -q[1], -q[2], q[3]];
+}
+function GetXAxis(q, v) {
+    return [
+        v * (q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]),
+        v * (2 * (q[0] * q[1] + q[2] * q[3])),
+        v * (2 * (q[0] * q[2] - q[1] * q[3]))
+    ];
+}
+function GetYAxis(q, v) {
+    return [
+        v * (2 * (q[1] * q[0] - q[2] * q[3])),
+        v * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
+        v * (2 * (q[1] * q[2] + q[0] * q[3]))
+    ];
+}
+function GetPitch(q) {
+    var forward = GetYAxis(q, 1);
+    var ret = Math.asin(forward[2]);
+    if (isNaN(ret)) {
+        return Math.PI / 2 * Math.sign(forward[2]);
+    }
+    return ret;
+}
+function GetYaw(q) {
+    // We use right because up may be zero in xy
+    var right = GetXAxis(q, 1);
+    return Math.atan2(right[1], right[0]);
+}
+function QuatMul(a, b) {
+    return [
+        a[3] * b[0] + b[3] * a[0] + a[1] * b[2] - a[2] * b[1],
+        a[3] * b[1] + b[3] * a[0] + a[2] * b[3] - a[3] * b[2],
+        a[3] * b[2] + b[3] * a[0] + a[3] * b[1] - a[1] * b[3],
+        a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
+    ];
+}
+function QuatYAxis(q, l) {
+    return [
+        l * (2 * (q[1] * q[0] - q[2] * q[3])),
+        l * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
+        l * (2 * (q[1] * q[2] + q[0] * q[3]))
+    ];
+}
+function cross(a, b) {
+    return [
+        a[1] * b[2] - b[1] * a[2],
+        a[2] * b[0] - b[2] * a[0],
+        a[0] * b[1] - b[0] * a[1]
+    ];
+}
+function vecAdd(a, b) {
+    var ret = [];
+    for (var i = 0; i < a.length && i < b.length; ++i) {
+        ret.push(a[i] + b[i]);
+    }
+    return ret;
+}
+function vecSub(a, b) {
+    var ret = [];
+    for (var i = 0; i < a.length && i < b.length; ++i) {
+        ret.push(a[i] - b[i]);
+    }
+    return ret;
+}
+function vecMul(a, s) {
+    return a.map(function (e) { return e * s; });
+}
+function QuatApply(q, v) {
+    var u = [q[0], q[1], q[2]];
+    var crossUV = cross(u, v);
+    var ret = vecAdd(v, vecMul((vecAdd(vecMul(crossUV, q[3]), cross(u, crossUV))), 2));
+    return ret;
+}
+function dot(a, b) {
+    var ret = 0;
+    for (var i = 0; i < a.length && i < b.length; ++i)
+        ret += a[i] * b[i];
+    return ret;
+}
+function mag(v) {
+    var ret = Math.sqrt(v.reduce(function (p, e) { return p + e * e; }, 0));
+    return ret;
+}
+function normalize(v) {
+    var vMag = mag(v);
+    var ret = v.map(function (e) { return e / vMag; });
+    return ret;
+}
+function intersectRayOnPlane(planeNormal, laserStart, laserDirection, alignPoint) {
+    var denom = dot(laserDirection, planeNormal);
+    if (denom == 0.0)
+        return null;
+    var t = (dot(vecSub(alignPoint, laserStart), planeNormal)) / denom;
+    if (t < 0.0)
+        return null;
+    var ret = vecAdd(laserStart, vecMul(laserDirection, t));
+    return ret;
+}
+function radsToDegs(rads) {
+    var ret = rads / Math.PI * 180;
+    return ret;
+}

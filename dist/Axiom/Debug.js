@@ -24,19 +24,19 @@ var debug = {
             debug.test(i - 1);
     }
 };
-function debugHandleRefreshGestur() {
+function debugHandleRefreshGesture() {
     // Point the wand directly up for 2 sec to refresh page
-    if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGestur.timer == undefined) {
-        debugHandleRefreshGestur.timer = setTimeout(function () {
+    if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGesture.timer == undefined) {
+        debugHandleRefreshGesture.timer = setTimeout(function () {
             window.location.reload();
         }, 2000);
     }
-    else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGestur.timer) {
-        clearTimeout(debugHandleRefreshGestur.timer);
-        debugHandleRefreshGestur.timer = undefined;
+    else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGesture.timer) {
+        clearTimeout(debugHandleRefreshGesture.timer);
+        debugHandleRefreshGesture.timer = undefined;
     }
 }
-debugHandleRefreshGestur.timer = undefined;
+debugHandleRefreshGesture.timer = undefined;
 // interactive debug console
 var console = {
     log: function (str) {
