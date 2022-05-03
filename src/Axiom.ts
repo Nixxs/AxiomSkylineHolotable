@@ -6,6 +6,9 @@ const enum ControlMode {
   Wall
 };
 
+const basePath = "C:\\Users\\davidw\\Downloads\\GIS CAPABILITY WORKSHOP 06 - TerraExplorer\\"
+// unc path of model
+
 const gControlMode: ControlMode = ControlMode.Table;
 
 const enum UserMode {
@@ -67,26 +70,26 @@ class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = "model/HowitzerWithRangeIndicator.xpl2";
+      const modelPath = basePath + "model/HowitzerWithRangeIndicator.xpl2";
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
-      console.log("creating model");
-      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HotwitzerRange model").ID;
+      console.log("creating model:: " + modelPath);
+      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HowitzerRange model").ID;
 
       this.userMode = UserMode.PlaceModel;
     }
   }
 
-  toggleModelModeArtillary() {
+  toggleModelModeArtillery() {
     if (this.userMode == UserMode.PlaceModel) {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = "model/Support by Fire.xpl2";
+      const modelPath = basePath +  "axiom/model/Support by Fire.xpl2";
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
-      console.log("creating model");
-      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Hotwitzer model").ID;
+      console.log("creating model:: " + modelPath);
+      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Howitzer model").ID;
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -105,24 +108,24 @@ class UserModeManager {
 
   dropRangeRing() {
     console.log("dropRangeRing");
-    let linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
-    const fillcolor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
+    let lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
+    const fillColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
     const pos = this.laser.collision!.hitPoint.Copy();
     const objNamePrefix = pos.X + "long" + pos.Y + "lat" + pos.Altitude + "mAlt_";
 
     //create centre circle
     var centerFillColour = SGWorld.Creator.CreateColor(0, 0, 0, 255);
-    SGWorld.Creator.CreateCircle(pos, 500, linecolor, centerFillColour, "", "Centre Range Ring");
+    SGWorld.Creator.CreateCircle(pos, 500, fillColor, centerFillColour, "", "Centre Range Ring");
 
     for (var i = 1; i <= this.numRings; i++) {
       const radius = this.spacing * i
       const itemName = objNamePrefix + "RangeRing" + radius + "m";
       if (radius >= 25000) {
-        linecolor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
+        lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
       } else {
-        linecolor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
+        lineColor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
       }
-      const circle = SGWorld.Creator.CreateCircle(pos, radius, linecolor, fillcolor, "", itemName);
+      const circle = SGWorld.Creator.CreateCircle(pos, radius, lineColor, fillColor, "", itemName);
       circle.NumberOfSegments = 50;
 
       const newPos = pos.Move(radius, 270, 0);
@@ -383,7 +386,7 @@ class Sphere {
 class Laser {
   ray: Ray = new Ray();
   tip: Sphere = new Sphere();
-
+  
   collision?: {
     originPoint: IPosition,
     hitPoint: IPosition,
@@ -520,7 +523,7 @@ class DebugBox {
     var boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 20.0;
     if (this.ID == undefined) {
       var box = SGWorld.Creator.CreateBox(roomCenterInWorldCoordinates, boxSize, boxSize, boxSize * 1.5, 0xFFFFFFFF, 0xFFFFFFFF, SGWorld.ProjectTree.NotInTreeID, "Box");
-      box.SetParam(200, 0x2);  // Makes the objectwithout z write so no other object can obfuscate it.
+      box.SetParam(200, 0x2);  // Makes the object without z write so no other object can obfuscate it.
       this.ID = box.ID;
     }
     else {
@@ -803,12 +806,12 @@ class ProgramManager {
   constructor() {
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", this.userModeManager.jumpToSydney));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", this.userModeManager.toggleMeasurementMode));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", this.userModeManager.toggleRangeRingMode));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", this.userModeManager.jumpToWhyalla));
-    this.buttons.push(new Button("Artillary", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeartillery.png", this.userModeManager.toggleModelModeArtillary));
-    this.buttons.push(new Button("ArtillaryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeartilleryrange.png", this.userModeManager.toggleModelModeArtRange));
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", () => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeArtillery.png", () => this.userModeManager.toggleModelModeArtillery()));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeArtilleryRange.png", () => this.userModeManager.toggleModelModeArtRange()));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
@@ -930,7 +933,7 @@ class ProgramManager {
           if (getProgramManager().getMode() == ProgramMode.Table) {
             Update();
             Draw();
-            debugHandleRefreshGestur();
+            debugHandleRefreshGesture();
           }
         }
       });
