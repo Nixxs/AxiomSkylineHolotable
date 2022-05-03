@@ -6,7 +6,7 @@ const enum ControlMode {
   Wall
 };
 
-const basePath = "D:\\Work\\ADF"
+const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/"
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -442,9 +442,10 @@ class Laser {
 }
 
 function roomToWorldCoordEx(position: IPosition) {
-  const pos = SGWorld.SetParamEx(9014, position) as IPosition;
+  let pos = SGWorld.SetParamEx(9014, position) as IPosition;
   // bug? got a object mismatch using this postion when se on an object
-  return SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, pos.AltitudeType);
+  pos = SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
+  return pos;
 }
 function worldToRoomCoordEx(position: IPosition) {
   return SGWorld.SetParamEx(9013, position) as IPosition;
@@ -636,12 +637,15 @@ function tableMode() {
   const wandPos = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
   const wandDir = QuatYAxis(wandOri, 1);
 
+
   if (table.isDragging) {
     var planeNormal = [0, 0, 1];
     var planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
 
     var newIntersect = planeCollisionPoint;
     var deadzone = 1;
+    console.log(table.firstIntersect);
+    console.log(newIntersect);
     var pan = vecSub(table.firstIntersect, newIntersect);
     if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
       // Scale
@@ -808,12 +812,12 @@ class ProgramManager {
   constructor() {
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), "img/sydney.png", () => this.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), "img/measurement.png", () => this.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), "img/rangefinder.png", () => this.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), "img/whyalla.png", () => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), "img/placeArtillery.png", () => this.userModeManager.toggleModelModeArtillery()));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), "img/placeArtilleryRange.png", () => this.userModeManager.toggleModelModeArtRange()));
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath +"img/measurement.png", () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath +"img/rangefinder.png", () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath +"img/whyalla.png", () => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", () => this.userModeManager.toggleModelModeArtillery()));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png", () => this.userModeManager.toggleModelModeArtRange()));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
@@ -870,8 +874,9 @@ class ProgramManager {
       case ProgramMode.Table:
         ControllerReader.Update();  // Read controllers info
         this.laser.UpdateTable(this.getCursorPosition()!);
-        for (let button of this.buttons)
+        for (let button of this.buttons) {
           this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
+        }
         this.userModeManager.Update();
         break;
       case ProgramMode.Desktop:
