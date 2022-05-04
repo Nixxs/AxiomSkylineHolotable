@@ -1,5 +1,4 @@
 declare var SGWorld: ISGWorld;
-
 const enum ControlMode {
   Wand,
   Table,
@@ -7,7 +6,7 @@ const enum ControlMode {
 };
 
 const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
-var selectedModel = undefined;
+var selectedModel: string = ""; // id of selected model
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -26,7 +25,7 @@ class UserModeManager {
   private measurementModeFirstPoint: IPosition | null = null;
   private measurementModeLineID: string | null = null;
   private measurementTextLabelID: string | null = null;
-  private rangeID: string | null = null;
+  private currentId: string | null = null;
   private measurementLineWidth = 3;
   private measurementLineColor: IColor;
   private decimalPlaces = 3;
@@ -76,7 +75,7 @@ class UserModeManager {
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HowitzerRange model").ID;
+      this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HowitzerRange model").ID;
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -91,7 +90,7 @@ class UserModeManager {
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Howitzer model").ID;
+      this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Howitzer model").ID;
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -102,13 +101,13 @@ class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = basePath +  `axiom/model/${modelName}.xpl2`;
+      const modelPath = basePath +  `model/${modelName}.xpl2`;
       var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
-      this.modelIds.push(this.rangeID)
-
+      this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+      this.modelIds.push(this.currentId)
+      selectedModel = this.currentId;
       this.userMode = UserMode.PlaceModel;
     }
   }
@@ -157,8 +156,11 @@ class UserModeManager {
   }
 
   scaleModel(scaleVector: number): void {
-   if(this.modelIds.length === 0) return;
-   
+    if (!selectedModel) {
+      console.log("scaleModel:: no model selected.")
+    };
+    const model = SGWorld.Creator.GetObject(selectedModel) as ITerrainModel;
+    model.ScaleFactor = model.ScaleFactor += scaleVector;
   }
 
   Update(button1pressed:boolean) {
@@ -247,13 +249,13 @@ class UserModeManager {
             newModelPosition.Pitch = 0;
             newModelPosition.Yaw = newModelPosition.Roll * 2;
             newModelPosition.Roll = 0;
-            const modelObject = SGWorld.Creator.GetObject(this.rangeID!) as ITerrainModel;
+            const modelObject = SGWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
           }
         }
         break;
     }
-  }
+  } 
 }
 
 interface ControllerInfo {
@@ -658,11 +660,13 @@ function selectMode(laser: Laser, button1pressed: boolean) {
   if ((laser.collision != undefined) && button1pressed){
     var objectIDOfSelectedModel = laser.collision.objectID;
     console.log("selecting model: ", objectIDOfSelectedModel);
-    selectedModel = objectIDOfSelectedModel;
+    if(objectIDOfSelectedModel){
+      selectedModel = objectIDOfSelectedModel;
+    }
   // if the laser is not colliding with something and the button is pressed update the selection to undefined
   } else if((laser.collision == undefined) && button1pressed){
     console.log("deselecting model");
-    selectedModel = undefined;
+    selectedModel = "";
   }
 }
 
@@ -853,14 +857,10 @@ class ProgramManager {
   constructor() {
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
-    let groupId = "";
-    groupId = SGWorld.ProjectTree.FindItem("buttons");
-    if (groupId) {
-      SGWorld.ProjectTree.DeleteItem(groupId);
-    }
-    groupId = SGWorld.ProjectTree.CreateGroup("buttons");
 
-    // 0.45 X is about the last spot we can fit a button
+    const groupId = this.getButtonsGroup();
+
+    // the table has an origin at the top centre of the table. minX = 0.6 maxX = 1.2. minY = 0 maxY = -1.2
     this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
     this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath +"img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
     this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath +"img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
@@ -868,9 +868,19 @@ class ProgramManager {
     this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
     this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
     
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(+1)));
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.24, -2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(-1)));
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(+1)));
+    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(-1)));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
+  }
+
+  getButtonsGroup(){
+    let groupId = "";
+    groupId = SGWorld.ProjectTree.FindItem("buttons");
+    if (groupId) {
+      SGWorld.ProjectTree.DeleteItem(groupId);
+    }
+    groupId = SGWorld.ProjectTree.CreateGroup("buttons");
+    return groupId;
   }
 
   getButton1Pressed() {
@@ -955,6 +965,7 @@ class ProgramManager {
     }
   }
 }
+
 
 (() => {
   let programManager: ProgramManager | undefined;
