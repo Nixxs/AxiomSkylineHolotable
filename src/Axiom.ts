@@ -6,7 +6,8 @@ const enum ControlMode {
   Wall
 };
 
-const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/"
+const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+var selectedModel = undefined;
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -138,12 +139,13 @@ class UserModeManager {
     }
   }
 
-  Update() {
+  Update(button1pressed:boolean) {
     switch (this.userMode) {
       case UserMode.Standard:
         switch (gControlMode) {
           case ControlMode.Table:
             tableMode();
+            selectMode(this.laser, button1pressed);
             break;
           case ControlMode.Wall:
             wallMode(this.laser!);
@@ -631,6 +633,20 @@ function MaxZoom() {
   return ret;
 }
 
+// sets the selection whenever the user presses a button on the on a valid model or collision object
+function selectMode(laser: Laser, button1pressed: boolean) {
+  // if laser has collided with something and the button is pressed set the selection to the objectID
+  if ((laser.collision != undefined) && button1pressed){
+    var objectIDOfSelectedModel = laser.collision.objectID;
+    console.log("selecting model: ", objectIDOfSelectedModel);
+    selectedModel = objectIDOfSelectedModel;
+  // if the laser is not colliding with something and the button is pressed update the selection to undefined
+  } else if((laser.collision == undefined) && button1pressed){
+    console.log("deselecting model");
+    selectedModel = undefined;
+  }
+}
+
 function tableMode() {
   const table = tableMode;
   if (table.isDragging && !ControllerReader.controllerInfo?.trigger) {
@@ -890,7 +906,7 @@ class ProgramManager {
         for (let button of this.buttons) {
           this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
         }
-        this.userModeManager.Update();
+        this.userModeManager.Update(this.getButton1Pressed());
         break;
       case ProgramMode.Desktop:
         this.laser.UpdateDesktop();

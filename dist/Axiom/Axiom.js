@@ -1,6 +1,7 @@
 "use strict";
 ;
 var basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+var selectedModel = undefined;
 // unc path of model
 var gControlMode = 1 /* Table */;
 ;
@@ -108,13 +109,14 @@ var UserModeManager = /** @class */ (function () {
             SGWorld.Creator.CreateTextLabel(newPos, radius + "m", this.labelStyle, "", itemName);
         }
     };
-    UserModeManager.prototype.Update = function () {
+    UserModeManager.prototype.Update = function (button1pressed) {
         var _a, _b, _c, _d;
         switch (this.userMode) {
             case 0 /* Standard */:
                 switch (gControlMode) {
                     case 1 /* Table */:
                         tableMode();
+                        selectMode(this.laser, button1pressed);
                         break;
                     case 2 /* Wall */:
                         wallMode(this.laser);
@@ -555,6 +557,20 @@ function MaxZoom() {
     var ret = 99999999999;
     return ret;
 }
+// sets the selection whenever the user presses a button on the on a valid model or collision object
+function selectMode(laser, button1pressed) {
+    // if laser has collided with something and the button is pressed set the selection to the objectID
+    if ((laser.collision != undefined) && button1pressed) {
+        var objectIDOfSelectedModel = laser.collision.objectID;
+        console.log("selecting model: ", objectIDOfSelectedModel);
+        selectedModel = objectIDOfSelectedModel;
+        // if the laser is not colliding with something and the button is pressed update the selection to undefined
+    }
+    else if ((laser.collision == undefined) && button1pressed) {
+        console.log("deselecting model");
+        selectedModel = undefined;
+    }
+}
 function tableMode() {
     var _a, _b;
     var table = tableMode;
@@ -780,7 +796,7 @@ var ProgramManager = /** @class */ (function () {
                     var button = _a[_i];
                     this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision.objectID));
                 }
-                this.userModeManager.Update();
+                this.userModeManager.Update(this.getButton1Pressed());
                 break;
             case 1 /* Desktop */:
                 this.laser.UpdateDesktop();
