@@ -21,7 +21,7 @@ const enum UserMode {
 };
 
 class UserModeManager {
-  private userMode = UserMode.Standard;
+  public userMode = UserMode.Standard;
   private spacing = 5000;
   private numRings = 5;
   private measurementModeFirstPoint: IPosition | null = null;
@@ -66,36 +66,6 @@ class UserModeManager {
     this.measurementModeLineID = null;
     this.measurementTextLabelID = null;
     this.measurementModeFirstPoint = null;
-  }
-
-  toggleModelModeArtRange() {
-    if (this.userMode == UserMode.PlaceModel) {
-      console.log("end model mode");
-      this.userMode = UserMode.Standard;
-    } else {
-      const modelPath = basePath + "model/HowitzerWithRangeIndicator.xpl2";
-      var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
-      pos.Pitch = 0;
-      console.log("creating model:: " + modelPath);
-      this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "HowitzerRange model").ID;
-
-      this.userMode = UserMode.PlaceModel;
-    }
-  }
-
-  toggleModelModeArtillery() {
-    if (this.userMode == UserMode.PlaceModel) {
-      console.log("end model mode");
-      this.userMode = UserMode.Standard;
-    } else {
-      const modelPath = basePath +  "axiom/model/Support by Fire.xpl2";
-      var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
-      pos.Pitch = 0;
-      console.log("creating model:: " + modelPath);
-      this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", "Howitzer model").ID;
-
-      this.userMode = UserMode.PlaceModel;
-    }
   }
 
   toggleModelMode(modelName: string) {
@@ -172,12 +142,32 @@ class UserModeManager {
   }
 
   scaleModel(scaleVector: number): void {
-    if (!programManager.currentlySelected ) {
-      console.log("scaleModel:: no model selected.")
-    };
+    if(!this.hasSelected()) return;
     const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
     model.ScaleFactor = model.ScaleFactor += scaleVector;
   }
+
+  deleteModel(): void {
+    if(!this.hasSelected()) return;
+    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
+    SGWorld.Creator.DeleteObject(programManager.currentlySelected)
+  }
+
+  undo(): void {
+    console.log("undo")
+    SGWorld.Command.Execute(2345)
+  }
+
+  private hasSelected(): boolean{
+    if (!programManager.currentlySelected ) {
+      console.log("scaleModel:: no model selected.");
+      return false;
+    };
+    return true;
+  }
+
+ 
+  
 
   Update(button1pressed:boolean) {
     switch (this.userMode) {
@@ -902,8 +892,18 @@ class ProgramManager {
     this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
     this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
     
+    // scale models
     this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(+1)));
     this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(-1)));
+    
+    // delete selected model
+    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.deleteModel()));
+    
+
+    // undo
+    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.undo()));
+    
+    
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
@@ -971,7 +971,9 @@ class ProgramManager {
         ControllerReader.Update();  // Read controllers info
         this.laser.UpdateTable(this.getCursorPosition()!);
         for (let button of this.buttons) {
-          this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
+          if( this.userModeManager.userMode == UserMode.Standard) { // don't let user press if in place/measure mode
+            this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
+          }
         }
         this.userModeManager.Update(this.getButton1Pressed());
         break;
@@ -1039,6 +1041,10 @@ class ProgramManager {
             debugHandleRefreshGesture();
           }
         }
+      });
+
+      SGWorld.AttachEvent("OnCommandExecuted", (CommandID: string, parameters: any) => {
+        console.log(CommandID + " " + JSON.stringify(parameters))
       });
       setComClientForcedInputMode();
     } catch (e) {
