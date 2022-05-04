@@ -96,6 +96,21 @@ class UserModeManager {
     }
   }
 
+  toggleModelMode(modelName: string) {
+    if (this.userMode == UserMode.PlaceModel) {
+      console.log("end model mode");
+      this.userMode = UserMode.Standard;
+    } else {
+      const modelPath = basePath +  `axiom/model/${modelName}.xpl2`;
+      var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy()
+      pos.Pitch = 0;
+      console.log("creating model:: " + modelPath);
+      this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+
+      this.userMode = UserMode.PlaceModel;
+    }
+  }
+
   setStandardMode() {
     this.userMode = UserMode.Standard;
   }
@@ -328,21 +343,18 @@ class Button {
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
       // const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
-      // const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, "test model");
-      const obj = SGWorld.Creator.CreateModel(pos, basePath + `/model/Ambush.xpl2`, 1, 0, this.groupID, "test model");
+     const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, "test model");
+    //  const obj = SGWorld.Creator.CreateModel(pos, basePath + `/model/Ambush.xpl2`, 1, 0, this.groupID, "test model");
       this.ID = obj.ID;
       // obj.FillStyle.Texture.FileName = this.textureName;
       return;
     }
     // Move the button to be in the right spot
-    const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 10.0;
+    const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
     let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
     obj.Position = pos;
-    // obj.ScaleFactor = boxSize * 5000  ;
-     obj.ScaleFactor = boxSize / 100;
-   // obj.Width = boxSize;
-    // obj.Height = boxSize * 0.1;
-    // obj.Depth = boxSize;
+    obj.ScaleFactor = boxSize
+  
   }
 }
 
@@ -841,12 +853,13 @@ class ProgramManager {
     }
     groupId = SGWorld.ProjectTree.CreateGroup("buttons");
 
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath +"img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath +"img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath +"img/whyalla.png",  groupId,() => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelModeArtillery()));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelModeArtRange()));
+    // 0.45 X is about the last spot we can fit a button
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath +"img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath +"img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, -1.1, 0.7, 3), basePath +"img/whyalla.png",  groupId,() => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelModeArtillery()));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelModeArtRange()));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
