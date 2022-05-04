@@ -32,6 +32,7 @@ class UserModeManager {
   private decimalPlaces = 3;
   private measurementLabelStyle: ILabelStyle;
   private labelStyle = SGWorld.Creator.CreateLabelStyle(0);
+  public modelIds: string[] = [];
 
   constructor(private laser: Laser) {
     this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -106,6 +107,7 @@ class UserModeManager {
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
       this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+      this.modelIds.push(this.rangeID)
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -152,6 +154,11 @@ class UserModeManager {
         "",
         itemName);
     }
+  }
+
+  scaleModel(scaleVector: number): void {
+   if(this.modelIds.length === 0) return;
+   
   }
 
   Update(button1pressed:boolean) {
@@ -858,8 +865,11 @@ class ProgramManager {
     this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath +"img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
     this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath +"img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
     this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, -1.1, 0.7, 3), basePath +"img/whyalla.png",  groupId,() => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelModeArtillery()));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelModeArtRange()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
+    
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(+1)));
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.24, -2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.scaleModel(-1)));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
