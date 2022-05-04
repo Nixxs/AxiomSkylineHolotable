@@ -75,6 +75,20 @@ var UserModeManager = /** @class */ (function () {
             this.userMode = 3 /* PlaceModel */;
         }
     };
+    UserModeManager.prototype.toggleModelMode = function (modelName) {
+        if (this.userMode == 3 /* PlaceModel */) {
+            console.log("end model mode");
+            this.userMode = 0 /* Standard */;
+        }
+        else {
+            var modelPath = basePath + "axiom/model/".concat(modelName, ".xpl2");
+            var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
+            pos.Pitch = 0;
+            console.log("creating model:: " + modelPath);
+            this.rangeID = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+            this.userMode = 3 /* PlaceModel */;
+        }
+    };
     UserModeManager.prototype.setStandardMode = function () {
         this.userMode = 0 /* Standard */;
     };
@@ -278,21 +292,17 @@ var Button = /** @class */ (function () {
         var pos = roomToWorldCoord(this.roomPosition);
         if (this.ID === undefined) {
             // const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
-            // const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, "test model");
-            var obj_1 = SGWorld.Creator.CreateModel(pos, basePath + "/model/Ambush.xpl2", 1, 0, this.groupID, "test model");
+            var obj_1 = SGWorld.Creator.CreateModel(pos, basePath + "/ui/Button_AddLine_Blue_42_Clear.obj", 1, 0, this.groupID, "test model");
+            //  const obj = SGWorld.Creator.CreateModel(pos, basePath + `/model/Ambush.xpl2`, 1, 0, this.groupID, "test model");
             this.ID = obj_1.ID;
             // obj.FillStyle.Texture.FileName = this.textureName;
             return;
         }
         // Move the button to be in the right spot
-        var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 10.0;
+        var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 12;
         var obj = SGWorld.Creator.GetObject(this.ID);
         obj.Position = pos;
-        // obj.ScaleFactor = boxSize * 5000  ;
-        obj.ScaleFactor = boxSize / 100;
-        // obj.Width = boxSize;
-        // obj.Height = boxSize * 0.1;
-        // obj.Depth = boxSize;
+        obj.ScaleFactor = boxSize;
     };
     return Button;
 }());
@@ -701,12 +711,13 @@ var ProgramManager = /** @class */ (function () {
             SGWorld.ProjectTree.DeleteItem(groupId);
         }
         groupId = SGWorld.ProjectTree.CreateGroup("buttons");
-        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
-        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath + "img/measurement.png", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
-        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath + "img/rangefinder.png", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
-        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath + "img/whyalla.png", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
-        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, function () { return _this.userModeManager.toggleModelModeArtillery(); }));
-        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, function () { return _this.userModeManager.toggleModelModeArtRange(); }));
+        // 0.45 X is about the last spot we can fit a button
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath + "img/measurement.png", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath + "img/rangefinder.png", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, -1.1, 0.7, 3), basePath + "img/whyalla.png", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
+        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, function () { return _this.userModeManager.toggleModelModeArtillery(); }));
+        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, function () { return _this.userModeManager.toggleModelModeArtRange(); }));
         //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
     }
     ProgramManager.prototype.getMode = function () { return this.mode; };
