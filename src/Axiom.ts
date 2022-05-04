@@ -298,7 +298,9 @@ class ControllerReader {
 
 class Button {
   ID?: string;
-  constructor(name: string, public roomPosition: IPosition, public textureName: string, public callback: () => void) {
+  constructor(name: string, public roomPosition: IPosition, public textureName: string, 
+    public groupID: string, 
+    public callback: () => void) {
     const newButton = document.createElement("button");
     const buttonIcon = document.createElement("img");
     buttonIcon.src = textureName;
@@ -323,18 +325,22 @@ class Button {
   Draw() {
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
-      const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
+      // const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
+      // const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, "test model");
+      const obj = SGWorld.Creator.CreateModel(pos, basePath + `/model/Ambush.xpl2`, 1, 0, this.groupID, "test model");
       this.ID = obj.ID;
-      obj.FillStyle.Texture.FileName = this.textureName;
+      // obj.FillStyle.Texture.FileName = this.textureName;
       return;
     }
     // Move the button to be in the right spot
     const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 10.0;
-    let obj: ITerrain3DRectBase | ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrain3DRectBase;
+    let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
     obj.Position = pos;
-    obj.Width = boxSize;
-    obj.Height = boxSize * 0.1;
-    obj.Depth = boxSize;
+    // obj.ScaleFactor = boxSize * 5000  ;
+     obj.ScaleFactor = boxSize / 100;
+   // obj.Width = boxSize;
+    // obj.Height = boxSize * 0.1;
+    // obj.Depth = boxSize;
   }
 }
 
@@ -443,7 +449,7 @@ class Laser {
 
 function roomToWorldCoordEx(position: IPosition) {
   let pos = SGWorld.SetParamEx(9014, position) as IPosition;
-  // bug? got a object mismatch using this postion when se on an object
+  // bug? got a object mismatch using this position when se on an object
   pos = SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
   return pos;
 }
@@ -812,12 +818,19 @@ class ProgramManager {
   constructor() {
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", () => this.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath +"img/measurement.png", () => this.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath +"img/rangefinder.png", () => this.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath +"img/whyalla.png", () => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", () => this.userModeManager.toggleModelModeArtillery()));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png", () => this.userModeManager.toggleModelModeArtRange()));
+    let groupId = "";
+    groupId = SGWorld.ProjectTree.FindItem("buttons");
+    if (groupId) {
+      SGWorld.ProjectTree.DeleteItem(groupId);
+    }
+    groupId = SGWorld.ProjectTree.CreateGroup("buttons");
+
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath +"img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath +"img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath +"img/whyalla.png",  groupId,() => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath +"img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelModeArtillery()));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.toggleModelModeArtRange()));
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
@@ -915,8 +928,12 @@ class ProgramManager {
   }
 
   function Init() {
-    try {
-      console.log("init");
+    try { 
+      console.log("init:: " + new Date(Date.now()).toISOString()); 
+      setTimeout(() => {
+        console.log("reload")
+        window.location.reload();
+      }, 10000);
       document.getElementById("consoleRun")?.addEventListener("click", runConsole);
       SGWorld.AttachEvent("OnFrame", () => {
         var prev = OneFrame;
@@ -998,4 +1015,5 @@ class ProgramManager {
   }
 
   window.addEventListener("load", Init);
+ 
 })();
