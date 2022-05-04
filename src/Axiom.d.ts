@@ -294,7 +294,7 @@ interface IApplication {
 
 interface ICommand {
   CanExecute(CommandID: number, parameter: any): boolean;
-  Execute(CommandID: number, parameter: any): void;
+  Execute(CommandID: number, parameter?: any): void;
   GetValue(CommandID: number): any;
   IsChecked(CommandID: number, parameter: any): boolean;
 }
