@@ -6,8 +6,9 @@ const enum ControlMode {
   Wall
 };
 
+var programManager : ProgramManager; 
+
 const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
-var selectedModel = undefined;
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -653,16 +654,22 @@ function MaxZoom() {
 }
 
 // sets the selection whenever the user presses a button on the on a valid model or collision object
-function selectMode(laser: Laser, button1pressed: boolean) {
+function selectMode(laser: Laser, button1pressed: boolean ) {
   // if laser has collided with something and the button is pressed set the selection to the objectID
   if ((laser.collision != undefined) && button1pressed){
-    var objectIDOfSelectedModel = laser.collision.objectID;
-    console.log("selecting model: ", objectIDOfSelectedModel);
-    selectedModel = objectIDOfSelectedModel;
+    var objectIDOfSelectedModel:string;
+    if (laser.collision.objectID === undefined){
+      objectIDOfSelectedModel = "none";
+    } else {
+      objectIDOfSelectedModel = laser.collision.objectID;
+    }
+    console.log("selecting model: " + objectIDOfSelectedModel);
+    programManager.previouslySelected = programManager.currentlySelected;
+    programManager.currentlySelected = objectIDOfSelectedModel;
   // if the laser is not colliding with something and the button is pressed update the selection to undefined
   } else if((laser.collision == undefined) && button1pressed){
-    console.log("deselecting model");
-    selectedModel = undefined;
+    programManager.previouslySelected = programManager.currentlySelected;
+    programManager.currentlySelected = "none";
   }
 }
 
@@ -828,6 +835,8 @@ class DesktopInputManager {
 class ProgramManager {
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
+  public previouslySelected = "";
+  public currentlySelected = ""; 
 
   getMode() { return this.mode; }
   setMode(newMode: ProgramMode) {
@@ -957,7 +966,6 @@ class ProgramManager {
 }
 
 (() => {
-  let programManager: ProgramManager | undefined;
   let recentProblems: number = 0;
 
   function getProgramManager() {
