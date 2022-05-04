@@ -627,16 +627,17 @@ interface IProjectTree {
   HiddenGroupName: string;
   NotInTreeID: string;
   RootID: string;
-  ShowSearchTool: boolean; CreateGroup: unknown; // Creates a group in the Project Tree.
+  ShowSearchTool: boolean; 
+  CreateGroup(GroupName: string, ParentGroupID?: string): string; // Creates a group in the Project Tree.
   CreateLockedGroup: unknown; // Creates a group in a “locked” (collapsed) mode.When locked, TerraExplorer Viewer users cannot expand the group to view its contents.
-  DeleteItem: unknown; // Deletes an item from the Project Tree(and from the terrain, if that item was a terrain object).
+  DeleteItem(ID: string): void; // Deletes an item from the Project Tree(and from the terrain, if that item was a terrain object).
   EditItem: unknown; //Reserved.Currently not used.Use EditItemEx instead.
   EditItemEx: unknown; // This method replaces EditItem(now reserved) and should be used instead.Places a specified item in edit mode and positions the property sheet if opened in the specified position on the 3D Window.The flags parameter provides control over the display of the property sheet(e.g., whether to display the property sheet with or without the top toolbar) and over the initial edit and move modes.
   EditItems: unknown; // Opens the Multi Edit property sheet to edit multiple specified items.
   EnableRedraw: unknown; // Enables changes to be redrawn or prevents them from being redrawn in the Project Tree.
   EndEdit: unknown; // Terminates the EditItemEx mode.
   ExpandGroup: unknown; // Expands the specified group so that it displays all of its children, or collapses it.
-  FindItem: unknown; // Finds an item using a path to that item.
+  FindItem(PathName: string): string; // Finds an item using a path to that item.
   GetActivationCode: unknown; // Returns the activation code assigned for the specified group.
   GetClientData: unknown; // Returns the text string describing the group’s attribute data.This information is available for general use in your application.
   GetGroupEndTime: unknown; // Returns the specified group’s end date and time.

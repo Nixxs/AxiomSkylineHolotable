@@ -248,10 +248,11 @@ var ControllerReader = /** @class */ (function () {
     return ControllerReader;
 }());
 var Button = /** @class */ (function () {
-    function Button(name, roomPosition, textureName, callback) {
+    function Button(name, roomPosition, textureName, groupID, callback) {
         var _a;
         this.roomPosition = roomPosition;
         this.textureName = textureName;
+        this.groupID = groupID;
         this.callback = callback;
         var newButton = document.createElement("button");
         var buttonIcon = document.createElement("img");
@@ -276,18 +277,22 @@ var Button = /** @class */ (function () {
         var _a, _b;
         var pos = roomToWorldCoord(this.roomPosition);
         if (this.ID === undefined) {
-            var obj_1 = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
+            // const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
+            // const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, "test model");
+            var obj_1 = SGWorld.Creator.CreateModel(pos, basePath + "/model/Ambush.xpl2", 1, 0, this.groupID, "test model");
             this.ID = obj_1.ID;
-            obj_1.FillStyle.Texture.FileName = this.textureName;
+            // obj.FillStyle.Texture.FileName = this.textureName;
             return;
         }
         // Move the button to be in the right spot
         var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 10.0;
         var obj = SGWorld.Creator.GetObject(this.ID);
         obj.Position = pos;
-        obj.Width = boxSize;
-        obj.Height = boxSize * 0.1;
-        obj.Depth = boxSize;
+        // obj.ScaleFactor = boxSize * 5000  ;
+        obj.ScaleFactor = boxSize / 100;
+        // obj.Width = boxSize;
+        // obj.Height = boxSize * 0.1;
+        // obj.Depth = boxSize;
     };
     return Button;
 }());
@@ -392,7 +397,7 @@ var Laser = /** @class */ (function () {
 }());
 function roomToWorldCoordEx(position) {
     var pos = SGWorld.SetParamEx(9014, position);
-    // bug? got a object mismatch using this postion when se on an object
+    // bug? got a object mismatch using this position when se on an object
     pos = SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
     return pos;
 }
@@ -690,12 +695,18 @@ var ProgramManager = /** @class */ (function () {
         this.buttons = [];
         this.laser = new Laser();
         this.userModeManager = new UserModeManager(this.laser);
-        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", function () { return _this.userModeManager.jumpToSydney(); }));
-        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath + "img/measurement.png", function () { return _this.userModeManager.toggleMeasurementMode(); }));
-        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath + "img/rangefinder.png", function () { return _this.userModeManager.toggleRangeRingMode(); }));
-        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath + "img/whyalla.png", function () { return _this.userModeManager.jumpToWhyalla(); }));
-        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", function () { return _this.userModeManager.toggleModelModeArtillery(); }));
-        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", function () { return _this.userModeManager.toggleModelModeArtRange(); }));
+        var groupId = "";
+        groupId = SGWorld.ProjectTree.FindItem("buttons");
+        if (groupId) {
+            SGWorld.ProjectTree.DeleteItem(groupId);
+        }
+        groupId = SGWorld.ProjectTree.CreateGroup("buttons");
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.5, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.3, -1.1, 0.7, 3), basePath + "img/measurement.png", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.1, -1.1, 0.7, 3), basePath + "img/rangefinder.png", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.1, -1.1, 0.7, 3), basePath + "img/whyalla.png", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
+        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.3, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, function () { return _this.userModeManager.toggleModelModeArtillery(); }));
+        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.5, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, function () { return _this.userModeManager.toggleModelModeArtRange(); }));
         //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
     }
     ProgramManager.prototype.getMode = function () { return this.mode; };
@@ -812,7 +823,11 @@ var ProgramManager = /** @class */ (function () {
     function Init() {
         var _a;
         try {
-            console.log("init");
+            console.log("init:: " + new Date(Date.now()).toISOString());
+            setTimeout(function () {
+                console.log("reload");
+                window.location.reload();
+            }, 10000);
             (_a = document.getElementById("consoleRun")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", runConsole);
             SGWorld.AttachEvent("OnFrame", function () {
                 var prev = OneFrame;
