@@ -647,7 +647,7 @@ interface IProjectTree {
   GetItemName: unknown; // Returns the name of a specific item using its ID.
   GetLayer: unknown; // Returns an interface to the IFeatureLayer73 object based on the specified group ID.
   GetNextItem: unknown; // Retrieves the Project Tree item that has the specified relationship, indicated by the Code parameter, to another item whose ID is specified.
-  GetObject: unknown; // Returns an ITerraExplorerObject interface to an object based on its ID.
+  // Returns an ITerraExplorerObject interface to an object based on its ID.
   GetVisibility: unknown; // Returns the visibility status of a Project Tree item on the terrain.
   IsGroup: unknown; // Determines whether or not a ProjectTree item is a group.
   IsLayer: unknown; //Obsolete.To determine whether a Project Tree element is a feature layer, use IProjectTree73.GetObject to return an interface to the element and then ITerraExplorerObject73.ObjectType to get the element type.
@@ -741,3 +741,4 @@ interface ISGWorld {
   SetParam(...a: any[]): unknown;
   SetParamEx(...a: any[]): unknown;
 }
+
