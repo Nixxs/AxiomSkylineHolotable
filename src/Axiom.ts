@@ -21,7 +21,7 @@ const enum UserMode {
 };
 
 class UserModeManager {
-  private userMode = UserMode.Standard;
+  public userMode = UserMode.Standard;
   private spacing = 5000;
   private numRings = 5;
   private measurementModeFirstPoint: IPosition | null = null;
@@ -154,6 +154,7 @@ class UserModeManager {
   }
 
   undo(): void {
+    console.log("undo")
     SGWorld.Command.Execute(2345)
   }
 
@@ -970,7 +971,9 @@ class ProgramManager {
         ControllerReader.Update();  // Read controllers info
         this.laser.UpdateTable(this.getCursorPosition()!);
         for (let button of this.buttons) {
-          this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
+          if( this.userModeManager.userMode == UserMode.Standard) { // don't let user press if in place/measure mode
+            this.setButton1Pressed(button.Update(this.getButton1Pressed(), this.laser.collision!.objectID));
+          }
         }
         this.userModeManager.Update(this.getButton1Pressed());
         break;
