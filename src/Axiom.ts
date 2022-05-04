@@ -5,8 +5,9 @@ const enum ControlMode {
   Wall
 };
 
+var programManager : ProgramManager; 
+
 const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
-var selectedModel: string = ""; // id of selected model
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -107,7 +108,7 @@ class UserModeManager {
       console.log("creating model:: " + modelPath);
       this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
       this.modelIds.push(this.currentId)
-      selectedModel = this.currentId;
+      programManager.currentlySelected = this.currentId;
       this.userMode = UserMode.PlaceModel;
     }
   }
@@ -156,10 +157,10 @@ class UserModeManager {
   }
 
   scaleModel(scaleVector: number): void {
-    if (!selectedModel) {
+    if (!programManager.currentlySelected ) {
       console.log("scaleModel:: no model selected.")
     };
-    const model = SGWorld.Creator.GetObject(selectedModel) as ITerrainModel;
+    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
     model.ScaleFactor = model.ScaleFactor += scaleVector;
   }
 
@@ -655,18 +656,22 @@ function MaxZoom() {
 }
 
 // sets the selection whenever the user presses a button on the on a valid model or collision object
-function selectMode(laser: Laser, button1pressed: boolean) {
+function selectMode(laser: Laser, button1pressed: boolean ) {
   // if laser has collided with something and the button is pressed set the selection to the objectID
   if ((laser.collision != undefined) && button1pressed){
-    var objectIDOfSelectedModel = laser.collision.objectID;
-    console.log("selecting model: ", objectIDOfSelectedModel);
-    if(objectIDOfSelectedModel){
-      selectedModel = objectIDOfSelectedModel;
+    var objectIDOfSelectedModel:string;
+    if (laser.collision.objectID === undefined){
+      objectIDOfSelectedModel = "none";
+    } else {
+      objectIDOfSelectedModel = laser.collision.objectID;
     }
+    console.log("selecting model: " + objectIDOfSelectedModel);
+    programManager.previouslySelected = programManager.currentlySelected;
+    programManager.currentlySelected = objectIDOfSelectedModel;
   // if the laser is not colliding with something and the button is pressed update the selection to undefined
   } else if((laser.collision == undefined) && button1pressed){
-    console.log("deselecting model");
-    selectedModel = "";
+    programManager.previouslySelected = programManager.currentlySelected;
+    programManager.currentlySelected = "none";
   }
 }
 
@@ -832,6 +837,8 @@ class DesktopInputManager {
 class ProgramManager {
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
+  public previouslySelected = "";
+  public currentlySelected = ""; 
 
   getMode() { return this.mode; }
   setMode(newMode: ProgramMode) {
@@ -968,7 +975,6 @@ class ProgramManager {
 
 
 (() => {
-  let programManager: ProgramManager | undefined;
   let recentProblems: number = 0;
 
   function getProgramManager() {
