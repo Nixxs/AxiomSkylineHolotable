@@ -666,11 +666,9 @@ function selectMode(laser: Laser, button1pressed: boolean ) {
       objectIDOfSelectedModel = laser.collision.objectID;
     }
     console.log("selecting model: " + objectIDOfSelectedModel);
-    programManager.previouslySelected = programManager.currentlySelected;
     programManager.currentlySelected = objectIDOfSelectedModel;
   // if the laser is not colliding with something and the button is pressed update the selection to undefined
   } else if((laser.collision == undefined) && button1pressed){
-    programManager.previouslySelected = programManager.currentlySelected;
     programManager.currentlySelected = "none";
   }
 }
@@ -837,7 +835,6 @@ class DesktopInputManager {
 class ProgramManager {
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
-  public previouslySelected = "";
   public currentlySelected = ""; 
 
   getMode() { return this.mode; }
