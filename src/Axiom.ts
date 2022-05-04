@@ -16,7 +16,8 @@ const enum UserMode {
   Standard, // this can include FlyTo, but also just standard navigation; we don't distinguish them for now
   Measurement,
   DropRangeRing,
-  PlaceModel
+  PlaceModel,
+  MoveModel
 };
 
 class UserModeManager {
@@ -80,6 +81,20 @@ class UserModeManager {
       this.modelIds.push(this.currentId)
       programManager.currentlySelected = this.currentId;
       this.userMode = UserMode.PlaceModel;
+    }
+  }
+
+  toggleMoveModelMode(modelID: string){
+    if (this.userMode == UserMode.MoveModel) {
+      console.log("end move model mode");
+      this.userMode = UserMode.Standard;
+    } else {
+      if (modelID != "none"){
+        this.currentId = modelID;
+        this.userMode = UserMode.MoveModel;
+      } else {
+        this.userMode = UserMode.Standard;
+      }
     }
   }
 
@@ -244,6 +259,22 @@ class UserModeManager {
           }
         }
         break;
+      case UserMode.MoveModel:
+        if (ControllerReader.controllerInfo?.button1Pressed) {
+          this.setStandardMode();
+          // consume the button press
+          ControllerReader.controllerInfo.button1Pressed = false;
+        } else {
+          if (this.laser.collision !== undefined) {
+            var newModelPosition = this.laser.collision.hitPoint.Copy();
+            newModelPosition.Pitch = 0;
+            newModelPosition.Yaw = newModelPosition.Roll * 2;
+            newModelPosition.Roll = 0;
+            const modelObject = SGWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
+            modelObject.Position = newModelPosition;
+          }
+        }
+      break;
     }
   } 
 }
@@ -656,9 +687,8 @@ function selectMode(laser: Laser, button1pressed: boolean ) {
     }
     console.log("selecting model: " + objectIDOfSelectedModel);
     programManager.currentlySelected = objectIDOfSelectedModel;
+    programManager.userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
   // if the laser is not colliding with something and the button is pressed update the selection to undefined
-  } else if((laser.collision == undefined) && button1pressed){
-    programManager.currentlySelected = "none";
   }
 }
 
