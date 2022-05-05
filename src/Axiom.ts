@@ -1020,25 +1020,27 @@ class ProgramManager {
     const groupId = this.getButtonsGroup("buttons");
 
     // the table has an origin at the top centre of the table. minX = 0.6 maxX = 1.2. minY = 0 maxY = -1.2
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, -1.1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath + "img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, -1.1, 0.7, 3), basePath + "img/whyalla.png", groupId, () => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
+    const yLine1 = -1.05 
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "img/whyalla.png", groupId, () => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
 
     // scale models
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(+1)));
-    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(-1)));
+    const yLine2 = -1.15 
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4,  yLine2 , 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(+1)));
+    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(-1)));
 
     // delete selected model
-    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.deleteModel()));
+    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.deleteModel()));
 
     // undo
-    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.undo()));
+    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.undo()));
 
     // add line
-    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, -1.2, 0.7, 3), basePath +"img/measurement.png",  groupId,() => this.userModeManager.toggleDrawLine()));
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath +"img/measurement.png",  groupId,() => this.userModeManager.toggleDrawLine()));
     
     try {
       const groupIdPager = this.getButtonsGroup("pager");
@@ -1067,7 +1069,7 @@ class ProgramManager {
       pager.pagers = [pageLeft, pageRight];
 
       // Select model
-      this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => {
+      this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => {
         pager.show(!pager.isShown)
       }));
 
