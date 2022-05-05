@@ -348,7 +348,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-
-# dist folder ignore some files. Needs restructuring
-dist/Axiom/Axiom.js
