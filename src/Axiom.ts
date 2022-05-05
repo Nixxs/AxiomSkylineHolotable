@@ -17,7 +17,8 @@ const enum UserMode {
   Measurement,
   DropRangeRing,
   PlaceModel,
-  MoveModel
+  MoveModel,
+  DrawLine
 };
 
 class UserModeManager {
@@ -35,11 +36,19 @@ class UserModeManager {
   private labelStyle = SGWorld.Creator.CreateLabelStyle(0);
   public modelIds: string[] = [];
 
+  private drawLineID: string | null = null;
+  private drawLineFirstPoint: IPosition | null = null;
+  private drawLineWidth = 5;
+  private drawLineColor: IColor;
+  private switchColourCD = 0;
+
   constructor(private laser: Laser) {
     this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
     this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
+
+    this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
   jumpToSydney() {
@@ -166,8 +175,18 @@ class UserModeManager {
     return true;
   }
 
- 
-  
+  toggleDrawLine(): void {
+    if (this.userMode == UserMode.DrawLine) {
+      if (this.drawLineID !== null) {
+        SGWorld.Creator.DeleteObject(this.drawLineID);
+      }
+      this.userMode = UserMode.Standard;
+    } else {
+      this.userMode = UserMode.DrawLine;
+    }
+    this.drawLineID = null;
+    this.drawLineFirstPoint = null;
+  }
 
   Update(button1pressed:boolean) {
     switch (this.userMode) {
@@ -274,6 +293,83 @@ class UserModeManager {
             const modelObject = SGWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
           }
+        }
+      break;
+
+      case UserMode.DrawLine:
+        if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
+          
+          // Move the line end position to the cursor
+          const teEndPos = this.laser.collision!.hitPoint.Copy();
+          const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+          const Geometry = dLine.Geometry as ILineString;
+          // start the edit session to enable modification of the geometry
+          Geometry.StartEdit();
+          if (ControllerReader.controllerInfo?.button1Pressed){
+            // if button 1 is pressed add a new point to the geometry
+            Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+          } else { 
+            // if button hasn't been pressed just move the last point to the current
+            // position of the laser so the user what the new line will look like
+            var drawPointIndex = Geometry.Points.Count - 1;
+            Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+            Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+          }
+          Geometry.EndEdit();
+
+          // this is a cool down for the trigger press since it can trigger twice while the user
+          // is clicking the button on the controller
+          this.switchColourCD -= 1;
+          if (this.switchColourCD < 0) {
+            this.switchColourCD = 0;
+          }
+          // if user is currently drawing a line and the trigger is pressed, change the colour of the line
+          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0){
+            this.switchColourCD = 5;// switching colours has a 5 frame cool down
+            const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+            if (dLine.LineStyle.Color.ToHTMLColor() === "#000000"){
+              console.log("Draw Line: swap colour to red");
+              dLine.LineStyle.Color.FromHTMLColor("#ff1000");
+            } else {
+              console.log("Draw Line: swap colour to black");
+              dLine.LineStyle.Color.FromHTMLColor("#000000");
+            }
+          }
+
+          // Exit mode when button 2 is pressed
+          if (ControllerReader.controllerInfo?.button2Pressed) {
+            console.log("finished line");
+            const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+            const Geometry = dLine.Geometry as ILineString;
+            // delete the last point as this will not have been placed by the user just drawn for planning
+            Geometry.StartEdit();
+            Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
+            Geometry.EndEdit();
+
+            this.setStandardMode();
+            // consume the button press
+            ControllerReader.controllerInfo.button2Pressed = false;
+            this.drawLineID = null;
+            this.drawLineFirstPoint = null;
+          }
+
+        } else if (ControllerReader.controllerInfo?.button1Pressed) {
+          // Create the line
+          console.log("new line");
+
+          this.drawLineFirstPoint = this.laser.collision!.hitPoint.Copy();
+
+          const teStartPos = this.drawLineFirstPoint.Copy();
+          const teEndPos = teStartPos.Copy();
+
+          const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
+          const drawLineGeom = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+          const dLine = SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
+          dLine.LineStyle.Width = this.drawLineWidth;
+          this.drawLineID = dLine.ID;
+
+          // consume the button press
+          ControllerReader.controllerInfo.button1Pressed = false;
         }
       break;
     }
@@ -903,6 +999,8 @@ class ProgramManager {
     // undo
     this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, -1.2, 0.7, 3), basePath +"img/placeArtilleryRange.png",  groupId,() => this.userModeManager.undo()));
     
+    // add line
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, -1.2, 0.7, 3), basePath +"img/measurement.png",  groupId,() => this.userModeManager.toggleDrawLine()));
     
     //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
