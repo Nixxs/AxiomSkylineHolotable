@@ -1,4 +1,3 @@
-"use strict";
 function YPRToQuat(yRad, pRad, rRad) {
     var r = [0, 0, 0, 1];
     var cy = Math.cos(yRad / 2.0); // cos(Yaw)

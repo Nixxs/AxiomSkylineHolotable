@@ -1,6 +1,4 @@
-"use strict";
-exports.__esModule = true;
-exports["default"] = {
+var modelsConfig = {
     models: [
         {
             modelName: "Model1",

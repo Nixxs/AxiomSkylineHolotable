@@ -1,4 +1,4 @@
-export default {
+const modelsConfig = {
     models: [
         {
             modelName: "Model1",

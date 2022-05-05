@@ -1,7 +1,3 @@
-"use strict";
-exports.__esModule = true;
-exports.ButtonPagingControl = void 0;
-var Axiom_1 = require("../Axiom");
 var ButtonPagingControl = /** @class */ (function () {
     function ButtonPagingControl(buttons) {
         this.layout = 9; //square layout 9x9 at moment
@@ -42,7 +38,7 @@ var ButtonPagingControl = /** @class */ (function () {
                 xPos = xPos - spacePerButton;
                 if (this.buttons.length > counter) {
                     // console.log(`${this.buttons[counter].name} xPos ${xPos} yPos ${yPos}`);
-                    var pos = Axiom_1.SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
+                    var pos = SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
                     this.buttons[counter].roomPosition = pos;
                     this.buttons[counter].show(true);
                     counter += 1;
@@ -74,4 +70,3 @@ var ButtonPagingControl = /** @class */ (function () {
     };
     return ButtonPagingControl;
 }());
-exports.ButtonPagingControl = ButtonPagingControl;

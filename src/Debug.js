@@ -26,12 +26,14 @@ var debug = {
 function debugHandleRefreshGesture() {
   // Point the wand directly up for 2 sec to refresh page
   if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGesture.timer == undefined) {
+    console.log("started debug refresh gesture");
     debugHandleRefreshGesture.timer = setTimeout(function () {
       window.location.reload();
-    }, 2000)
+    }, 2000);
   }
   else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGesture.timer) {
     clearTimeout(debugHandleRefreshGesture.timer);
+    console.log("canceling debug refresh gesture");
     debugHandleRefreshGesture.timer = undefined;
   }
 }

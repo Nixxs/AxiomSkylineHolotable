@@ -1,7 +1,4 @@
-export declare var SGWorld: ISGWorld;
-
-import { ButtonPagingControl } from './UIControls/ButtonPagingControl';
-import modelsConfig from './config/models';
+declare var SGWorld: ISGWorld;
 
 const enum ControlMode {
   Wand,
@@ -411,12 +408,13 @@ class ControllerReader {
   static Update() {
     var VRControllersInfo = getVRControllersInfo();
     if (VRControllersInfo !== undefined) {
-      this.controllerInfo = {};
       const rightHand = 1; // 0=left,1=right
 
       const prevTrigger = this.controllerInfo?.trigger ?? false;
       const prevButton1 = this.controllerInfo?.button1 ?? false;
       const prevButton2 = this.controllerInfo?.button2 ?? false;
+      
+      this.controllerInfo = {};
 
       const triggerOn = VRControllersInfo.IndexTrigger && VRControllersInfo.IndexTrigger[rightHand] != 0
       const button1On = (VRControllersInfo.Buttons & 0x2) != 0;
@@ -451,6 +449,12 @@ class ControllerReader {
         }
       }
       this.controllerInfo.scaleFactor = VRControllersInfo.ScaleFactor;
+    } else {
+      if (this.controllerInfo !== undefined) {
+        this.controllerInfo.triggerPressed = false;
+        this.controllerInfo.button1Pressed = false;
+        this.controllerInfo.button2Pressed = false;
+      }
     }
     if (this.roomExtent === undefined) {
       const roomExtent = getRoomExtent();
@@ -462,7 +466,7 @@ class ControllerReader {
   }
 }
 
-export class Button {
+class Button {
   ID?: string;
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
@@ -539,7 +543,7 @@ class Ray {
     verticesArray[4] = pickRayInfo.hitPoint.Y;
     verticesArray[5] = pickRayInfo.hitPoint.Altitude;
     if (this.ID === undefined) {
-      var RightRay = SGWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, SGWorld.ProjectTree.NotInTreeID, "ray");
+      var RightRay = SGWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, "", "ray");
       RightRay.SetParam(200, 0x200);  // Make sure that the ray object itself will not be pickable
       this.ID = RightRay.ID;
     } else {
@@ -559,7 +563,7 @@ class Sphere {
     spherePivot.Altitude -= sphereRadius / 2;
     var tip;
     if (this.ID == undefined) {
-      tip = SGWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, SGWorld.ProjectTree.NotInTreeID, "rayTip");
+      tip = SGWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, "", "rayTip");
       tip.SetParam(200, 0x200);
       this.ID = tip.ID;
     } else {
