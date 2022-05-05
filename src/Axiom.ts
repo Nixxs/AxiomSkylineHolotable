@@ -1053,20 +1053,23 @@ class ProgramManager {
       let pos = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
       const pagerButtons: Button[] = [];
       modelsConfig.models.forEach(model => {
-        const b = new Button("new" + model.modelName, pos, basePath + "img/placeArtilleryRange.png", groupIdPager);
+        const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager);
         b.show(false);
         this.buttons.push(b);
         pagerButtons.push(b);
       });
+
+      
       const pager = new ButtonPagingControl(pagerButtons);
+  
       // I know these really should be part of the paging control, but at the moment buttons have to 
       // exist in the buttons array for them to be clicked so creating them here
       // create the page left and right buttons
       pos = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
-      const pageLeft = new Button("pageLeft", pos, "", groupIdPager, () => { pager.pageLeft() });
+      const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageLeft() });
       pageLeft.show(false);
       pos = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
-      const pageRight = new Button("pageRight", pos, "", groupIdPager, () => { pager.pageRight(); });
+      const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageRight(); });
       pageRight.show(false);
       this.buttons.push(pageLeft);
       this.buttons.push(pageRight);
