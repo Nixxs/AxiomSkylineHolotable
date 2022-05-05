@@ -96,10 +96,18 @@ class UserModeManager {
   toggleMoveModelMode(modelID: string) {
     if (this.userMode == UserMode.MoveModel) {
       console.log("end move model mode");
+      const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
+      // this is for making the model collideable again but skyline have to tell us what 
+      // code to use for this
+      //modelObject.SetParam(200, 2049);
       this.userMode = UserMode.Standard;
     } else {
       if (modelID != "none") {
         this.currentId = modelID;
+        const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
+        // this will make the model not pickable which is what you want but we are waiting for 
+        // skyline to get back to us on waht the correct code is for making it collideable again
+        //modelObject.SetParam(200, 0x200);
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
