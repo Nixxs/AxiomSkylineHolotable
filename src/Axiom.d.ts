@@ -582,7 +582,7 @@ interface ICreator {
   CreateMeshLayerFromFile: unknown; //Loads from a file an IMeshLayer73 representing a unified, stream optimized 3D Mesh Layer (3DML) database.
   CreateMeshLayerFromSGS: unknown; //Loads from SkylineGlobe Server and older TerraGate SFS an IMeshLayer73 representing a unified, stream optimized 3D Mesh Layer (3DML) database.
   CreateMessage: unknown; //Creates an ITerraExplorerMessage73, representing the message object which is displayed in a container. 
-  CreateModel(Position: IPosition, FileName: string, Sale: number, ModelType: 0 | 1 | 2, GroupID: string, Description: string): ITerrainModel; //Imports from a file an ITerrainModel73, representing a model object.
+  CreateModel(Position: IPosition, FileName: string, Scale: number, ModelType: 0 | 1 | 2, GroupID: string, Description: string): ITerrainModel; //Imports from a file an ITerrainModel73, representing a model object.
   CreateNewFeatureLayer: unknown; //Creates directly from TerraExplorer an IFeatureLayer73, representing a new feature layer.
   CreatePointCloudModel: unknown; //Imports an ITerrainPointCloudModel73 object from a file.
   CreatePolygon: unknown; //Creates an ITerrainPolygon73 in the 3D Window.
@@ -629,7 +629,7 @@ interface IProjectTree {
   HiddenGroupName: string;
   NotInTreeID: string;
   RootID: string;
-  ShowSearchTool: boolean; 
+  ShowSearchTool: boolean;
   CreateGroup(GroupName: string, ParentGroupID?: string): string; // Creates a group in the Project Tree.
   CreateLockedGroup: unknown; // Creates a group in a “locked” (collapsed) mode.When locked, TerraExplorer Viewer users cannot expand the group to view its contents.
   DeleteItem(ID: string): void; // Deletes an item from the Project Tree(and from the terrain, if that item was a terrain object).
