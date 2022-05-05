@@ -40,6 +40,7 @@ class UserModeManager {
   private drawLineFirstPoint: IPosition | null = null;
   private drawLineWidth = 5;
   private drawLineColor: IColor;
+  private switchColourCD = 0;
 
   constructor(private laser: Laser) {
     this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -47,7 +48,7 @@ class UserModeManager {
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
 
-    this.drawLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
+    this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
   jumpToSydney() {
@@ -297,6 +298,7 @@ class UserModeManager {
 
       case UserMode.DrawLine:
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
+          
           // Move the line end position to the cursor
           const teEndPos = this.laser.collision!.hitPoint.Copy();
           const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
@@ -315,6 +317,25 @@ class UserModeManager {
           }
           Geometry.EndEdit();
 
+          // this is a cooldown for the trigger press since it can trigger twice while the user
+          // is clicking the button on the controller
+          this.switchColourCD -= 1;
+          if (this.switchColourCD < 0) {
+            this.switchColourCD = 0;
+          }
+          // if user is currently drawing a line and the trigger is pressed, change the colour of the line
+          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0){
+            this.switchColourCD = 5;// switching colours has a 5 frame cooldown
+            const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+            if (dLine.LineStyle.Color.ToHTMLColor() === "#000000"){
+              console.log("Draw Line: swap colour to red");
+              dLine.LineStyle.Color.FromHTMLColor("#ff1000");
+            } else {
+              console.log("Draw Line: swap colour to black");
+              dLine.LineStyle.Color.FromHTMLColor("#000000");
+            }
+          }
+
           // Exit mode when button 2 is pressed
           if (ControllerReader.controllerInfo?.button2Pressed) {
             console.log("finished line");
@@ -331,6 +352,7 @@ class UserModeManager {
             this.drawLineID = null;
             this.drawLineFirstPoint = null;
           }
+
         } else if (ControllerReader.controllerInfo?.button1Pressed) {
           // Create the line
           console.log("new line");
