@@ -152,15 +152,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
             return true;
         };
         UserModeManager.prototype.toggleDrawLine = function () {
-            if (this.userMode == 5 /* DrawLine */) {
-                if (this.drawLineID !== null) {
-                    exports.SGWorld.Creator.DeleteObject(this.drawLineID);
-                }
-                this.userMode = 0 /* Standard */;
-            }
-            else {
-                this.userMode = 5 /* DrawLine */;
-            }
+            this.userMode = 5 /* DrawLine */;
             this.drawLineID = null;
             this.drawLineFirstPoint = null;
         };

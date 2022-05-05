@@ -189,14 +189,7 @@ class UserModeManager {
   }
 
   toggleDrawLine(): void {
-    if (this.userMode == UserMode.DrawLine) {
-      if (this.drawLineID !== null) {
-        SGWorld.Creator.DeleteObject(this.drawLineID);
-      }
-      this.userMode = UserMode.Standard;
-    } else {
-      this.userMode = UserMode.DrawLine;
-    }
+    this.userMode = UserMode.DrawLine;
     this.drawLineID = null;
     this.drawLineFirstPoint = null;
   }
