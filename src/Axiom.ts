@@ -1,4 +1,9 @@
-declare var SGWorld: ISGWorld;
+import { modelsConfig } from "./config/models";
+import { debug, debugHandleRefreshGesture, runConsole } from "./Debug";
+import { dot, intersectRayOnPlane, mag, normalize, QuatYAxis, radsToDegs, vecAdd, vecMul, vecSub, vecType, YPRToQuat } from "./Mathematics";
+import { ButtonPagingControl } from "./UIControls/ButtonPagingControl";
+
+export declare var SGWorld: ISGWorld;
 
 const enum ControlMode {
   Wand,
@@ -20,7 +25,7 @@ const enum UserMode {
   PlaceModel,
   MoveModel,
   DrawLine
-};
+}
 
 class UserModeManager {
   public userMode = UserMode.Standard;
@@ -401,7 +406,7 @@ type RoomExtent = {
   max: [number, number, number];
 }
 
-class ControllerReader {
+export class ControllerReader {
   static controllerInfo?: Partial<ControllerInfo>;
   static roomExtent?: RoomExtent;
 
@@ -413,7 +418,7 @@ class ControllerReader {
       const prevTrigger = this.controllerInfo?.trigger ?? false;
       const prevButton1 = this.controllerInfo?.button1 ?? false;
       const prevButton2 = this.controllerInfo?.button2 ?? false;
-      
+
       this.controllerInfo = {};
 
       const triggerOn = VRControllersInfo.IndexTrigger && VRControllersInfo.IndexTrigger[rightHand] != 0
@@ -466,7 +471,7 @@ class ControllerReader {
   }
 }
 
-class Button {
+export class Button {
   ID?: string;
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
@@ -845,52 +850,53 @@ function tableMode() {
 
   const wandIPos = worldToRoomCoord(ControllerReader.controllerInfo!.wandPosition!);
   const wandOri = YPRToQuat(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
-  const wandPos = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
+  const wandPos: vecType = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
   const wandDir = QuatYAxis(wandOri, 1);
 
-
   if (table.isDragging) {
-    var planeNormal = [0, 0, 1];
-    var planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
+    let planeNormal: vecType = [0, 0, 1];
+    let planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
+    if (planeCollisionPoint !== null) {
 
-    var newIntersect = planeCollisionPoint;
-    var deadzone = 1;
-    console.log(table.firstIntersect);
-    console.log(newIntersect);
-    var pan = vecSub(table.firstIntersect, newIntersect);
-    if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
-      // Scale
-      var wandPosDiff = vecSub(wandPos, table.wandPosLastFrame);
+      var newIntersect = planeCollisionPoint;
+      var deadzone = 1;
+      console.log(table.firstIntersect);
+      console.log(newIntersect);
+      var pan = vecSub(table.firstIntersect, newIntersect);
+      if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
+        // Scale
+        var wandPosDiff = vecSub(wandPos, table.wandPosLastFrame);
 
-      var degs = radsToDegs(Math.acos(Math.abs(dot(normalize(wandPosDiff), normalize(table.wandDirLastFrame)))));
-      var thresholdLower = 25;
-      var thresholdUpper = 40;
-      var thresholdRange = thresholdUpper - thresholdLower;
-      var scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
+        var degs = radsToDegs(Math.acos(Math.abs(dot(normalize(wandPosDiff), normalize(table.wandDirLastFrame)))));
+        var thresholdLower = 25;
+        var thresholdUpper = 40;
+        var thresholdRange = thresholdUpper - thresholdLower;
+        var scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-      var magDifference = mag(wandPosDiff);
-      if (magDifference > 0 && magDifference < 1) {
-        var forwardOrBack = dot(wandPosDiff, table.wandDirLastFrame);
-        forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
-        var scaleRatio = 5;
-        var power = forwardOrBack * scalingRatio * magDifference * 4;
-        var factor = Math.pow(scaleRatio, power);
-        var newScale = table.prevWorldScale * factor;
+        var magDifference = mag(wandPosDiff);
+        if (magDifference > 0 && magDifference < 1) {
+          var forwardOrBack = dot(wandPosDiff, table.wandDirLastFrame);
+          forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
+          var scaleRatio = 5;
+          var power = forwardOrBack * scalingRatio * magDifference * 4;
+          var factor = Math.pow(scaleRatio, power);
+          var newScale = table.prevWorldScale * factor;
 
-        var appliedScale = Math.min(newScale, MaxZoom());
+          var appliedScale = Math.min(newScale, MaxZoom());
 
-        var prevPos = SGWorld.Navigate.GetPosition(3);
-        prevPos.Altitude = appliedScale;
-        SGWorld.Navigate.SetPosition(prevPos);
+          let prevPos = SGWorld.Navigate.GetPosition(3);
+          prevPos.Altitude = appliedScale;
+          SGWorld.Navigate.SetPosition(prevPos);
 
-        pan = vecAdd(pan, vecMul(vecAdd(newIntersect, [0, 0.6, 0]), 1 - factor));
+          pan = vecAdd(pan, vecMul(vecAdd(newIntersect, [0, 0.6, 0]), 1 - factor));
 
-        table.prevWorldScale = newScale;
+          table.prevWorldScale = newScale;
+        }
+
+        // Pan
+        WorldIncreasePosition(pan);
+        table.firstIntersect = newIntersect;
       }
-
-      // Pan
-      WorldIncreasePosition(pan);
-      table.firstIntersect = newIntersect;
     }
   }
 
@@ -900,13 +906,13 @@ function tableMode() {
     var maxZoom = MaxZoom();
     if (worldScale > maxZoom) {
       worldScale = maxZoom;
-      var prevPos = SGWorld.Navigate.GetPosition(3);
+      let prevPos = SGWorld.Navigate.GetPosition(3);
       prevPos.Altitude = maxZoom;
       SGWorld.Navigate.SetPosition(prevPos);
     }
     table.prevWorldScale = worldScale;
 
-    var planeNormal = [0, 0, 1];
+    let planeNormal: vecType = [0, 0, 1];
     var collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
     if (collPoint !== null) {
       table.isDragging = true;
@@ -1063,9 +1069,9 @@ class ProgramManager {
         pagerButtons.push(b);
       });
 
-      
+
       const pager = new ButtonPagingControl(pagerButtons);
-  
+
       // I know these really should be part of the paging control, but at the moment buttons have to 
       // exist in the buttons array for them to be clicked so creating them here
       // create the page left and right buttons
@@ -1297,11 +1303,11 @@ class ProgramManager {
   // setTimeout(()=> Init(), 5000);
   // window.addEventListener("load", Init);
   const w: any = window;
-  if(w.SGWorld){
+  if (w.SGWorld) {
     Init(w.SGWorld);
-  }else{
+  } else {
     // add a while here?
-    setTimeout(()=>  Init(w.SGWorld), 1000)
+    setTimeout(() => Init(w.SGWorld), 1000)
   }
 
 })();
