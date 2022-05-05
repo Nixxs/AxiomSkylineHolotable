@@ -1,4 +1,8 @@
-declare var SGWorld: ISGWorld;
+export declare var SGWorld: ISGWorld;
+
+import { ButtonPagingControl } from './UIControls/ButtonPagingControl';
+import modelsConfig from './config/models';
+
 const enum ControlMode {
   Wand,
   Table,
@@ -47,7 +51,6 @@ class UserModeManager {
     this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
-
     this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
@@ -296,21 +299,21 @@ class UserModeManager {
             modelObject.Position = newModelPosition;
           }
         }
-      break;
+        break;
 
       case UserMode.DrawLine:
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
-          
+
           // Move the line end position to the cursor
           const teEndPos = this.laser.collision!.hitPoint.Copy();
           const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
           const Geometry = dLine.Geometry as ILineString;
           // start the edit session to enable modification of the geometry
           Geometry.StartEdit();
-          if (ControllerReader.controllerInfo?.button1Pressed){
+          if (ControllerReader.controllerInfo?.button1Pressed) {
             // if button 1 is pressed add a new point to the geometry
             Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
-          } else { 
+          } else {
             // if button hasn't been pressed just move the last point to the current
             // position of the laser so the user what the new line will look like
             var drawPointIndex = Geometry.Points.Count - 1;
@@ -326,10 +329,10 @@ class UserModeManager {
             this.switchColourCD = 0;
           }
           // if user is currently drawing a line and the trigger is pressed, change the colour of the line
-          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0){
+          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0) {
             this.switchColourCD = 5;// switching colours has a 5 frame cool down
             const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
-            if (dLine.LineStyle.Color.ToHTMLColor() === "#000000"){
+            if (dLine.LineStyle.Color.ToHTMLColor() === "#000000") {
               console.log("Draw Line: swap colour to red");
               dLine.LineStyle.Color.FromHTMLColor("#ff1000");
             } else {
@@ -373,7 +376,7 @@ class UserModeManager {
           // consume the button press
           ControllerReader.controllerInfo.button1Pressed = false;
         }
-      break;
+        break;
     }
   }
 }
@@ -442,7 +445,7 @@ class ControllerReader {
   }
 }
 
-class Button {
+export class Button {
   ID?: string;
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public textureName?: string,
@@ -927,7 +930,7 @@ function entityMovement() {
   // if we're moving an entity (id != null)
   //   set its position to raycasted collision point (SetPosition(id, collisionPoint))
 }
-//entityMovement.entityId = null;
+//entityMovement.entityId = null; 
 
 const enum ProgramMode {
   Unknown,
@@ -1020,7 +1023,7 @@ class ProgramManager {
     const groupId = this.getButtonsGroup("buttons");
 
     // the table has an origin at the top centre of the table. minX = 0.6 maxX = 1.2. minY = 0 maxY = -1.2
-    const yLine1 = -1.05 
+    const yLine1 = -1.05
     this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
     this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
     this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
@@ -1029,8 +1032,8 @@ class ProgramManager {
     this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
 
     // scale models
-    const yLine2 = -1.15 
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4,  yLine2 , 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(+1)));
+    const yLine2 = -1.15
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(+1)));
     this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(-1)));
 
     // delete selected model
@@ -1040,20 +1043,19 @@ class ProgramManager {
     this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.undo()));
 
     // add line
-    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath +"img/measurement.png",  groupId,() => this.userModeManager.toggleDrawLine()));
-    
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleDrawLine()));
+
     try {
       const groupIdPager = this.getButtonsGroup("pager");
       console.log("ProgramManager:: ButtonPagingControl")
       let pos = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
-      const pagerButtons = [];
-      for (let index = 0; index < 16; index++) {
-        const b = new Button("new" + index, pos, basePath + "img/placeArtilleryRange.png", groupIdPager);
+      const pagerButtons: Button[] = [];
+      modelsConfig.models.forEach(model => {
+        const b = new Button("new" + model.modelName, pos, basePath + "img/placeArtilleryRange.png", groupIdPager);
         b.show(false);
         this.buttons.push(b);
         pagerButtons.push(b);
-      }
-
+      });
       const pager = new ButtonPagingControl(pagerButtons);
       // I know these really should be part of the paging control, but at the moment buttons have to 
       // exist in the buttons array for them to be clicked so creating them here
@@ -1072,7 +1074,6 @@ class ProgramManager {
       this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => {
         pager.show(!pager.isShown)
       }));
-
 
     } catch (error) {
       console.log("Error creating paging control" + error);
@@ -1176,91 +1177,6 @@ class ProgramManager {
   }
 }
 
-class ButtonPagingControl {
-  private layout: number = 9; //square layout 9x9 at moment
-  private buttons: Button[];
-  private pageNumber: number = 0;
-  private totalPages: number = 0;
-  private spacePerButton: number = 0.2;
-  public pagers: Button[] = [];
-  public isShown: boolean = false;
-
-  constructor(buttons: Button[]) {
-    console.log("ButtonPagingControl:: constructor")
-    // takes an array of buttons and lays them out
-    this.buttons = buttons;
-    this.totalPages = Math.ceil(this.buttons.length / this.layout);
-    this.initUI();
-    this.show(false);
-  }
-
-  private initUI() {
-    this.layoutUI();
-  }
-
-  private layoutUI() {
-    // to do
-    // the table is 1.2 x 1.2
-    console.log("ButtonPagingControl::layoutUI");
-
-    let counter = 0;
-    if (this.pageNumber > 0) {
-      counter += this.layout * this.pageNumber
-    }
-
-    // hide the buttons. Todo add a hide on the button class
-    this.buttons.forEach(btn => btn.show(false));
-
-    const rowColCount = Math.sqrt(this.layout);
-    const spacePerButton = this.spacePerButton
-
-    for (let indexY = rowColCount - 1; indexY >= 0; indexY--) {
-      // shift the whole thing to the centre of the table
-      let yPos = (spacePerButton * indexY);
-      yPos = -0.6 + yPos - spacePerButton;
-      for (let indexX = 0; indexX < rowColCount; indexX++) {
-        let xPos = (spacePerButton * indexX);
-        // shift the whole thing to the centre of the table
-        xPos = xPos - spacePerButton
-        if (this.buttons.length > counter) {
-          // console.log(`${this.buttons[counter].name} xPos ${xPos} yPos ${yPos}`);
-          const pos = SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
-          this.buttons[counter].roomPosition = pos;
-          this.buttons[counter].show(true);
-          counter += 1;
-        }
-      }
-    }
-
-  }
-
-  public pageRight() {
-    this.pageNumber += 1;
-    if (this.pageNumber >= this.totalPages) {
-      this.pageNumber = 0;
-    }
-    this.layoutUI();
-  }
-
-  public pageLeft() {
-    this.pageNumber += -1;
-    if (this.pageNumber < 0) {
-      this.pageNumber = this.totalPages - 1;
-    }
-    this.layoutUI();
-  }
-
-  public show(value: boolean) {
-    this.buttons.forEach(btn => btn.show(value));
-    this.pagers.forEach(btn => btn.show(value));
-    this.isShown = value;
-  }
-
-  private destroy() {
-    // break it down when a user clicks a button
-  }
-
-}
 
 
 (() => {
@@ -1272,10 +1188,12 @@ class ButtonPagingControl {
     return programManager;
   }
 
-  function Init() {
+  function Init(sgWorld: ISGWorld) {
     try {
+      SGWorld = sgWorld;
       console.log("init:: " + new Date(Date.now()).toISOString());
       document.getElementById("consoleRun")?.addEventListener("click", runConsole);
+      console.log("init:: SGWorld " + SGWorld);
       SGWorld.AttachEvent("OnFrame", () => {
         var prev = OneFrame;
         OneFrame = () => { };
@@ -1359,6 +1277,14 @@ class ButtonPagingControl {
     }
   }
 
-  window.addEventListener("load", Init);
+  // setTimeout(()=> Init(), 5000);
+  // window.addEventListener("load", Init);
+  const w: any = window;
+  if(w.SGWorld){
+    Init(w.SGWorld);
+  }else{
+    // add a while here?
+    setTimeout(()=>  Init(w.SGWorld), 1000)
+  }
 
 })();

@@ -3,13 +3,17 @@
     "src/Axiom.ts",
     "src/Debug.js",
     "src/Mathematics.js",
-    "src/Axiom.d.ts"
+    "src/Axiom.d.ts",
+    "src/UIControls/ButtonPagingControl.ts"
   ],
   "compilerOptions": {
     "strict": true,
     "allowJs": true,
     "outDir": "dist/Axiom/",
-    "target": "ES3",
-    "module": "none"
+    "outFile": "dist/Axiom/Axiom.js",
+    "target": "ES5",
+    "module": "AMD",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true
   }
 }
