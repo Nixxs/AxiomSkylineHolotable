@@ -301,14 +301,30 @@ class UserModeManager {
           const teEndPos = this.laser.collision!.hitPoint.Copy();
           const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
           const Geometry = dLine.Geometry as ILineString;
+          // start the edit session to enable modification of the geometry
           Geometry.StartEdit();
-          Geometry.Points.Item(1).X = teEndPos.X;
-          Geometry.Points.Item(1).Y = teEndPos.Y;
+          if (ControllerReader.controllerInfo?.button1Pressed){
+            // if button 1 is pressed add a new point to the geometry
+            Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+          } else { 
+            // if button hasnt been pressed just move the last point to the current
+            // possition of the laser so the user what the new line will look like
+            var drawPointIndex = Geometry.Points.Count - 1;
+            Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+            Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+          }
           Geometry.EndEdit();
 
-          // Exit mode when pressed again
+          // Exit mode when button 2 is pressed
           if (ControllerReader.controllerInfo?.button2Pressed) {
             console.log("finished line");
+            const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+            const Geometry = dLine.Geometry as ILineString;
+            // delete the last point as this will not have been placed by the user just drawn for planning
+            Geometry.StartEdit();
+            Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
+            Geometry.EndEdit();
+
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfo.button2Pressed = false;

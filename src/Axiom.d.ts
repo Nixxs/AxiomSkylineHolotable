@@ -419,6 +419,8 @@ interface IPoint extends IGeometry {
 interface IPoints {
   Count: number;
   Item(Index: number): IPoint;
+  AddPoint(X: number, Y: number, Z: number): void;
+  DeletePoint(Index: Number): void;
 }
 
 interface ILineString extends IGeometry {
