@@ -309,15 +309,15 @@ class UserModeManager {
             // if button 1 is pressed add a new point to the geometry
             Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
           } else { 
-            // if button hasnt been pressed just move the last point to the current
-            // possition of the laser so the user what the new line will look like
+            // if button hasn't been pressed just move the last point to the current
+            // position of the laser so the user what the new line will look like
             var drawPointIndex = Geometry.Points.Count - 1;
             Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
             Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
           }
           Geometry.EndEdit();
 
-          // this is a cooldown for the trigger press since it can trigger twice while the user
+          // this is a cool down for the trigger press since it can trigger twice while the user
           // is clicking the button on the controller
           this.switchColourCD -= 1;
           if (this.switchColourCD < 0) {
@@ -325,7 +325,7 @@ class UserModeManager {
           }
           // if user is currently drawing a line and the trigger is pressed, change the colour of the line
           if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0){
-            this.switchColourCD = 5;// switching colours has a 5 frame cooldown
+            this.switchColourCD = 5;// switching colours has a 5 frame cool down
             const dLine = SGWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
             if (dLine.LineStyle.Color.ToHTMLColor() === "#000000"){
               console.log("Draw Line: swap colour to red");
