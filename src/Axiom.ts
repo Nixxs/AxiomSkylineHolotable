@@ -1,4 +1,8 @@
-declare var SGWorld: ISGWorld;
+export declare var SGWorld: ISGWorld;
+
+import { ButtonPagingControl } from './UIControls/ButtonPagingControl';
+import modelsConfig from './config/models';
+
 const enum ControlMode {
   Wand,
   Table,
@@ -47,7 +51,6 @@ class UserModeManager {
     this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
-
     this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
@@ -97,7 +100,7 @@ class UserModeManager {
     if (this.userMode == UserMode.MoveModel) {
       console.log("end move model mode");
       const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
-      // this is for making the model collideable again but skyline have to tell us what 
+      // this is for making the model collide-able again but skyline have to tell us what 
       // code to use for this
       //modelObject.SetParam(200, 2049);
       this.userMode = UserMode.Standard;
@@ -106,7 +109,7 @@ class UserModeManager {
         this.currentId = modelID;
         const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
         // this will make the model not pickable which is what you want but we are waiting for 
-        // skyline to get back to us on waht the correct code is for making it collideable again
+        // skyline to get back to us on what the correct code is for making it collide-able again
         //modelObject.SetParam(200, 0x200);
         this.userMode = UserMode.MoveModel;
       } else {
@@ -459,7 +462,7 @@ class ControllerReader {
   }
 }
 
-class Button {
+export class Button {
   ID?: string;
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
@@ -929,7 +932,7 @@ function entityMovement() {
   // if we're moving an entity (id != null)
   //   set its position to raycasted collision point (SetPosition(id, collisionPoint))
 }
-//entityMovement.entityId = null;
+//entityMovement.entityId = null; 
 
 const enum ProgramMode {
   Unknown,
@@ -1048,23 +1051,25 @@ class ProgramManager {
       const groupIdPager = this.getButtonsGroup("pager");
       console.log("ProgramManager:: ButtonPagingControl")
       let pos = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
-      const pagerButtons = [];
-      for (let index = 0; index < 16; index++) {
-        const b = new Button("new" + index, pos, basePath + "img/placeArtilleryRange.png", groupIdPager);
+      const pagerButtons: Button[] = [];
+      modelsConfig.models.forEach(model => {
+        const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager);
         b.show(false);
         this.buttons.push(b);
         pagerButtons.push(b);
-      }
+      });
 
+      
       const pager = new ButtonPagingControl(pagerButtons);
+  
       // I know these really should be part of the paging control, but at the moment buttons have to 
       // exist in the buttons array for them to be clicked so creating them here
       // create the page left and right buttons
       pos = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
-      const pageLeft = new Button("pageLeft", pos, "", groupIdPager, () => { pager.pageLeft() });
+      const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageLeft() });
       pageLeft.show(false);
       pos = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
-      const pageRight = new Button("pageRight", pos, "", groupIdPager, () => { pager.pageRight(); });
+      const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageRight(); });
       pageRight.show(false);
       this.buttons.push(pageLeft);
       this.buttons.push(pageRight);
@@ -1185,91 +1190,6 @@ class ProgramManager {
   }
 }
 
-class ButtonPagingControl {
-  private layout: number = 9; //square layout 9x9 at moment
-  private buttons: Button[];
-  private pageNumber: number = 0;
-  private totalPages: number = 0;
-  private spacePerButton: number = 0.2;
-  public pagers: Button[] = [];
-  public isShown: boolean = false;
-
-  constructor(buttons: Button[]) {
-    console.log("ButtonPagingControl:: constructor")
-    // takes an array of buttons and lays them out
-    this.buttons = buttons;
-    this.totalPages = Math.ceil(this.buttons.length / this.layout);
-    this.initUI();
-    this.show(false);
-  }
-
-  private initUI() {
-    this.layoutUI();
-  }
-
-  private layoutUI() {
-    // to do
-    // the table is 1.2 x 1.2
-    console.log("ButtonPagingControl::layoutUI");
-
-    let counter = 0;
-    if (this.pageNumber > 0) {
-      counter += this.layout * this.pageNumber
-    }
-
-    // hide the buttons. Todo add a hide on the button class
-    this.buttons.forEach(btn => btn.show(false));
-
-    const rowColCount = Math.sqrt(this.layout);
-    const spacePerButton = this.spacePerButton
-
-    for (let indexY = rowColCount - 1; indexY >= 0; indexY--) {
-      // shift the whole thing to the centre of the table
-      let yPos = (spacePerButton * indexY);
-      yPos = -0.6 + yPos - spacePerButton;
-      for (let indexX = 0; indexX < rowColCount; indexX++) {
-        let xPos = (spacePerButton * indexX);
-        // shift the whole thing to the centre of the table
-        xPos = xPos - spacePerButton
-        if (this.buttons.length > counter) {
-          // console.log(`${this.buttons[counter].name} xPos ${xPos} yPos ${yPos}`);
-          const pos = SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
-          this.buttons[counter].roomPosition = pos;
-          this.buttons[counter].show(true);
-          counter += 1;
-        }
-      }
-    }
-
-  }
-
-  public pageRight() {
-    this.pageNumber += 1;
-    if (this.pageNumber >= this.totalPages) {
-      this.pageNumber = 0;
-    }
-    this.layoutUI();
-  }
-
-  public pageLeft() {
-    this.pageNumber += -1;
-    if (this.pageNumber < 0) {
-      this.pageNumber = this.totalPages - 1;
-    }
-    this.layoutUI();
-  }
-
-  public show(value: boolean) {
-    this.buttons.forEach(btn => btn.show(value));
-    this.pagers.forEach(btn => btn.show(value));
-    this.isShown = value;
-  }
-
-  private destroy() {
-    // break it down when a user clicks a button
-  }
-
-}
 
 
 (() => {
@@ -1281,10 +1201,12 @@ class ButtonPagingControl {
     return programManager;
   }
 
-  function Init() {
+  function Init(sgWorld: ISGWorld) {
     try {
+      SGWorld = sgWorld;
       console.log("init:: " + new Date(Date.now()).toISOString());
       document.getElementById("consoleRun")?.addEventListener("click", runConsole);
+      console.log("init:: SGWorld " + SGWorld);
       SGWorld.AttachEvent("OnFrame", () => {
         var prev = OneFrame;
         OneFrame = () => { };
@@ -1368,6 +1290,14 @@ class ButtonPagingControl {
     }
   }
 
-  window.addEventListener("load", Init);
+  // setTimeout(()=> Init(), 5000);
+  // window.addEventListener("load", Init);
+  const w: any = window;
+  if(w.SGWorld){
+    Init(w.SGWorld);
+  }else{
+    // add a while here?
+    setTimeout(()=>  Init(w.SGWorld), 1000)
+  }
 
 })();
