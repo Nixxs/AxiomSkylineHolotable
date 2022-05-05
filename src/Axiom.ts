@@ -7,7 +7,7 @@ const enum ControlMode {
   Wand,
   Table,
   Wall
-};
+}
 
 var programManager: ProgramManager;
 
@@ -99,10 +99,18 @@ class UserModeManager {
   toggleMoveModelMode(modelID: string) {
     if (this.userMode == UserMode.MoveModel) {
       console.log("end move model mode");
+      const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
+      // this is for making the model collide-able again but skyline have to tell us what 
+      // code to use for this
+      //modelObject.SetParam(200, 2049);
       this.userMode = UserMode.Standard;
     } else {
       if (modelID != "none") {
         this.currentId = modelID;
+        const modelObject = SGWorld.Creator.GetObject(modelID) as ITerrainModel;
+        // this will make the model not pickable which is what you want but we are waiting for 
+        // skyline to get back to us on what the correct code is for making it collide-able again
+        //modelObject.SetParam(200, 0x200);
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
@@ -190,8 +198,6 @@ class UserModeManager {
     this.drawLineID = null;
     this.drawLineFirstPoint = null;
   }
-
-
 
   Update(button1pressed: boolean) {
     switch (this.userMode) {
@@ -388,6 +394,7 @@ interface ControllerInfo {
   button1Pressed: boolean;
   button2Pressed: boolean;
   trigger: boolean;
+  triggerPressed: boolean;
   headPosition: IPosition;
   scaleFactor: number;
 }
@@ -404,15 +411,25 @@ class ControllerReader {
   static Update() {
     var VRControllersInfo = getVRControllersInfo();
     if (VRControllersInfo !== undefined) {
+      this.controllerInfo = {};
+      const rightHand = 1; // 0=left,1=right
+
+      const prevTrigger = this.controllerInfo?.trigger ?? false;
       const prevButton1 = this.controllerInfo?.button1 ?? false;
       const prevButton2 = this.controllerInfo?.button2 ?? false;
-      this.controllerInfo = {};
-      var rightHand = 1; // 0=left,1=right
-      this.controllerInfo.trigger = VRControllersInfo.IndexTrigger && VRControllersInfo.IndexTrigger[rightHand] != 0;
-      this.controllerInfo.button1Pressed = ((VRControllersInfo.Buttons & 0x2) != 0) && !prevButton1;
-      this.controllerInfo.button2Pressed = ((VRControllersInfo.Buttons & 0x1) != 0) && !prevButton2;
-      this.controllerInfo.button1 = (VRControllersInfo.Buttons & 0x2) != 0;
-      this.controllerInfo.button2 = (VRControllersInfo.Buttons & 0x1) != 0;
+
+      const triggerOn = VRControllersInfo.IndexTrigger && VRControllersInfo.IndexTrigger[rightHand] != 0
+      const button1On = (VRControllersInfo.Buttons & 0x2) != 0;
+      const button2On = (VRControllersInfo.Buttons & 0x1) != 0;
+
+      this.controllerInfo.triggerPressed = triggerOn && !prevTrigger;
+      this.controllerInfo.button1Pressed = button1On && !prevButton1;
+      this.controllerInfo.button2Pressed = button2On && !prevButton2;
+
+      this.controllerInfo.trigger = triggerOn;
+      this.controllerInfo.button1 = button1On;
+      this.controllerInfo.button2 = button2On;
+
       if (VRControllersInfo.HavePosition != undefined && VRControllersInfo.HavePosition[rightHand]) {
         this.controllerInfo.wandPosition = SGWorld.Navigate.GetPosition(3); // Naive way to create gPosRightHandPos
         this.controllerInfo.wandPosition.Distance = 100000;
@@ -448,19 +465,14 @@ class ControllerReader {
 export class Button {
   ID?: string;
   callback: () => void = () => { };
-  constructor(public name: string, public roomPosition: IPosition, public textureName?: string,
+  constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
     callback?: () => void) {
     const newButton = document.createElement("button");
-    const buttonIcon = document.createElement("img");
+    newButton.textContent = name;
     if (callback) {
       this.callback = callback;
     }
-    if (textureName) {
-      buttonIcon.src = textureName;
-    }
-    buttonIcon.width = 40;
-    newButton.appendChild(buttonIcon);
     newButton.addEventListener("click", () => {
       console.log(`simulating click on ${name}`);
       if (callback) {
@@ -471,6 +483,7 @@ export class Button {
     document.getElementById("buttons")?.appendChild(newButton);
   }
 
+  // buttonPressed is whether the button was down this frame but not last frame
   Update(button1Pressed: boolean, selectedID?: string) {
     if (this.ID !== undefined && this.ID === selectedID && button1Pressed) {
       this.callback();
@@ -479,50 +492,39 @@ export class Button {
     return button1Pressed;
   }
 
-  // buttonPressed is whether the button was down this frame but not last frame
   Draw() {
     const pos = roomToWorldCoord(this.roomPosition);
+    const scaleFactor = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
     if (this.ID === undefined) {
-      // const obj = SGWorld.Creator.CreateBox(pos, 1, 1, 0.1, 0xFF000000, 0xFF000000, "", "button");
-      const obj = SGWorld.Creator.CreateModel(pos, basePath + `/ui/Button_AddLine_Blue_42_Clear.obj`, 1, 0, this.groupID, this.name);
-      //  const obj = SGWorld.Creator.CreateModel(pos, basePath + `/model/Ambush.xpl2`, 1, 0, this.groupID, "test model");
+      const obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
       this.ID = obj.ID;
-      // obj.FillStyle.Texture.FileName = this.textureName;
-      return;
+    } else {
+      // Move the button to be in the right spot
+      const obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
+      obj.Position = pos;
+      obj.ScaleFactor = scaleFactor
     }
-    // Move the button to be in the right spot
-    const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
-    let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-    obj.Position = pos;
-    obj.ScaleFactor = boxSize
   }
 
   setPosition(pos: IPosition) {
     console.log("setPosition:: " + this.ID);
     if (this.ID) {
       const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
-      let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
       this.roomPosition = pos;
+      let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;
       obj.ScaleFactor = boxSize
     } else {
       this.roomPosition = pos;
       this.Draw();
     }
-
   }
 
   show(value: boolean) {
     if (!this.ID) this.Draw();
     if (!this.ID) return;
     let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-    if (value) {
-      obj.Visibility.Show = value;
-    } else {
-      obj.Visibility.Show = value;
-      console.log("hide button")
-    }
-
+    obj.Visibility.Show = value;
   }
 }
 
@@ -1022,28 +1024,28 @@ class ProgramManager {
 
     const groupId = this.getButtonsGroup("buttons");
 
-    // the table has an origin at the top centre of the table. minX = 0.6 maxX = 1.2. minY = 0 maxY = -1.2
+    // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
     const yLine1 = -1.05
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "img/sydney.png", groupId, () => this.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "img/rangefinder.png", groupId, () => this.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "img/whyalla.png", groupId, () => this.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "img/placeArtillery.png", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleModelMode("Support by Fire")));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
 
     // scale models
     const yLine2 = -1.15
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(+1)));
-    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.scaleModel(-1)));
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => this.userModeManager.scaleModel(+1)));
+    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => this.userModeManager.scaleModel(-1)));
 
     // delete selected model
-    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.deleteModel()));
+    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => this.userModeManager.deleteModel()));
 
     // undo
-    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => this.userModeManager.undo()));
+    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => this.userModeManager.undo()));
 
     // add line
-    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "img/measurement.png", groupId, () => this.userModeManager.toggleDrawLine()));
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleDrawLine()));
 
     try {
       const groupIdPager = this.getButtonsGroup("pager");
@@ -1071,15 +1073,13 @@ class ProgramManager {
       pager.pagers = [pageLeft, pageRight];
 
       // Select model
-      this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, () => {
+      this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
         pager.show(!pager.isShown)
       }));
 
     } catch (error) {
       console.log("Error creating paging control" + error);
     }
-
-    //this.debugBox = new DebugBox(SGWorld.Creator.CreatePosition(0.0, -0.6, 0.7, 3));
   }
 
   getButtonsGroup(groupName: string) {
@@ -1127,6 +1127,16 @@ class ProgramManager {
         return ControllerReader.controllerInfo?.trigger ?? false;
       case ProgramMode.Desktop:
         return DesktopInputManager.getMiddleButton();
+    }
+    return false;
+  }
+
+  getButton3Pressed() {
+    switch (this.mode) {
+      case ProgramMode.Table:
+        return ControllerReader.controllerInfo?.triggerPressed ?? false;
+      case ProgramMode.Desktop:
+        return DesktopInputManager.getMiddleButtonPressed();
     }
     return false;
   }
