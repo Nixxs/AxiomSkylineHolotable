@@ -513,37 +513,7 @@ class Button {
     if (!this.ID) this.Draw();
     if (!this.ID) return;
     let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-    if (value) {
-    } else {
-      obj.Visibility.Show = value;
-      obj.Visibility.Show = value;
-      console.log("hide button")
-    }
-
-  setPosition(pos: IPosition) {
-    console.log("setPosition:: " + this.ID);
-    if (this.ID) {
-      const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
-      let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-      this.roomPosition = pos;
-      obj.Position = pos;
-      obj.ScaleFactor = boxSize
-    } else {
-      this.roomPosition = pos;
-      this.Draw();
-    }
-  }
-
-  show(value: boolean) {
-    if (!this.ID) this.Draw();
-    if (!this.ID) return;
-    let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-    if (value) {
-      obj.Visibility.Show = value;
-    } else {
-      obj.Visibility.Show = value;
-      console.log("hide button")
-    }
+    obj.Visibility.Show = value;
   }
 }
 
@@ -1044,7 +1014,7 @@ class ProgramManager {
     const groupId = this.getButtonsGroup("buttons");
 
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
-    const yLine1 = -1.05 
+    const yLine1 = -1.05
     this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.jumpToSydney()));
     this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleMeasurementMode()));
     this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleRangeRingMode()));
@@ -1053,8 +1023,8 @@ class ProgramManager {
     this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
 
     // scale models
-    const yLine2 = -1.15 
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4,  yLine2 , 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => this.userModeManager.scaleModel(+1)));
+    const yLine2 = -1.15
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => this.userModeManager.scaleModel(+1)));
     this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => this.userModeManager.scaleModel(-1)));
 
     // delete selected model
@@ -1064,8 +1034,8 @@ class ProgramManager {
     this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => this.userModeManager.undo()));
 
     // add line
-    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath +"ui/blank.xpl2",  groupId,() => this.userModeManager.toggleDrawLine()));
-    
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => this.userModeManager.toggleDrawLine()));
+
     try {
       const groupIdPager = this.getButtonsGroup("pager");
       console.log("ProgramManager:: ButtonPagingControl")

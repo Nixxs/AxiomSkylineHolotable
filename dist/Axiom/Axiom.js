@@ -1,8 +1,9 @@
 "use strict";
 var programManager;
-var basePath = "D:/git/AxiomSkylineHolotable/dist/Axiom/";
+var basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
 // unc path of model
 var gControlMode = 1 /* Table */;
+;
 var UserModeManager = /** @class */ (function () {
     function UserModeManager(laser) {
         this.laser = laser;
@@ -17,10 +18,15 @@ var UserModeManager = /** @class */ (function () {
         this.decimalPlaces = 3;
         this.labelStyle = SGWorld.Creator.CreateLabelStyle(0);
         this.modelIds = [];
+        this.drawLineID = null;
+        this.drawLineFirstPoint = null;
+        this.drawLineWidth = 5;
+        this.switchColourCD = 0;
         this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
         this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
         this.measurementLabelStyle.PivotAlignment = "Top";
         this.measurementLabelStyle.MultilineJustification = "Left";
+        this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
     }
     UserModeManager.prototype.jumpToSydney = function () {
         console.log("sydney");
@@ -135,8 +141,21 @@ var UserModeManager = /** @class */ (function () {
         ;
         return true;
     };
+    UserModeManager.prototype.toggleDrawLine = function () {
+        if (this.userMode == 5 /* DrawLine */) {
+            if (this.drawLineID !== null) {
+                SGWorld.Creator.DeleteObject(this.drawLineID);
+            }
+            this.userMode = 0 /* Standard */;
+        }
+        else {
+            this.userMode = 5 /* DrawLine */;
+        }
+        this.drawLineID = null;
+        this.drawLineFirstPoint = null;
+    };
     UserModeManager.prototype.Update = function (button1pressed) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         switch (this.userMode) {
             case 0 /* Standard */:
                 switch (gControlMode) {
@@ -240,6 +259,76 @@ var UserModeManager = /** @class */ (function () {
                     }
                 }
                 break;
+            case 5 /* DrawLine */:
+                if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
+                    // Move the line end position to the cursor
+                    var teEndPos = this.laser.collision.hitPoint.Copy();
+                    var dLine = SGWorld.Creator.GetObject(this.drawLineID);
+                    var Geometry = dLine.Geometry;
+                    // start the edit session to enable modification of the geometry
+                    Geometry.StartEdit();
+                    if ((_f = ControllerReader.controllerInfo) === null || _f === void 0 ? void 0 : _f.button1Pressed) {
+                        // if button 1 is pressed add a new point to the geometry
+                        Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+                    }
+                    else {
+                        // if button hasn't been pressed just move the last point to the current
+                        // position of the laser so the user what the new line will look like
+                        var drawPointIndex = Geometry.Points.Count - 1;
+                        Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+                        Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+                    }
+                    Geometry.EndEdit();
+                    // this is a cool down for the trigger press since it can trigger twice while the user
+                    // is clicking the button on the controller
+                    this.switchColourCD -= 1;
+                    if (this.switchColourCD < 0) {
+                        this.switchColourCD = 0;
+                    }
+                    // if user is currently drawing a line and the trigger is pressed, change the colour of the line
+                    if (((_g = ControllerReader.controllerInfo) === null || _g === void 0 ? void 0 : _g.trigger) && this.switchColourCD <= 0) {
+                        this.switchColourCD = 5; // switching colours has a 5 frame cool down
+                        var dLine_1 = SGWorld.Creator.GetObject(this.drawLineID);
+                        if (dLine_1.LineStyle.Color.ToHTMLColor() === "#000000") {
+                            console.log("Draw Line: swap colour to red");
+                            dLine_1.LineStyle.Color.FromHTMLColor("#ff1000");
+                        }
+                        else {
+                            console.log("Draw Line: swap colour to black");
+                            dLine_1.LineStyle.Color.FromHTMLColor("#000000");
+                        }
+                    }
+                    // Exit mode when button 2 is pressed
+                    if ((_h = ControllerReader.controllerInfo) === null || _h === void 0 ? void 0 : _h.button2Pressed) {
+                        console.log("finished line");
+                        var dLine_2 = SGWorld.Creator.GetObject(this.drawLineID);
+                        var Geometry_1 = dLine_2.Geometry;
+                        // delete the last point as this will not have been placed by the user just drawn for planning
+                        Geometry_1.StartEdit();
+                        Geometry_1.Points.DeletePoint(Geometry_1.Points.Count - 1);
+                        Geometry_1.EndEdit();
+                        this.setStandardMode();
+                        // consume the button press
+                        ControllerReader.controllerInfo.button2Pressed = false;
+                        this.drawLineID = null;
+                        this.drawLineFirstPoint = null;
+                    }
+                }
+                else if ((_j = ControllerReader.controllerInfo) === null || _j === void 0 ? void 0 : _j.button1Pressed) {
+                    // Create the line
+                    console.log("new line");
+                    this.drawLineFirstPoint = this.laser.collision.hitPoint.Copy();
+                    var teStartPos = this.drawLineFirstPoint.Copy();
+                    var teEndPos = teStartPos.Copy();
+                    var strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
+                    var drawLineGeom = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+                    var dLine = SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
+                    dLine.LineStyle.Width = this.drawLineWidth;
+                    this.drawLineID = dLine.ID;
+                    // consume the button press
+                    ControllerReader.controllerInfo.button1Pressed = false;
+                }
+                break;
         }
     };
     return UserModeManager;
@@ -332,8 +421,7 @@ var Button = /** @class */ (function () {
         var pos = roomToWorldCoord(this.roomPosition);
         var scaleFactor = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 12;
         if (this.ID === undefined) {
-            // Make the button
-            var obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, "test model");
+            var obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
             this.ID = obj.ID;
         }
         else {
@@ -364,13 +452,7 @@ var Button = /** @class */ (function () {
         if (!this.ID)
             return;
         var obj = SGWorld.Creator.GetObject(this.ID);
-        if (value) {
-        }
-        else {
-            obj.Visibility.Show = value;
-            obj.Visibility.Show = value;
-            console.log("hide button");
-        }
+        obj.Visibility.Show = value;
     };
     return Button;
 }());
@@ -794,19 +876,23 @@ var ProgramManager = /** @class */ (function () {
         this.userModeManager = new UserModeManager(this.laser);
         var groupId = this.getButtonsGroup("buttons");
         // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
-        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
-        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
-        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
-        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
-        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("Support by Fire"); }));
-        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, -1.1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator"); }));
+        var yLine1 = -1.05;
+        this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
+        this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
+        this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
+        this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
+        this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("Support by Fire"); }));
+        this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator"); }));
         // scale models
-        this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, -1.2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(+1); }));
-        this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, -1.2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(-1); }));
+        var yLine2 = -1.15;
+        this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(+1); }));
+        this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(-1); }));
         // delete selected model
-        this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, -1.2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, function () { return _this.userModeManager.deleteModel(); }));
+        this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, function () { return _this.userModeManager.deleteModel(); }));
         // undo
-        this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, -1.2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, function () { return _this.userModeManager.undo(); }));
+        this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, function () { return _this.userModeManager.undo(); }));
+        // add line
+        this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleDrawLine(); }));
         try {
             var groupIdPager = this.getButtonsGroup("pager");
             console.log("ProgramManager:: ButtonPagingControl");
@@ -832,9 +918,9 @@ var ProgramManager = /** @class */ (function () {
             this.buttons.push(pageRight);
             pager_1.pagers = [pageLeft, pageRight];
             // Select model
-            this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.24, -1.2, 0.7, 3), basePath + "img/placeArtilleryRange.png", groupId, function () {
+            this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () {
+                pager_1.show(!pager_1.isShown);
             }));
-            pager_1.show(!pager_1.isShown);
         }
         catch (error) {
             console.log("Error creating paging control" + error);
