@@ -24,6 +24,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
             this.drawLineFirstPoint = null;
             this.drawLineWidth = 5;
             this.switchColourCD = 0;
+            this.lineObjects = [];
             this.measurementLineColor = exports.SGWorld.Creator.CreateColor(255, 255, 0, 255);
             this.measurementLabelStyle = exports.SGWorld.Creator.CreateLabelStyle(0);
             this.measurementLabelStyle.PivotAlignment = "Top";
@@ -215,6 +216,10 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
                         mLine.LineStyle.Width = this.measurementLineWidth;
                         this.measurementModeLineID = mLine.ID;
                         this.measurementTextLabelID = exports.SGWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
+                        // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
+                        this.lineObjects.push(this.measurementModeLineID);
+                        this.lineObjects.push(this.measurementTextLabelID);
+                        console.log(this.lineObjects.toString());
                         // consume the button press
                         ControllerReader.controllerInfo.button1Pressed = false;
                     }
@@ -327,6 +332,9 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
                         var dLine = exports.SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
                         dLine.LineStyle.Width = this.drawLineWidth;
                         this.drawLineID = dLine.ID;
+                        // add the new item to the array so it can be deleted in sequence via the undo button
+                        this.lineObjects.push(this.drawLineID);
+                        console.log(this.lineObjects.toString());
                         // consume the button press
                         ControllerReader.controllerInfo.button1Pressed = false;
                     }

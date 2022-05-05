@@ -48,6 +48,8 @@ class UserModeManager {
   private drawLineColor: IColor;
   private switchColourCD = 0;
 
+  private lineObjects: Array<string> = [];
+
   constructor(private laser: Laser) {
     this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
     this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
@@ -257,6 +259,12 @@ class UserModeManager {
           this.measurementModeLineID = mLine.ID;
 
           this.measurementTextLabelID = SGWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
+
+          // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
+          this.lineObjects.push(this.measurementModeLineID);
+          this.lineObjects.push(this.measurementTextLabelID);
+          console.log(this.lineObjects.toString());
+
           // consume the button press
           ControllerReader.controllerInfo.button1Pressed = false;
         }
@@ -373,6 +381,10 @@ class UserModeManager {
           const dLine = SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
           dLine.LineStyle.Width = this.drawLineWidth;
           this.drawLineID = dLine.ID;
+
+          // add the new item to the array so it can be deleted in sequence via the undo button
+          this.lineObjects.push(this.drawLineID);
+          console.log(this.lineObjects.toString());
 
           // consume the button press
           ControllerReader.controllerInfo.button1Pressed = false;
