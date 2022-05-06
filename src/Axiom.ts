@@ -96,6 +96,11 @@ class UserModeManager {
       this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
       this.modelIds.push(this.currentId)
       programManager.currentlySelected = this.currentId;
+
+      // add the new model to the lineobjects array so it can be delted via the undo button
+      this.lineObjects.push(this.currentId);
+      console.log(this.lineObjects.toString());
+
       this.userMode = UserMode.PlaceModel;
     }
   }
@@ -173,13 +178,37 @@ class UserModeManager {
 
   deleteModel(): void {
     if (!this.hasSelected()) return;
-    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
-    SGWorld.Creator.DeleteObject(programManager.currentlySelected)
+
+    if (programManager.currentlySelected != "none"){
+      const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
+      SGWorld.Creator.DeleteObject(programManager.currentlySelected)
+  
+      // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
+      var indexOfDeleteObject = this.lineObjects.indexOf(programManager.currentlySelected);
+      this.lineObjects.splice(indexOfDeleteObject, 1);
+    } else {
+      console.log("nothing to delete, please select a model first");
+    }
+
   }
 
+  // deletes the most recent item that was added to the lineObjects array
+  // if there is nothing in the array doesn't do anything
   undo(): void {
     console.log("undo")
-    SGWorld.Command.Execute(2345)
+    var objectToDelete = this.lineObjects.pop();
+    if (objectToDelete != undefined){
+      console.log("deleting: " + objectToDelete);
+      SGWorld.Creator.DeleteObject(objectToDelete);
+
+      // if the user selects a model then hits the undo button to delete the model then 
+      // we have to update the currently selected value to none so it doesn't cause errors
+      if (objectToDelete === programManager.currentlySelected){
+        programManager.currentlySelected = "none";
+      }
+    } else {
+      console.log("nothing to delete");
+    }
   }
 
   private hasSelected(): boolean {
@@ -261,6 +290,7 @@ class UserModeManager {
           this.measurementTextLabelID = SGWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
 
           // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
+          // if you add any other object types into the lineObjects array make sure you handle them in the undo function
           this.lineObjects.push(this.measurementModeLineID);
           this.lineObjects.push(this.measurementTextLabelID);
           console.log(this.lineObjects.toString());
@@ -383,6 +413,7 @@ class UserModeManager {
           this.drawLineID = dLine.ID;
 
           // add the new item to the array so it can be deleted in sequence via the undo button
+          // if you add any other object types into the lineObjects array make sure you handle them in the undo function
           this.lineObjects.push(this.drawLineID);
           console.log(this.lineObjects.toString());
 
