@@ -22,5 +22,5 @@ jobs:
       - run: tsc
       - uses: actions/upload-artifact@v3
         with:
-          name: artifact
+          name: axiom
           path: dist
