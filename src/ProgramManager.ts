@@ -206,13 +206,13 @@ export class ProgramManager {
         DesktopInputManager.Update();
         break;
     }
-    this.userModeManager?.Update();
     this.uiManager?.Update();
+    this.userModeManager?.Update();
   }
 
   Draw() {
-    this.userModeManager?.Draw();
     this.uiManager?.Draw();
+    this.userModeManager?.Draw();
   }
 
   Init() {
@@ -330,15 +330,15 @@ function Draw() {
 }
 
 function WorldGetPosition() {
-  var pos = worldToRoomCoordF(sgWorld.Navigate.GetPosition(3));
+  var pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   return [pos.X, pos.Y, pos.Altitude];
 }
 
 function WorldSetPosition(v: any) {
-  var newPos = worldToRoomCoordF(sgWorld.Navigate.GetPosition(3));
+  var newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   newPos.X = v[0];
   newPos.Y = v[1];
-  sgWorld.Navigate.SetPosition(roomToWorldCoordF(newPos));
+  sgWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
 }
 
 export function WorldIncreasePosition(v: any) {
@@ -350,7 +350,7 @@ export function WorldGetScale() {
 }
 
 export function WorldGetOri() {
-  var pos = worldToRoomCoordF(sgWorld.Navigate.GetPosition(3));
+  var pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   return YPRToQuat(pos.Yaw, pos.Pitch, pos.Roll);
 }
 

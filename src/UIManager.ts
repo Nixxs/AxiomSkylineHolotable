@@ -74,7 +74,11 @@ export class UIManager {
     }
   }
 
-  Draw() { }
+  Draw() {
+    for (let button of this.buttons) {
+      button.Draw();
+    }
+  }
 
   Update() {
     for (let button of this.buttons) {
