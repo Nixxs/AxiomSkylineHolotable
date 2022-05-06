@@ -1,4 +1,7 @@
-export declare var SGWorld: ISGWorld;
+
+declare global {
+  var SGWorld: ISGWorld;
+}
 
 import { ButtonPagingControl } from './UIControls/ButtonPagingControl';
 import modelsConfig from './config/models';
@@ -9,9 +12,9 @@ const enum ControlMode {
   Wall
 }
 
-var programManager: ProgramManager;
 
-const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+// const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+const basePath = "C:\\dev\\Github\\AxiomSkylineHolotable\\dist\\Axiom\\";
 // unc path of model
 
 const gControlMode: ControlMode = ControlMode.Table;
@@ -91,7 +94,7 @@ class UserModeManager {
       console.log("creating model:: " + modelPath);
       this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
       this.modelIds.push(this.currentId)
-      programManager.currentlySelected = this.currentId;
+      ProgramManager.getInstance().currentlySelected = this.currentId;
       this.userMode = UserMode.PlaceModel;
     }
   }
@@ -163,14 +166,14 @@ class UserModeManager {
 
   scaleModel(scaleVector: number): void {
     if (!this.hasSelected()) return;
-    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
+    const model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
     model.ScaleFactor = model.ScaleFactor += scaleVector;
   }
 
   deleteModel(): void {
     if (!this.hasSelected()) return;
-    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
-    SGWorld.Creator.DeleteObject(programManager.currentlySelected)
+    const model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
+    SGWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected)
   }
 
   undo(): void {
@@ -179,7 +182,7 @@ class UserModeManager {
   }
 
   private hasSelected(): boolean {
-    if (!programManager.currentlySelected) {
+    if (!ProgramManager.getInstance().currentlySelected) {
       console.log("scaleModel:: no model selected.");
       return false;
     };
@@ -493,16 +496,20 @@ export class Button {
   }
 
   Draw() {
-    const pos = roomToWorldCoord(this.roomPosition);
-    const scaleFactor = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
-    if (this.ID === undefined) {
-      const obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
-      this.ID = obj.ID;
-    } else {
-      // Move the button to be in the right spot
-      const obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
-      obj.Position = pos;
-      obj.ScaleFactor = scaleFactor
+    try {
+      const pos = roomToWorldCoord(this.roomPosition);
+      const scaleFactor = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
+      if (this.ID === undefined) {
+        const obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
+        this.ID = obj.ID;
+      } else {
+        // Move the button to be in the right spot
+        const obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
+        obj.Position = pos;
+        obj.ScaleFactor = scaleFactor
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -826,8 +833,8 @@ function selectMode(laser: Laser, button1pressed: boolean) {
       objectIDOfSelectedModel = laser.collision.objectID;
     }
     console.log("selecting model: " + objectIDOfSelectedModel);
-    programManager.currentlySelected = objectIDOfSelectedModel;
-    programManager.userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
+    ProgramManager.getInstance().currentlySelected = objectIDOfSelectedModel;
+    ProgramManager.getInstance().userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
     // if the laser is not colliding with something and the button is pressed update the selection to undefined
   }
 }
@@ -992,6 +999,7 @@ class DesktopInputManager {
 }
 
 class ProgramManager {
+  private static instance: ProgramManager;
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
   public currentlySelected = "";
@@ -1017,7 +1025,7 @@ class ProgramManager {
   buttons: Button[] = [];
   //debugBox: DebugBox;
 
-  constructor() {
+  private constructor() {
     console.log("ProgramManager:: constructor")
     this.laser = new Laser();
     this.userModeManager = new UserModeManager(this.laser);
@@ -1052,16 +1060,16 @@ class ProgramManager {
       console.log("ProgramManager:: ButtonPagingControl")
       let pos = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
       const pagerButtons: Button[] = [];
+
       modelsConfig.models.forEach(model => {
-        const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager);
+        const b = new Button("new" + model.modelName, pos, basePath + `ui/${model.buttonPath}`, groupIdPager);
         b.show(false);
         this.buttons.push(b);
         pagerButtons.push(b);
       });
 
-      
       const pager = new ButtonPagingControl(pagerButtons);
-  
+
       // I know these really should be part of the paging control, but at the moment buttons have to 
       // exist in the buttons array for them to be clicked so creating them here
       // create the page left and right buttons
@@ -1081,8 +1089,17 @@ class ProgramManager {
       }));
 
     } catch (error) {
-      console.log("Error creating paging control" + error);
+      console.log("Error creating paging control");
+      console.log(error);
     }
+  }
+
+  public static getInstance(): ProgramManager {
+    if (!this.instance) {
+      this.instance = new ProgramManager();
+    }
+
+    return this.instance;
   }
 
   getButtonsGroup(groupName: string) {
@@ -1195,23 +1212,19 @@ class ProgramManager {
 (() => {
   let recentProblems: number = 0;
 
-  function getProgramManager() {
-    if (programManager === undefined)
-      programManager = new ProgramManager();
-    return programManager;
-  }
 
-  function Init(sgWorld: ISGWorld) {
+  function Init() {
     try {
-      SGWorld = sgWorld;
+
       console.log("init:: " + new Date(Date.now()).toISOString());
       document.getElementById("consoleRun")?.addEventListener("click", runConsole);
       console.log("init:: SGWorld " + SGWorld);
       SGWorld.AttachEvent("OnFrame", () => {
         var prev = OneFrame;
         OneFrame = () => { };
-        getProgramManager().setMode(ProgramMode.Desktop);
-        if (getProgramManager().getMode() == ProgramMode.Desktop) {
+        const pm = ProgramManager.getInstance();
+        pm.setMode(ProgramMode.Desktop);
+        if (pm.getMode() == ProgramMode.Desktop) {
           roomToWorldCoordF = roomToWorldCoordD;
           worldToRoomCoordF = worldToRoomCoordD;
           prev();
@@ -1225,8 +1238,9 @@ class ProgramManager {
       SGWorld.AttachEvent("OnSGWorld", (eventID, eventParam) => {
         if (eventID == 14) {
           // This is the place were you need to read wand information and respond to it.
-          getProgramManager().setMode(ProgramMode.Table);
-          if (getProgramManager().getMode() == ProgramMode.Table) {
+          const pm = ProgramManager.getInstance();
+          pm.setMode(ProgramMode.Table);
+          if (pm.getMode() == ProgramMode.Table) {
             Update();
             Draw();
             debugHandleRefreshGesture();
@@ -1245,9 +1259,10 @@ class ProgramManager {
   }
 
   function Update() {
+    const pm = ProgramManager.getInstance();
     if (recentProblems > 0) {
       try {
-        getProgramManager().Update();
+        pm.Update();
       } catch (e) {
         ++recentProblems;
         console.log("Update error");
@@ -1262,15 +1277,16 @@ class ProgramManager {
       }
     } else {
       ++recentProblems;
-      getProgramManager().Update();
+      pm.Update();
       --recentProblems;
     }
   }
 
   function Draw() {
+    const pm = ProgramManager.getInstance();
     if (recentProblems > 0) {
       try {
-        getProgramManager().Draw();
+        pm.Draw();
       } catch (e) {
         ++recentProblems;
         console.log("Draw error");
@@ -1285,7 +1301,7 @@ class ProgramManager {
       }
     } else {
       ++recentProblems;
-      getProgramManager().Draw();
+      pm.Draw();
       --recentProblems;
     }
   }
@@ -1293,11 +1309,11 @@ class ProgramManager {
   // setTimeout(()=> Init(), 5000);
   // window.addEventListener("load", Init);
   const w: any = window;
-  if(w.SGWorld){
-    Init(w.SGWorld);
-  }else{
+  if (w.SGWorld) {
+    Init();
+  } else {
     // add a while here?
-    setTimeout(()=>  Init(w.SGWorld), 1000)
+    setTimeout(() => Init(), 1000)
   }
 
 })();

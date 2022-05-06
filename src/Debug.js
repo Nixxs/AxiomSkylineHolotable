@@ -40,6 +40,9 @@ debugHandleRefreshGesture.timer = undefined;
 // interactive debug console
 var console = {
   log: function (str) {
+    if(typeof str === "object"){ // probably an error passed in
+      str = JSON.stringify(str); 
+    }
     var el = document.getElementById("consoleOutput");
     var wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
     el.textContent += str + "\n";

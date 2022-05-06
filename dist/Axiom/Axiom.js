@@ -1,5 +1,5 @@
 "use strict";
-define("UIControls/ButtonPagingControl", ["require", "exports", "Axiom"], function (require, exports, Axiom_1) {
+define("UIControls/ButtonPagingControl", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ButtonPagingControl = void 0;
@@ -43,7 +43,7 @@ define("UIControls/ButtonPagingControl", ["require", "exports", "Axiom"], functi
                     xPos = xPos - spacePerButton;
                     if (this.buttons.length > counter) {
                         // console.log(`${this.buttons[counter].name} xPos ${xPos} yPos ${yPos}`);
-                        var pos = Axiom_1.SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
+                        var pos = SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
                         this.buttons[counter].roomPosition = pos;
                         this.buttons[counter].show(true);
                         counter += 1;
@@ -86,13 +86,92 @@ define("config/models", ["require", "exports"], function (require, exports) {
                 modelName: "Model1",
                 modelType: "Model1",
                 missionType: "Model1",
+                buttonPath: "blank.xpl2",
                 modelPath: "Model1.xpl2"
             },
             {
                 modelName: "Model2",
                 modelType: "Model2",
                 missionType: "Model2",
+                buttonPath: "blank.xpl2",
                 modelPath: "Model2.xpl2"
+            },
+            {
+                modelName: "Model3",
+                modelType: "Model3",
+                missionType: "Model3",
+                modelPath: "Model3.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model4",
+                modelType: "Model4",
+                missionType: "Model4",
+                modelPath: "Model4.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model5",
+                modelType: "Model5",
+                missionType: "Model5",
+                modelPath: "Model5.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model6",
+                modelType: "Model6",
+                missionType: "Model6",
+                modelPath: "Model6.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model7",
+                modelType: "Model7",
+                missionType: "Model7",
+                modelPath: "Model7.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model8",
+                modelType: "Model8",
+                missionType: "Model8",
+                modelPath: "Model8.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model9",
+                modelType: "Model9",
+                missionType: "Model9",
+                modelPath: "Model9.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model10",
+                modelType: "Model10",
+                missionType: "Model10",
+                modelPath: "Model10.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model11",
+                modelType: "Model11",
+                missionType: "Model11",
+                modelPath: "Model11.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model12",
+                modelType: "Model12",
+                missionType: "Model12",
+                modelPath: "Model12.xpl2",
+                buttonPath: "blank.xpl2",
+            },
+            {
+                modelName: "Model13",
+                modelType: "Model13",
+                missionType: "Model13",
+                modelPath: "Model13.xpl2",
+                buttonPath: "blank.xpl2",
             }
         ]
     };
@@ -101,8 +180,8 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Button = void 0;
-    var programManager;
-    var basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+    // const basePath = "\\\\192.168.1.19/d/C-ARMSAS/axiom/";
+    var basePath = "C:\\dev\\Github\\AxiomSkylineHolotable\\dist\\Axiom\\";
     // unc path of model
     var gControlMode = 1 /* Table */;
     ;
@@ -118,33 +197,33 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             this.currentId = null;
             this.measurementLineWidth = 3;
             this.decimalPlaces = 3;
-            this.labelStyle = exports.SGWorld.Creator.CreateLabelStyle(0);
+            this.labelStyle = SGWorld.Creator.CreateLabelStyle(0);
             this.modelIds = [];
             this.drawLineID = null;
             this.drawLineFirstPoint = null;
             this.drawLineWidth = 5;
             this.switchColourCD = 0;
-            this.measurementLineColor = exports.SGWorld.Creator.CreateColor(255, 255, 0, 255);
-            this.measurementLabelStyle = exports.SGWorld.Creator.CreateLabelStyle(0);
+            this.measurementLineColor = SGWorld.Creator.CreateColor(255, 255, 0, 255);
+            this.measurementLabelStyle = SGWorld.Creator.CreateLabelStyle(0);
             this.measurementLabelStyle.PivotAlignment = "Top";
             this.measurementLabelStyle.MultilineJustification = "Left";
-            this.drawLineColor = exports.SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
+            this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
         }
         UserModeManager.prototype.jumpToSydney = function () {
             console.log("sydney");
-            exports.SGWorld.Navigate.FlyTo(exports.SGWorld.Creator.CreatePosition(151.2067675, -33.8667266, 5000, 3, 0, -80, 0, 5000));
+            SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(151.2067675, -33.8667266, 5000, 3, 0, -80, 0, 5000));
             this.userMode = 0 /* Standard */;
         };
         UserModeManager.prototype.jumpToWhyalla = function () {
             console.log("whyalla");
-            exports.SGWorld.Navigate.FlyTo(exports.SGWorld.Creator.CreatePosition(137.5576346, -33.0357364, 5000, 3, 0, -80, 0, 5000));
+            SGWorld.Navigate.FlyTo(SGWorld.Creator.CreatePosition(137.5576346, -33.0357364, 5000, 3, 0, -80, 0, 5000));
             this.userMode = 0 /* Standard */;
         };
         UserModeManager.prototype.toggleMeasurementMode = function () {
             if (this.userMode == 1 /* Measurement */) {
                 if (this.measurementModeLineID !== null) {
-                    exports.SGWorld.Creator.DeleteObject(this.measurementModeLineID);
-                    exports.SGWorld.Creator.DeleteObject(this.measurementTextLabelID);
+                    SGWorld.Creator.DeleteObject(this.measurementModeLineID);
+                    SGWorld.Creator.DeleteObject(this.measurementTextLabelID);
                 }
                 this.userMode = 0 /* Standard */;
             }
@@ -162,19 +241,19 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             }
             else {
                 var modelPath = basePath + "model/".concat(modelName, ".xpl2");
-                var pos = exports.SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
+                var pos = SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
                 pos.Pitch = 0;
                 console.log("creating model:: " + modelPath);
-                this.currentId = exports.SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+                this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
                 this.modelIds.push(this.currentId);
-                programManager.currentlySelected = this.currentId;
+                ProgramManager.getInstance().currentlySelected = this.currentId;
                 this.userMode = 3 /* PlaceModel */;
             }
         };
         UserModeManager.prototype.toggleMoveModelMode = function (modelID) {
             if (this.userMode == 4 /* MoveModel */) {
                 console.log("end move model mode");
-                var modelObject = exports.SGWorld.Creator.GetObject(modelID);
+                var modelObject = SGWorld.Creator.GetObject(modelID);
                 // this is for making the model collide-able again but skyline have to tell us what 
                 // code to use for this
                 //modelObject.SetParam(200, 2049);
@@ -183,7 +262,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             else {
                 if (modelID != "none") {
                     this.currentId = modelID;
-                    var modelObject = exports.SGWorld.Creator.GetObject(modelID);
+                    var modelObject = SGWorld.Creator.GetObject(modelID);
                     // this will make the model not pickable which is what you want but we are waiting for 
                     // skyline to get back to us on what the correct code is for making it collide-able again
                     //modelObject.SetParam(200, 0x200);
@@ -205,46 +284,46 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         };
         UserModeManager.prototype.dropRangeRing = function () {
             console.log("dropRangeRing");
-            var lineColor = exports.SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
-            var fillColor = exports.SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
+            var lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255); //red for customer requirements
+            var fillColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
             var pos = this.laser.collision.hitPoint.Copy();
             var objNamePrefix = pos.X + "long" + pos.Y + "lat" + pos.Altitude + "mAlt_";
             //create centre circle
-            var centerFillColour = exports.SGWorld.Creator.CreateColor(0, 0, 0, 255);
-            exports.SGWorld.Creator.CreateCircle(pos, 500, fillColor, centerFillColour, "", "Centre Range Ring");
+            var centerFillColour = SGWorld.Creator.CreateColor(0, 0, 0, 255);
+            SGWorld.Creator.CreateCircle(pos, 500, fillColor, centerFillColour, "", "Centre Range Ring");
             for (var i = 1; i <= this.numRings; i++) {
                 var radius = this.spacing * i;
                 var itemName = objNamePrefix + "RangeRing" + radius + "m";
                 if (radius >= 25000) {
-                    lineColor = exports.SGWorld.Creator.CreateColor(255, 0, 0, 255);
+                    lineColor = SGWorld.Creator.CreateColor(255, 0, 0, 255);
                 }
                 else {
-                    lineColor = exports.SGWorld.Creator.CreateColor(0, 0, 0, 255);
+                    lineColor = SGWorld.Creator.CreateColor(0, 0, 0, 255);
                 }
-                var circle = exports.SGWorld.Creator.CreateCircle(pos, radius, lineColor, fillColor, "", itemName);
+                var circle = SGWorld.Creator.CreateCircle(pos, radius, lineColor, fillColor, "", itemName);
                 circle.NumberOfSegments = 50;
                 var newPos = pos.Move(radius, 270, 0);
-                exports.SGWorld.Creator.CreateTextLabel(newPos, radius + "m", this.labelStyle, "", itemName);
+                SGWorld.Creator.CreateTextLabel(newPos, radius + "m", this.labelStyle, "", itemName);
             }
         };
         UserModeManager.prototype.scaleModel = function (scaleVector) {
             if (!this.hasSelected())
                 return;
-            var model = exports.SGWorld.Creator.GetObject(programManager.currentlySelected);
+            var model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected);
             model.ScaleFactor = model.ScaleFactor += scaleVector;
         };
         UserModeManager.prototype.deleteModel = function () {
             if (!this.hasSelected())
                 return;
-            var model = exports.SGWorld.Creator.GetObject(programManager.currentlySelected);
-            exports.SGWorld.Creator.DeleteObject(programManager.currentlySelected);
+            var model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected);
+            SGWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected);
         };
         UserModeManager.prototype.undo = function () {
             console.log("undo");
-            exports.SGWorld.Command.Execute(2345);
+            SGWorld.Command.Execute(2345);
         };
         UserModeManager.prototype.hasSelected = function () {
-            if (!programManager.currentlySelected) {
+            if (!ProgramManager.getInstance().currentlySelected) {
                 console.log("scaleModel:: no model selected.");
                 return false;
             }
@@ -254,7 +333,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         UserModeManager.prototype.toggleDrawLine = function () {
             if (this.userMode == 5 /* DrawLine */) {
                 if (this.drawLineID !== null) {
-                    exports.SGWorld.Creator.DeleteObject(this.drawLineID);
+                    SGWorld.Creator.DeleteObject(this.drawLineID);
                 }
                 this.userMode = 0 /* Standard */;
             }
@@ -286,7 +365,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         // Move the line end position to the cursor
                         var teEndPos = this.laser.collision.hitPoint.Copy();
                         var teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
-                        var mLine = exports.SGWorld.Creator.GetObject(this.measurementModeLineID);
+                        var mLine = SGWorld.Creator.GetObject(this.measurementModeLineID);
                         var Geometry = mLine.Geometry;
                         Geometry.StartEdit();
                         Geometry.Points.Item(1).X = teEndPos.X;
@@ -297,7 +376,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         var distance = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
                         var strLabelText = "".concat(direction, " ").concat(String.fromCharCode(176), " / ").concat(distance, "m");
                         var teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-                        var mLabel = exports.SGWorld.Creator.GetObject(this.measurementTextLabelID);
+                        var mLabel = SGWorld.Creator.GetObject(this.measurementTextLabelID);
                         mLabel.Text = strLabelText;
                         mLabel.Position = teHalfPos;
                         // Exit mode when pressed again
@@ -318,11 +397,11 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         var teStartPos = this.measurementModeFirstPoint.Copy();
                         var teEndPos = teStartPos.Copy();
                         var strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
-                        var lineGeom = exports.SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-                        var mLine = exports.SGWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, "", "__line");
+                        var lineGeom = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+                        var mLine = SGWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, "", "__line");
                         mLine.LineStyle.Width = this.measurementLineWidth;
                         this.measurementModeLineID = mLine.ID;
-                        this.measurementTextLabelID = exports.SGWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
+                        this.measurementTextLabelID = SGWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
                         // consume the button press
                         ControllerReader.controllerInfo.button1Pressed = false;
                     }
@@ -347,7 +426,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                             newModelPosition.Pitch = 0;
                             newModelPosition.Yaw = newModelPosition.Roll * 2;
                             newModelPosition.Roll = 0;
-                            var modelObject = exports.SGWorld.Creator.GetObject(this.currentId);
+                            var modelObject = SGWorld.Creator.GetObject(this.currentId);
                             modelObject.Position = newModelPosition;
                         }
                     }
@@ -364,7 +443,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                             newModelPosition.Pitch = 0;
                             newModelPosition.Yaw = newModelPosition.Roll * 2;
                             newModelPosition.Roll = 0;
-                            var modelObject = exports.SGWorld.Creator.GetObject(this.currentId);
+                            var modelObject = SGWorld.Creator.GetObject(this.currentId);
                             modelObject.Position = newModelPosition;
                         }
                     }
@@ -373,7 +452,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                     if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
                         // Move the line end position to the cursor
                         var teEndPos = this.laser.collision.hitPoint.Copy();
-                        var dLine = exports.SGWorld.Creator.GetObject(this.drawLineID);
+                        var dLine = SGWorld.Creator.GetObject(this.drawLineID);
                         var Geometry = dLine.Geometry;
                         // start the edit session to enable modification of the geometry
                         Geometry.StartEdit();
@@ -398,7 +477,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         // if user is currently drawing a line and the trigger is pressed, change the colour of the line
                         if (((_g = ControllerReader.controllerInfo) === null || _g === void 0 ? void 0 : _g.trigger) && this.switchColourCD <= 0) {
                             this.switchColourCD = 5; // switching colours has a 5 frame cool down
-                            var dLine_1 = exports.SGWorld.Creator.GetObject(this.drawLineID);
+                            var dLine_1 = SGWorld.Creator.GetObject(this.drawLineID);
                             if (dLine_1.LineStyle.Color.ToHTMLColor() === "#000000") {
                                 console.log("Draw Line: swap colour to red");
                                 dLine_1.LineStyle.Color.FromHTMLColor("#ff1000");
@@ -411,7 +490,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         // Exit mode when button 2 is pressed
                         if ((_h = ControllerReader.controllerInfo) === null || _h === void 0 ? void 0 : _h.button2Pressed) {
                             console.log("finished line");
-                            var dLine_2 = exports.SGWorld.Creator.GetObject(this.drawLineID);
+                            var dLine_2 = SGWorld.Creator.GetObject(this.drawLineID);
                             var Geometry_1 = dLine_2.Geometry;
                             // delete the last point as this will not have been placed by the user just drawn for planning
                             Geometry_1.StartEdit();
@@ -431,8 +510,8 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         var teStartPos = this.drawLineFirstPoint.Copy();
                         var teEndPos = teStartPos.Copy();
                         var strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
-                        var drawLineGeom = exports.SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-                        var dLine = exports.SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
+                        var drawLineGeom = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+                        var dLine = SGWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
                         dLine.LineStyle.Width = this.drawLineWidth;
                         this.drawLineID = dLine.ID;
                         // consume the button press
@@ -465,7 +544,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 this.controllerInfo.button1 = button1On;
                 this.controllerInfo.button2 = button2On;
                 if (VRControllersInfo.HavePosition != undefined && VRControllersInfo.HavePosition[rightHand]) {
-                    this.controllerInfo.wandPosition = exports.SGWorld.Navigate.GetPosition(3); // Naive way to create gPosRightHandPos
+                    this.controllerInfo.wandPosition = SGWorld.Navigate.GetPosition(3); // Naive way to create gPosRightHandPos
                     this.controllerInfo.wandPosition.Distance = 100000;
                     this.controllerInfo.wandPosition.X = VRControllersInfo.Position[rightHand][0];
                     this.controllerInfo.wandPosition.Y = VRControllersInfo.Position[rightHand][2];
@@ -474,8 +553,8 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         this.controllerInfo.wandPosition.Yaw = VRControllersInfo.Yaw[rightHand];
                         this.controllerInfo.wandPosition.Pitch = VRControllersInfo.Pitch[rightHand];
                         this.controllerInfo.wandPosition.Roll = VRControllersInfo.Roll[rightHand];
-                        this.controllerInfo.headPosition = exports.SGWorld.Navigate.GetPosition(3);
-                        var tmpHeadsetpos = exports.SGWorld.GetParam(8601);
+                        this.controllerInfo.headPosition = SGWorld.Navigate.GetPosition(3);
+                        var tmpHeadsetpos = SGWorld.GetParam(8601);
                         this.controllerInfo.headPosition.X = tmpHeadsetpos.X;
                         this.controllerInfo.headPosition.Y = tmpHeadsetpos.Y;
                         this.controllerInfo.headPosition.Altitude = tmpHeadsetpos.Altitude;
@@ -528,17 +607,22 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         };
         Button.prototype.Draw = function () {
             var _a, _b;
-            var pos = roomToWorldCoord(this.roomPosition);
-            var scaleFactor = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 12;
-            if (this.ID === undefined) {
-                var obj = exports.SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
-                this.ID = obj.ID;
+            try {
+                var pos = roomToWorldCoord(this.roomPosition);
+                var scaleFactor = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 12;
+                if (this.ID === undefined) {
+                    var obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
+                    this.ID = obj.ID;
+                }
+                else {
+                    // Move the button to be in the right spot
+                    var obj = SGWorld.Creator.GetObject(this.ID);
+                    obj.Position = pos;
+                    obj.ScaleFactor = scaleFactor;
+                }
             }
-            else {
-                // Move the button to be in the right spot
-                var obj = exports.SGWorld.Creator.GetObject(this.ID);
-                obj.Position = pos;
-                obj.ScaleFactor = scaleFactor;
+            catch (error) {
+                console.log(error);
             }
         };
         Button.prototype.setPosition = function (pos) {
@@ -547,7 +631,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             if (this.ID) {
                 var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 12;
                 this.roomPosition = pos;
-                var obj = exports.SGWorld.Creator.GetObject(this.ID);
+                var obj = SGWorld.Creator.GetObject(this.ID);
                 obj.Position = pos;
                 obj.ScaleFactor = boxSize;
             }
@@ -561,7 +645,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 this.Draw();
             if (!this.ID)
                 return;
-            var obj = exports.SGWorld.Creator.GetObject(this.ID);
+            var obj = SGWorld.Creator.GetObject(this.ID);
             obj.Visibility.Show = value;
         };
         return Button;
@@ -579,13 +663,13 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             verticesArray[4] = pickRayInfo.hitPoint.Y;
             verticesArray[5] = pickRayInfo.hitPoint.Altitude;
             if (this.ID === undefined) {
-                var RightRay = exports.SGWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, exports.SGWorld.ProjectTree.NotInTreeID, "ray");
+                var RightRay = SGWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, SGWorld.ProjectTree.NotInTreeID, "ray");
                 RightRay.SetParam(200, 0x200); // Make sure that the ray object itself will not be pickable
                 this.ID = RightRay.ID;
             }
             else {
-                var obj = exports.SGWorld.Creator.GetObject(this.ID);
-                obj.Geometry = exports.SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
+                var obj = SGWorld.Creator.GetObject(this.ID);
+                obj.Geometry = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
                 obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
             }
         };
@@ -601,12 +685,12 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             spherePivot.Altitude -= sphereRadius / 2;
             var tip;
             if (this.ID == undefined) {
-                tip = exports.SGWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, exports.SGWorld.ProjectTree.NotInTreeID, "rayTip");
+                tip = SGWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, SGWorld.ProjectTree.NotInTreeID, "rayTip");
                 tip.SetParam(200, 0x200);
                 this.ID = tip.ID;
             }
             else {
-                var obj = exports.SGWorld.Creator.GetObject(this.ID);
+                var obj = SGWorld.Creator.GetObject(this.ID);
                 obj.Position = pickRayInfo.hitPoint.Copy();
                 obj.Position.Altitude -= sphereRadius / 2;
                 obj.SetParam(200, 0x200); // not pickable
@@ -623,12 +707,12 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         }
         Laser.prototype.UpdateTable = function (position) {
             var _a;
-            exports.SGWorld.SetParam(8300, position); // Pick ray
-            var hitObjectID = exports.SGWorld.GetParam(8310);
-            var distToHitPoint = exports.SGWorld.GetParam(8312); // Get distance to hit point
+            SGWorld.SetParam(8300, position); // Pick ray
+            var hitObjectID = SGWorld.GetParam(8310);
+            var distToHitPoint = SGWorld.GetParam(8312); // Get distance to hit point
             var isNothing = false;
             if (distToHitPoint == 0) {
-                distToHitPoint = exports.SGWorld.Navigate.GetPosition(3).Altitude / 2;
+                distToHitPoint = SGWorld.Navigate.GetPosition(3).Altitude / 2;
                 isNothing = true;
             }
             if (isNothing !== ((_a = this.collision) === null || _a === void 0 ? void 0 : _a.isNothing)) {
@@ -653,9 +737,9 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 console.log('Not hitting');
             }
             this.collision = {
-                originPoint: exports.SGWorld.Navigate.GetPosition(3),
+                originPoint: SGWorld.Navigate.GetPosition(3),
                 hitPoint: DesktopInputManager.getCursorPosition(),
-                rayLength: exports.SGWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
+                rayLength: SGWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
                 objectID: DesktopInputManager.getCursor().ObjectID,
                 isNothing: DesktopInputManager.getCursor().ObjectID === ''
             };
@@ -667,16 +751,16 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         return Laser;
     }());
     function roomToWorldCoordEx(position) {
-        var pos = exports.SGWorld.SetParamEx(9014, position);
+        var pos = SGWorld.SetParamEx(9014, position);
         // bug? got a object mismatch using this position when se on an object
-        pos = exports.SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
+        pos = SGWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
         return pos;
     }
     function worldToRoomCoordEx(position) {
-        return exports.SGWorld.SetParamEx(9013, position);
+        return SGWorld.SetParamEx(9013, position);
     }
     function roomToWorldCoordD(position) {
-        var ret = exports.SGWorld.Navigate.GetPosition(3);
+        var ret = SGWorld.Navigate.GetPosition(3);
         ret.X += position.X / 40000;
         ret.Y += (position.Altitude + 2) / 40000;
         ret.Altitude += position.Y - 3;
@@ -689,7 +773,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         return ret;
     }
     function worldToRoomCoordD(position) {
-        var ret = exports.SGWorld.Navigate.GetPosition(3);
+        var ret = SGWorld.Navigate.GetPosition(3);
         ret.Cartesian = true;
         ret.X = 40000 * position.X - ret.X;
         ret.Y = 40000 * position.Altitude - ret.Y;
@@ -723,18 +807,18 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         return ret;
     }
     function setComClientForcedInputMode() {
-        exports.SGWorld.SetParam(8166, 1); // Force COM input mode (Meaning your code here is in control)
+        SGWorld.SetParam(8166, 1); // Force COM input mode (Meaning your code here is in control)
     }
     function unsetComClientForcedInputMode() {
-        exports.SGWorld.SetParam(8166, 0); // UNForce COM input mode (Meaning your code here is NOT in control)
+        SGWorld.SetParam(8166, 0); // UNForce COM input mode (Meaning your code here is NOT in control)
     }
     function getVRControllersInfo() {
-        var VRCstr = exports.SGWorld.GetParam(8600); // get the VR controls status
+        var VRCstr = SGWorld.GetParam(8600); // get the VR controls status
         var VRC = JSON.parse(VRCstr);
         return VRC;
     }
     function getRoomExtent() {
-        var extent = exports.SGWorld.SetParamEx(9015); // get the VR controls status
+        var extent = SGWorld.SetParamEx(9015); // get the VR controls status
         var roomExtent = JSON.parse(extent);
         return roomExtent;
     }
@@ -747,13 +831,13 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             var roomCenterInWorldCoordinates = roomToWorldCoord(this.roomCoords);
             var boxSize = ((_b = (_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.scaleFactor) !== null && _b !== void 0 ? _b : 1) / 20.0;
             if (this.ID == undefined) {
-                var box = exports.SGWorld.Creator.CreateBox(roomCenterInWorldCoordinates, boxSize, boxSize, boxSize * 1.5, 0xFFFFFFFF, 0xFFFFFFFF, exports.SGWorld.ProjectTree.NotInTreeID, "Box");
+                var box = SGWorld.Creator.CreateBox(roomCenterInWorldCoordinates, boxSize, boxSize, boxSize * 1.5, 0xFFFFFFFF, 0xFFFFFFFF, SGWorld.ProjectTree.NotInTreeID, "Box");
                 box.SetParam(200, 0x2); // Makes the object without z write so no other object can obfuscate it.
                 this.ID = box.ID;
             }
             else {
                 var rayHitBox = rayHit;
-                var obj = exports.SGWorld.Creator.GetObject(this.ID);
+                var obj = SGWorld.Creator.GetObject(this.ID);
                 var yaw = rayHitBox ? obj.Position.Yaw + 5 : roomCenterInWorldCoordinates.Yaw;
                 obj.Position = roomCenterInWorldCoordinates;
                 obj.Position.Yaw = yaw;
@@ -771,49 +855,49 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
     function wandMode(laser) {
         var _a, _b, _c;
         if (((_a = ControllerReader.controllerInfo) === null || _a === void 0 ? void 0 : _a.trigger) && laser.collision) {
-            var posCurrent = exports.SGWorld.Navigate.GetPosition(3);
+            var posCurrent = SGWorld.Navigate.GetPosition(3);
             var posDest = laser.collision.hitPoint.Copy();
             posDest.Altitude = laser.collision.originPoint.Altitude;
             var dir = laser.collision.originPoint.AimTo(posDest);
             var newPos = posCurrent.Move(posDest.Altitude * 0.05, dir.Yaw, 0);
             newPos.Yaw = posCurrent.Yaw;
             newPos.Pitch = posCurrent.Pitch;
-            exports.SGWorld.Navigate.SetPosition(newPos);
+            SGWorld.Navigate.SetPosition(newPos);
         }
         // go up
         if ((_b = ControllerReader.controllerInfo) === null || _b === void 0 ? void 0 : _b.button1) {
-            var newPos = exports.SGWorld.Navigate.GetPosition(3);
+            var newPos = SGWorld.Navigate.GetPosition(3);
             newPos.Altitude *= 1.1;
-            exports.SGWorld.Navigate.SetPosition(newPos);
+            SGWorld.Navigate.SetPosition(newPos);
         }
         // go down
         if ((_c = ControllerReader.controllerInfo) === null || _c === void 0 ? void 0 : _c.button2) {
-            var newPos = exports.SGWorld.Navigate.GetPosition(3);
+            var newPos = SGWorld.Navigate.GetPosition(3);
             newPos.Altitude *= 0.9;
-            exports.SGWorld.Navigate.SetPosition(newPos);
+            SGWorld.Navigate.SetPosition(newPos);
         }
     }
     var wallMode = wandMode;
     function WorldGetPosition() {
-        var pos = worldToRoomCoord(exports.SGWorld.Navigate.GetPosition(3));
+        var pos = worldToRoomCoord(SGWorld.Navigate.GetPosition(3));
         var ret = [pos.X, pos.Y, pos.Altitude];
         return ret;
     }
     function WorldSetPosition(v) {
-        var newPos = worldToRoomCoord(exports.SGWorld.Navigate.GetPosition(3));
+        var newPos = worldToRoomCoord(SGWorld.Navigate.GetPosition(3));
         newPos.X = v[0];
         newPos.Y = v[1];
-        exports.SGWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
+        SGWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
     }
     function WorldIncreasePosition(v) {
         WorldSetPosition(vecAdd(v, WorldGetPosition()));
     }
     function WorldGetScale() {
-        var ret = exports.SGWorld.Navigate.GetPosition(3).Altitude;
+        var ret = SGWorld.Navigate.GetPosition(3).Altitude;
         return ret;
     }
     function WorldGetOri() {
-        var pos = worldToRoomCoord(exports.SGWorld.Navigate.GetPosition(3));
+        var pos = worldToRoomCoord(SGWorld.Navigate.GetPosition(3));
         var ret = YPRToQuat(pos.Yaw, pos.Pitch, pos.Roll);
         return ret;
     }
@@ -838,8 +922,8 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 objectIDOfSelectedModel = laser.collision.objectID;
             }
             console.log("selecting model: " + objectIDOfSelectedModel);
-            programManager.currentlySelected = objectIDOfSelectedModel;
-            programManager.userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
+            ProgramManager.getInstance().currentlySelected = objectIDOfSelectedModel;
+            ProgramManager.getInstance().userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
             // if the laser is not colliding with something and the button is pressed update the selection to undefined
         }
     }
@@ -879,9 +963,9 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                     var factor = Math.pow(scaleRatio, power);
                     var newScale = table.prevWorldScale * factor;
                     var appliedScale = Math.min(newScale, MaxZoom());
-                    var prevPos = exports.SGWorld.Navigate.GetPosition(3);
+                    var prevPos = SGWorld.Navigate.GetPosition(3);
                     prevPos.Altitude = appliedScale;
-                    exports.SGWorld.Navigate.SetPosition(prevPos);
+                    SGWorld.Navigate.SetPosition(prevPos);
                     pan = vecAdd(pan, vecMul(vecAdd(newIntersect, [0, 0.6, 0]), 1 - factor));
                     table.prevWorldScale = newScale;
                 }
@@ -896,9 +980,9 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             var maxZoom = MaxZoom();
             if (worldScale > maxZoom) {
                 worldScale = maxZoom;
-                var prevPos = exports.SGWorld.Navigate.GetPosition(3);
+                var prevPos = SGWorld.Navigate.GetPosition(3);
                 prevPos.Altitude = maxZoom;
-                exports.SGWorld.Navigate.SetPosition(prevPos);
+                SGWorld.Navigate.SetPosition(prevPos);
             }
             table.prevWorldScale = worldScale;
             var planeNormal = [0, 0, 1];
@@ -963,9 +1047,9 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         DesktopInputManager.getControlPressed = function () { return this.pressed.control; };
         DesktopInputManager.setLeftButtonPressed = function (pressed) { this.pressed.leftButton = pressed; };
         DesktopInputManager.getCursor = function () {
-            var pX = exports.SGWorld.Window.GetMouseInfo().X;
-            var pY = exports.SGWorld.Window.GetMouseInfo().Y;
-            return exports.SGWorld.Window.PixelToWorld(pX, pY, 4);
+            var pX = SGWorld.Window.GetMouseInfo().X;
+            var pY = SGWorld.Window.GetMouseInfo().Y;
+            return SGWorld.Window.PixelToWorld(pX, pY, 4);
         };
         DesktopInputManager.getCursorPosition = function () {
             return this.getCursor().Position;
@@ -988,29 +1072,29 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             var groupId = this.getButtonsGroup("buttons");
             // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
             var yLine1 = -1.05;
-            this.buttons.push(new Button("Sydney", exports.SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
-            this.buttons.push(new Button("Measurement", exports.SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
-            this.buttons.push(new Button("RangeRing", exports.SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
-            this.buttons.push(new Button("Whyalla", exports.SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
-            this.buttons.push(new Button("Artillery", exports.SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("Support by Fire"); }));
-            this.buttons.push(new Button("ArtilleryRange", exports.SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator"); }));
+            this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToSydney(); }));
+            this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleMeasurementMode(); }));
+            this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleRangeRingMode(); }));
+            this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.jumpToWhyalla(); }));
+            this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("Support by Fire"); }));
+            this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleModelMode("HowitzerWithRangeIndicator"); }));
             // scale models
             var yLine2 = -1.15;
-            this.buttons.push(new Button("ScaleModelUp", exports.SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(+1); }));
-            this.buttons.push(new Button("ScaleModelDown", exports.SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(-1); }));
+            this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(+1); }));
+            this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, function () { return _this.userModeManager.scaleModel(-1); }));
             // delete selected model
-            this.buttons.push(new Button("DeleteSelected", exports.SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, function () { return _this.userModeManager.deleteModel(); }));
+            this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, function () { return _this.userModeManager.deleteModel(); }));
             // undo
-            this.buttons.push(new Button("Undo", exports.SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, function () { return _this.userModeManager.undo(); }));
+            this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, function () { return _this.userModeManager.undo(); }));
             // add line
-            this.buttons.push(new Button("DrawLine", exports.SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleDrawLine(); }));
+            this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () { return _this.userModeManager.toggleDrawLine(); }));
             try {
                 var groupIdPager_1 = this.getButtonsGroup("pager");
                 console.log("ProgramManager:: ButtonPagingControl");
-                var pos_1 = exports.SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
+                var pos_1 = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
                 var pagerButtons_1 = [];
                 models_1.default.models.forEach(function (model) {
-                    var b = new Button("new" + model.modelName, pos_1, basePath + "ui/blank.xpl2", groupIdPager_1);
+                    var b = new Button("new" + model.modelName, pos_1, basePath + "ui/".concat(model.buttonPath), groupIdPager_1);
                     b.show(false);
                     _this.buttons.push(b);
                     pagerButtons_1.push(b);
@@ -1019,22 +1103,23 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 // I know these really should be part of the paging control, but at the moment buttons have to 
                 // exist in the buttons array for them to be clicked so creating them here
                 // create the page left and right buttons
-                pos_1 = exports.SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
+                pos_1 = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
                 var pageLeft = new Button("pageLeft", pos_1, basePath + "ui/blank.xpl2", groupIdPager_1, function () { pager_1.pageLeft(); });
                 pageLeft.show(false);
-                pos_1 = exports.SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
+                pos_1 = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
                 var pageRight = new Button("pageRight", pos_1, basePath + "ui/blank.xpl2", groupIdPager_1, function () { pager_1.pageRight(); });
                 pageRight.show(false);
                 this.buttons.push(pageLeft);
                 this.buttons.push(pageRight);
                 pager_1.pagers = [pageLeft, pageRight];
                 // Select model
-                this.buttons.push(new Button("Model Selector", exports.SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () {
+                this.buttons.push(new Button("Model Selector", SGWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, function () {
                     pager_1.show(!pager_1.isShown);
                 }));
             }
             catch (error) {
-                console.log("Error creating paging control" + error);
+                console.log("Error creating paging control");
+                console.log(error);
             }
         }
         ProgramManager.prototype.getMode = function () { return this.mode; };
@@ -1053,13 +1138,19 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                 console.log("Entered ".concat(this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown", " mode"));
             }
         };
+        ProgramManager.getInstance = function () {
+            if (!this.instance) {
+                this.instance = new ProgramManager();
+            }
+            return this.instance;
+        };
         ProgramManager.prototype.getButtonsGroup = function (groupName) {
             var groupId = "";
-            groupId = exports.SGWorld.ProjectTree.FindItem(groupName);
+            groupId = SGWorld.ProjectTree.FindItem(groupName);
             if (groupId) {
-                exports.SGWorld.ProjectTree.DeleteItem(groupId);
+                SGWorld.ProjectTree.DeleteItem(groupId);
             }
-            groupId = exports.SGWorld.ProjectTree.CreateGroup(groupName);
+            groupId = SGWorld.ProjectTree.CreateGroup(groupName);
             return groupId;
         };
         ProgramManager.prototype.getButton1Pressed = function () {
@@ -1163,23 +1254,18 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
     }());
     (function () {
         var recentProblems = 0;
-        function getProgramManager() {
-            if (programManager === undefined)
-                programManager = new ProgramManager();
-            return programManager;
-        }
-        function Init(sgWorld) {
+        function Init() {
             var _a;
             try {
-                exports.SGWorld = sgWorld;
                 console.log("init:: " + new Date(Date.now()).toISOString());
                 (_a = document.getElementById("consoleRun")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", runConsole);
-                console.log("init:: SGWorld " + exports.SGWorld);
-                exports.SGWorld.AttachEvent("OnFrame", function () {
+                console.log("init:: SGWorld " + SGWorld);
+                SGWorld.AttachEvent("OnFrame", function () {
                     var prev = OneFrame;
                     OneFrame = function () { };
-                    getProgramManager().setMode(1 /* Desktop */);
-                    if (getProgramManager().getMode() == 1 /* Desktop */) {
+                    var pm = ProgramManager.getInstance();
+                    pm.setMode(1 /* Desktop */);
+                    if (pm.getMode() == 1 /* Desktop */) {
                         roomToWorldCoordF = roomToWorldCoordD;
                         worldToRoomCoordF = worldToRoomCoordD;
                         prev();
@@ -1190,18 +1276,19 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
                         worldToRoomCoordF = worldToRoomCoordEx;
                     }
                 }); // Sent from TE AFTER rendering of a frame
-                exports.SGWorld.AttachEvent("OnSGWorld", function (eventID, eventParam) {
+                SGWorld.AttachEvent("OnSGWorld", function (eventID, eventParam) {
                     if (eventID == 14) {
                         // This is the place were you need to read wand information and respond to it.
-                        getProgramManager().setMode(2 /* Table */);
-                        if (getProgramManager().getMode() == 2 /* Table */) {
+                        var pm = ProgramManager.getInstance();
+                        pm.setMode(2 /* Table */);
+                        if (pm.getMode() == 2 /* Table */) {
                             Update();
                             Draw();
                             debugHandleRefreshGesture();
                         }
                     }
                 });
-                exports.SGWorld.AttachEvent("OnCommandExecuted", function (CommandID, parameters) {
+                SGWorld.AttachEvent("OnCommandExecuted", function (CommandID, parameters) {
                     console.log(CommandID + " " + JSON.stringify(parameters));
                 });
                 setComClientForcedInputMode();
@@ -1212,9 +1299,10 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             }
         }
         function Update() {
+            var pm = ProgramManager.getInstance();
             if (recentProblems > 0) {
                 try {
-                    getProgramManager().Update();
+                    pm.Update();
                 }
                 catch (e) {
                     ++recentProblems;
@@ -1231,14 +1319,15 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             }
             else {
                 ++recentProblems;
-                getProgramManager().Update();
+                pm.Update();
                 --recentProblems;
             }
         }
         function Draw() {
+            var pm = ProgramManager.getInstance();
             if (recentProblems > 0) {
                 try {
-                    getProgramManager().Draw();
+                    pm.Draw();
                 }
                 catch (e) {
                     ++recentProblems;
@@ -1255,7 +1344,7 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
             }
             else {
                 ++recentProblems;
-                getProgramManager().Draw();
+                pm.Draw();
                 --recentProblems;
             }
         }
@@ -1263,11 +1352,11 @@ define("Axiom", ["require", "exports", "UIControls/ButtonPagingControl", "config
         // window.addEventListener("load", Init);
         var w = window;
         if (w.SGWorld) {
-            Init(w.SGWorld);
+            Init();
         }
         else {
             // add a while here?
-            setTimeout(function () { return Init(w.SGWorld); }, 1000);
+            setTimeout(function () { return Init(); }, 1000);
         }
     })();
 });
@@ -1312,6 +1401,9 @@ debugHandleRefreshGesture.timer = undefined;
 // interactive debug console
 var console = {
     log: function (str) {
+        if (typeof str === "object") { // probably an error passed in
+            str = JSON.stringify(str);
+        }
         var el = document.getElementById("consoleOutput");
         var wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
         el.textContent += str + "\n";
