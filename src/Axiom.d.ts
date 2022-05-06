@@ -735,7 +735,7 @@ interface ISGWorld {
   Version: IVersion;
   Window: IWindow;
   AttachEvent(bstrEventName: string, dispFunc: (...args: any[]) => any): void;
-  DetachEvent(bstrEventName: string, dispFunc: (...args: any[]) => any): void;
+  DetachEvent(): unknown;
   GetOptionParam(): unknown;
   GetParam(...a: any[]): unknown;
   Open(): unknown;

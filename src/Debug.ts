@@ -1,4 +1,4 @@
-import { ControllerReader } from "./ControllerReader";
+import { ControllerReader } from "./Axiom";
 
 export class debug {
   static info: undefined | Function;
