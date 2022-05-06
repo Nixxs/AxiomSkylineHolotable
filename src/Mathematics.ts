@@ -1,6 +1,9 @@
-function YPRToQuat(yRad, pRad, rRad) {
+export type quatType = [number, number, number, number];
+export type vecType = [number, number, number];
 
-  var r = [0, 0, 0, 1];
+export function YPRToQuat(yRad: number, pRad: number, rRad: number): quatType {
+
+  var r: quatType = [0, 0, 0, 1];
 
   var cy = Math.cos(yRad / 2.0); // cos(Yaw)
   var sy = Math.sin(yRad / 2.0); // sin(Yaw)
@@ -18,11 +21,11 @@ function YPRToQuat(yRad, pRad, rRad) {
   return r;
 }
 
-function QuatConjugate(q) {
+export function QuatConjugate(q: quatType): quatType {
   return [-q[0], -q[1], -q[2], q[3]];
 }
 
-function GetXAxis(q, v) {
+export function GetXAxis(q: quatType, v: number): vecType {
   return [
     v * (q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]),
     v * (2 * (q[0] * q[1] + q[2] * q[3])),
@@ -30,7 +33,7 @@ function GetXAxis(q, v) {
   ]
 }
 
-function GetYAxis(q, v) {
+export function GetYAxis(q: quatType, v: number): vecType {
   return [
     v * (2 * (q[1] * q[0] - q[2] * q[3])),
     v * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
@@ -38,7 +41,7 @@ function GetYAxis(q, v) {
   ]
 }
 
-function GetPitch(q) {
+export function GetPitch(q: quatType) {
   let forward = GetYAxis(q, 1);
   let ret = Math.asin(forward[2]);
   if (isNaN(ret)) {
@@ -47,13 +50,13 @@ function GetPitch(q) {
   return ret;
 }
 
-function GetYaw(q) {
+export function GetYaw(q: quatType) {
   // We use right because up may be zero in xy
   let right = GetXAxis(q, 1);
   return Math.atan2(right[1], right[0]);
 }
 
-function QuatMul(a, b) {
+export function QuatMul(a: quatType, b: quatType): quatType {
   return [
     a[3] * b[0] + b[3] * a[0] + a[1] * b[2] - a[2] * b[1],
     a[3] * b[1] + b[3] * a[0] + a[2] * b[3] - a[3] * b[2],
@@ -62,7 +65,7 @@ function QuatMul(a, b) {
   ];
 }
 
-function QuatYAxis(q, l) {
+export function QuatYAxis(q: quatType, l: number): vecType {
   return [
     l * (2 * (q[1] * q[0] - q[2] * q[3])),
     l * (q[3] * q[3] - q[0] * q[0] + q[1] * q[1] - q[2] * q[2]),
@@ -70,7 +73,7 @@ function QuatYAxis(q, l) {
   ];
 }
 
-function cross(a, b) {
+export function cross(a: vecType, b: vecType): vecType {
   return [
     a[1] * b[2] - b[1] * a[2],
     a[2] * b[0] - b[2] * a[0],
@@ -78,7 +81,7 @@ function cross(a, b) {
   ];
 }
 
-function vecAdd(a, b) {
+export function vecAdd(a: number[], b: number[]) {
   var ret = [];
   for (var i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] + b[i]);
@@ -86,7 +89,7 @@ function vecAdd(a, b) {
   return ret;
 }
 
-function vecSub(a, b) {
+export function vecSub(a: number[], b: number[]) {
   var ret = [];
   for (var i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] - b[i]);
@@ -94,20 +97,18 @@ function vecSub(a, b) {
   return ret;
 }
 
-function vecMul(a, s) {
+export function vecMul(a: number[], s: number) {
   return a.map(function (e) { return e * s; });
 }
 
-function QuatApply(q, v) {
+export function QuatApply(q: quatType, v: vecType) {
 
-  var u = [q[0], q[1], q[2]];
+  var u: vecType = [q[0], q[1], q[2]];
   var crossUV = cross(u, v);
-  var ret = vecAdd(v, vecMul((vecAdd(vecMul(crossUV, q[3]), cross(u, crossUV))), 2));
-
-  return ret;
+  return vecAdd(v, vecMul((vecAdd(vecMul(crossUV, q[3]), cross(u, crossUV))), 2));
 }
 
-function dot(a, b) {
+export function dot(a: number[], b: number[]) {
 
   var ret = 0;
   for (var i = 0; i < a.length && i < b.length; ++i)
@@ -116,22 +117,16 @@ function dot(a, b) {
   return ret;
 }
 
-function mag(v) {
-
-  var ret = Math.sqrt(v.reduce(function (p, e) { return p + e * e; }, 0));
-
-  return ret;
+export function mag(v: number[]) {
+  return Math.sqrt(v.reduce(function (p, e) { return p + e * e; }, 0));
 }
 
-function normalize(v) {
-
+export function normalize(v: number[]) {
   var vMag = mag(v);
-  var ret = v.map(function (e) { return e / vMag; });
-
-  return ret;
+  return v.map(function (e) { return e / vMag; });
 }
 
-function intersectRayOnPlane(planeNormal, laserStart, laserDirection, alignPoint) {
+export function intersectRayOnPlane(planeNormal: vecType, laserStart: vecType, laserDirection: vecType, alignPoint: vecType): vecType | null {
 
   var denom = dot(laserDirection, planeNormal);
   if (denom == 0.0)
@@ -141,14 +136,9 @@ function intersectRayOnPlane(planeNormal, laserStart, laserDirection, alignPoint
   if (t < 0.0)
     return null;
 
-  var ret = vecAdd(laserStart, vecMul(laserDirection, t));
-
-  return ret;
+  return vecAdd(laserStart, vecMul(laserDirection, t)) as vecType;
 }
 
-function radsToDegs(rads) {
-
-  var ret = rads / Math.PI * 180;
-
-  return ret;
+export function radsToDegs(rads: number) {
+  return rads / Math.PI * 180;
 }

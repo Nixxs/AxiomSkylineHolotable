@@ -1,0 +1,24 @@
+{
+  "name": "axiomskylineholotable",
+  "version": "1.0.0",
+  "description": "Skyline javascript API implementation for the Axiom Holographics Holotable",
+  "main": "Axiom.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc --watch",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nixxs/AxiomSkylineHolotable.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nixxs/AxiomSkylineHolotable/issues"
+  },
+  "homepage": "https://github.com/Nixxs/AxiomSkylineHolotable#readme",
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}

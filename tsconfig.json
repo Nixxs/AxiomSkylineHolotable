@@ -1,15 +1,19 @@
 {
-  "files": [
-    "src/Axiom.ts",
-    "src/Debug.js",
-    "src/Mathematics.js",
-    "src/Axiom.d.ts"
-  ],
   "compilerOptions": {
+    "typeRoots": [
+      "types"
+    ],
+    "rootDir": "src",
     "strict": true,
     "allowJs": true,
-    "outDir": "Axiom",
-    "target": "ES3",
-    "module": "None"
+    "outDir": "dist/Axiom/",
+    "target": "ES5",
+    "module": "AMD",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
+    "moduleResolution": "Node",
+    "resolveJsonModule": true
   }
 }
