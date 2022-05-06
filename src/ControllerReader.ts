@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 import { getRoomExtent, getVRControllersInfo } from "./ProgramManager";
 
 interface ControllerInfo {
@@ -46,7 +46,7 @@ export class ControllerReader {
       this.controllerInfo.button2 = button2On;
 
       if (VRControllersInfo.HavePosition != undefined && VRControllersInfo.HavePosition[rightHand]) {
-        this.controllerInfo.wandPosition = SGWorld.Navigate.GetPosition(3); // Naive way to create gPosRightHandPos
+        this.controllerInfo.wandPosition = sgWorld.Navigate.GetPosition(3); // Naive way to create gPosRightHandPos
         this.controllerInfo.wandPosition.Distance = 100000;
         this.controllerInfo.wandPosition.X = VRControllersInfo.Position[rightHand][0];
         this.controllerInfo.wandPosition.Y = VRControllersInfo.Position[rightHand][2];
@@ -55,8 +55,8 @@ export class ControllerReader {
           this.controllerInfo.wandPosition.Yaw = VRControllersInfo.Yaw[rightHand];
           this.controllerInfo.wandPosition.Pitch = VRControllersInfo.Pitch[rightHand];
           this.controllerInfo.wandPosition.Roll = VRControllersInfo.Roll[rightHand];
-          this.controllerInfo.headPosition = SGWorld.Navigate.GetPosition(3);
-          var tmpHeadsetpos = SGWorld.GetParam(8601) as IPosition;
+          this.controllerInfo.headPosition = sgWorld.Navigate.GetPosition(3);
+          var tmpHeadsetpos = sgWorld.GetParam(8601) as IPosition;
           this.controllerInfo.headPosition.X = tmpHeadsetpos.X;
           this.controllerInfo.headPosition.Y = tmpHeadsetpos.Y;
           this.controllerInfo.headPosition.Altitude = tmpHeadsetpos.Altitude;

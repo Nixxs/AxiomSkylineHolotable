@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 
 export class Ray {
   ID?: string;
@@ -11,12 +11,12 @@ export class Ray {
     verticesArray[4] = pickRayInfo.hitPoint.Y;
     verticesArray[5] = pickRayInfo.hitPoint.Altitude;
     if (this.ID === undefined) {
-      var RightRay = SGWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, "", "ray");
+      var RightRay = sgWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, "", "ray");
       RightRay.SetParam(200, 0x200);  // Make sure that the ray object itself will not be pickable
       this.ID = RightRay.ID;
     } else {
-      var obj = SGWorld.Creator.GetObject(this.ID) as ITerrainPolyline;
-      obj.Geometry = SGWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
+      var obj = sgWorld.Creator.GetObject(this.ID) as ITerrainPolyline;
+      obj.Geometry = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
       obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
     }
   }

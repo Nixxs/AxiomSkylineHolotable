@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 
 export class Sphere {
   ID?: string;
@@ -9,11 +9,11 @@ export class Sphere {
     spherePivot.Altitude -= sphereRadius / 2;
     var tip;
     if (this.ID == undefined) {
-      tip = SGWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, "", "rayTip");
+      tip = sgWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, "", "rayTip");
       tip.SetParam(200, 0x200);
       this.ID = tip.ID;
     } else {
-      var obj = SGWorld.Creator.GetObject(this.ID) as ITerrainSphere;
+      var obj = sgWorld.Creator.GetObject(this.ID) as ITerrainSphere;
       obj.Position = pickRayInfo.hitPoint.Copy();
       obj.Position.Altitude -= sphereRadius / 2;
       obj.SetParam(200, 0x200); // not pickable

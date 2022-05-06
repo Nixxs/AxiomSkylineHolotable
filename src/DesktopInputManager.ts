@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 
 class DesktopInput {
   leftButton = false;
@@ -41,9 +41,9 @@ export class DesktopInputManager {
   static setLeftButtonPressed(pressed: boolean) { this.pressed.leftButton = pressed; }
 
   static getCursor() {
-    const pX = SGWorld.Window.GetMouseInfo().X;
-    const pY = SGWorld.Window.GetMouseInfo().Y;
-    return SGWorld.Window.PixelToWorld(pX, pY, 4)
+    const pX = sgWorld.Window.GetMouseInfo().X;
+    const pY = sgWorld.Window.GetMouseInfo().Y;
+    return sgWorld.Window.PixelToWorld(pX, pY, 4)
   }
 
   static getCursorPosition() {
