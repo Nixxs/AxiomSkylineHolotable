@@ -2,7 +2,7 @@ import { basePath, SGWorld } from "./Axiom";
 import { Button } from "./Button";
 import { modelsConfig } from "./config/models";
 import { runConsole } from "./Debug";
-import { programManager } from "./ProgramManager";
+import { ProgramManager } from "./ProgramManager";
 import { ButtonPagingControl } from "./UIControls/ButtonPagingControl";
 
 export class UIManager {
@@ -12,33 +12,33 @@ export class UIManager {
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
-    const groupId = programManager.getButtonsGroup("buttons");
+    const groupId = ProgramManager.getInstance().getButtonsGroup("buttons");
 
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
     const yLine1 = -1.05;
-    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.jumpToSydney()));
-    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.toggleRangeRingMode()));
-    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.jumpToWhyalla()));
-    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.toggleModelMode("Support by Fire")));
-    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
+    this.buttons.push(new Button("Sydney", SGWorld.Creator.CreatePosition(-0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.jumpToSydney()));
+    this.buttons.push(new Button("Measurement", SGWorld.Creator.CreatePosition(-0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.toggleMeasurementMode()));
+    this.buttons.push(new Button("RangeRing", SGWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.toggleRangeRingMode()));
+    this.buttons.push(new Button("Whyalla", SGWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.jumpToWhyalla()));
+    this.buttons.push(new Button("Artillery", SGWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.toggleModelMode("Support by Fire")));
+    this.buttons.push(new Button("ArtilleryRange", SGWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.toggleModelMode("HowitzerWithRangeIndicator")));
 
     // scale models
     const yLine2 = -1.15
-    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => programManager.userModeManager.scaleModel(+1)));
-    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => programManager.userModeManager.scaleModel(-1)));
+    this.buttons.push(new Button("ScaleModelUp", SGWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.scaleModel(+1)));
+    this.buttons.push(new Button("ScaleModelDown", SGWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.scaleModel(-1)));
 
     // delete selected model
-    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => programManager.userModeManager.deleteModel()));
+    this.buttons.push(new Button("DeleteSelected", SGWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.deleteModel()));
 
     // undo
-    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => programManager.userModeManager.undo()));
+    this.buttons.push(new Button("Undo", SGWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.undo()));
 
     // add line
-    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => programManager.userModeManager.toggleDrawLine()));
+    this.buttons.push(new Button("DrawLine", SGWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager.toggleDrawLine()));
 
     try {
-      const groupIdPager = programManager.getButtonsGroup("pager");
+      const groupIdPager = ProgramManager.getInstance().getButtonsGroup("pager");
       console.log("ProgramManager:: ButtonPagingControl")
       let pos = SGWorld.Creator.CreatePosition(0, 0, -1000, 3);
       const pagerButtons: Button[] = [];
@@ -48,7 +48,6 @@ export class UIManager {
         this.buttons.push(b);
         pagerButtons.push(b);
       });
-
 
       const pager = new ButtonPagingControl(pagerButtons);
 
@@ -77,5 +76,9 @@ export class UIManager {
 
   Draw() { }
 
-  Update() { }
+  Update() {
+    for (let button of this.buttons) {
+      ProgramManager.getInstance().setButton1Pressed(button.Update(ProgramManager.getInstance().getButton1Pressed(), ProgramManager.getInstance().userModeManager.getCollisionID()));
+    }
+  }
 }

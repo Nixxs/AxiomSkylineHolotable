@@ -2,7 +2,7 @@ import { basePath, SGWorld, } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { dot, intersectRayOnPlane, mag, normalize, QuatYAxis, radsToDegs, vecAdd, vecMul, vecSub, vecType, YPRToQuat } from "./Mathematics";
-import { deviceHeightOffset, MaxZoom, programManager, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
+import { deviceHeightOffset, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -149,8 +149,8 @@ function selectMode(laser: Laser, button1pressed: boolean) {
       objectIDOfSelectedModel = laser.collision.objectID;
     }
     console.log("selecting model: " + objectIDOfSelectedModel);
-    programManager.currentlySelected = objectIDOfSelectedModel;
-    programManager.userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
+    ProgramManager.getInstance().currentlySelected = objectIDOfSelectedModel;
+    ProgramManager.getInstance().userModeManager.toggleMoveModelMode(objectIDOfSelectedModel);
     // if the laser is not colliding with something and the button is pressed update the selection to undefined
   }
 }
@@ -190,9 +190,17 @@ export class UserModeManager {
     this.drawLineColor = SGWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
-  Init() { }
+  getCollisionID() {
+    return this.laser?.collision?.objectID;
+  }
 
-  Draw() { }
+  Init() {
+    this.laser = new Laser();
+  }
+
+  Draw() {
+    this.laser?.Draw();
+  }
 
   jumpToSydney() {
     console.log("sydney");
@@ -231,7 +239,7 @@ export class UserModeManager {
       console.log("creating model:: " + modelPath);
       this.currentId = SGWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
       this.modelIds.push(this.currentId)
-      programManager.currentlySelected = this.currentId;
+      ProgramManager.getInstance().currentlySelected = this.currentId;
 
       // add the new model to the lineobjects array so it can be delted via the undo button
       this.lineObjects.push(this.currentId);
@@ -308,19 +316,19 @@ export class UserModeManager {
 
   scaleModel(scaleVector: number): void {
     if (!this.hasSelected()) return;
-    const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
+    const model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
     model.ScaleFactor = model.ScaleFactor += scaleVector;
   }
 
   deleteModel(): void {
     if (!this.hasSelected()) return;
 
-    if (programManager.currentlySelected != "none") {
-      const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
-      SGWorld.Creator.DeleteObject(programManager.currentlySelected)
+    if (ProgramManager.getInstance().currentlySelected != "none") {
+      const model = SGWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
+      SGWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected)
 
       // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
-      var indexOfDeleteObject = this.lineObjects.indexOf(programManager.currentlySelected);
+      var indexOfDeleteObject = this.lineObjects.indexOf(ProgramManager.getInstance().currentlySelected);
       this.lineObjects.splice(indexOfDeleteObject, 1);
     } else {
       console.log("nothing to delete, please select a model first");
@@ -339,8 +347,8 @@ export class UserModeManager {
 
       // if the user selects a model then hits the undo button to delete the model then 
       // we have to update the currently selected value to none so it doesn't cause errors
-      if (objectToDelete === programManager.currentlySelected) {
-        programManager.currentlySelected = "none";
+      if (objectToDelete === ProgramManager.getInstance().currentlySelected) {
+        ProgramManager.getInstance().currentlySelected = "none";
       }
     } else {
       console.log("nothing to delete");
@@ -348,7 +356,7 @@ export class UserModeManager {
   }
 
   private hasSelected(): boolean {
-    if (!programManager.currentlySelected) {
+    if (!ProgramManager.getInstance().currentlySelected) {
       console.log("scaleModel:: no model selected.");
       return false;
     };
@@ -362,7 +370,11 @@ export class UserModeManager {
   }
 
   Update() {
-    const button1pressed = programManager.getButton1Pressed();
+    const button1pressed = ProgramManager.getInstance().getButton1Pressed();
+    switch (ProgramManager.getInstance().getMode()) {
+      case ProgramMode.Desktop: this.laser?.UpdateDesktop(); break;
+      case ProgramMode.Table: this.laser?.UpdateTable(ProgramManager.getInstance().getCursorPosition()!); break;
+    }
     switch (this.userMode) {
       case UserMode.Standard:
         switch (gControlMode) {

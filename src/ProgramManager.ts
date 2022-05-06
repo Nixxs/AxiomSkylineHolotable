@@ -116,7 +116,16 @@ export class ProgramManager {
   uiManager = new UIManager();
   buttons: Button[] = [];
 
-  constructor() {
+  private static instance?: ProgramManager;
+  public static getInstance(): ProgramManager {
+    if (this.instance === undefined) {
+      this.instance = new ProgramManager();
+    }
+
+    return this.instance;
+  }
+
+  private constructor() {
     console.log("ProgramManager:: constructor");
   }
 
@@ -234,8 +243,8 @@ export class ProgramManager {
       SGWorld.AttachEvent("OnFrame", () => {
         var prev = ProgramManager.OneFrame;
         ProgramManager.OneFrame = () => { };
-        programManager.setMode(ProgramMode.Desktop);
-        if (programManager.getMode() == ProgramMode.Desktop) {
+        ProgramManager.getInstance().setMode(ProgramMode.Desktop);
+        if (ProgramManager.getInstance().getMode() == ProgramMode.Desktop) {
           roomToWorldCoordF = roomToWorldCoordD;
           worldToRoomCoordF = worldToRoomCoordD;
           prev();
@@ -249,8 +258,8 @@ export class ProgramManager {
       SGWorld.AttachEvent("OnSGWorld", (eventID, _eventParam) => {
         if (eventID == 14) {
           // This is the place were you need to read wand information and respond to it.
-          programManager.setMode(ProgramMode.Table);
-          if (programManager.getMode() == ProgramMode.Table) {
+          ProgramManager.getInstance().setMode(ProgramMode.Table);
+          if (ProgramManager.getInstance().getMode() == ProgramMode.Table) {
             Update();
             Draw();
             debugHandleRefreshGesture();
@@ -267,14 +276,12 @@ export class ProgramManager {
   }
 }
 
-export const programManager = new ProgramManager();
-
 let recentProblems: number = 0;
 
 function Update() {
   if (recentProblems == 0) {
     try {
-      programManager.Update();
+      ProgramManager.getInstance().Update();
     } catch (e) {
       ++recentProblems;
       console.log("Update error");
@@ -289,7 +296,7 @@ function Update() {
     }
   } else {
     ++recentProblems;
-    programManager.Update();
+    ProgramManager.getInstance().Update();
     --recentProblems;
   }
 }
@@ -297,7 +304,7 @@ function Update() {
 function Draw() {
   if (recentProblems == 0) {
     try {
-      programManager.Draw();
+      ProgramManager.getInstance().Draw();
     } catch (e) {
       ++recentProblems;
       console.log("Draw error");
@@ -312,7 +319,7 @@ function Draw() {
     }
   } else {
     ++recentProblems;
-    programManager.Draw();
+    ProgramManager.getInstance().Draw();
     --recentProblems;
   }
 }
