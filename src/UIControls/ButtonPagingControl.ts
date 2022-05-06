@@ -1,4 +1,4 @@
-import { SGWorld } from "../Axiom";
+import { sgWorld } from "../Axiom";
 import { Button } from "../Button";
 
 export class ButtonPagingControl {
@@ -49,7 +49,7 @@ export class ButtonPagingControl {
         xPos = xPos - spacePerButton;
         if (this.buttons.length > counter) {
           // console.log(`${this.buttons[counter].name} xPos ${xPos} yPos ${yPos}`);
-          const pos = SGWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
+          const pos = sgWorld.Creator.CreatePosition(xPos, yPos, 0.7, 3);
           this.buttons[counter].roomPosition = pos;
           this.buttons[counter].show(true);
           counter += 1;

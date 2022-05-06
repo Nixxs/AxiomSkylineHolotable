@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 import { DesktopInputManager } from "./DesktopInputManager";
 import { Ray } from "./Ray";
 import { Sphere } from "./Sphere";
@@ -16,12 +16,12 @@ export class Laser {
   };
 
   UpdateTable(position: IPosition) {
-    SGWorld.SetParam(8300, position); // Pick ray
-    const hitObjectID = SGWorld.GetParam(8310) as string | undefined;
-    let distToHitPoint = SGWorld.GetParam(8312) as number;    // Get distance to hit point
+    sgWorld.SetParam(8300, position); // Pick ray
+    const hitObjectID = sgWorld.GetParam(8310) as string | undefined;
+    let distToHitPoint = sgWorld.GetParam(8312) as number;    // Get distance to hit point
     let isNothing = false;
     if (distToHitPoint == 0) {
-      distToHitPoint = SGWorld.Navigate.GetPosition(3).Altitude / 2;
+      distToHitPoint = sgWorld.Navigate.GetPosition(3).Altitude / 2;
       isNothing = true;
     }
 
@@ -47,9 +47,9 @@ export class Laser {
     }
 
     this.collision = {
-      originPoint: SGWorld.Navigate.GetPosition(3),
+      originPoint: sgWorld.Navigate.GetPosition(3),
       hitPoint: DesktopInputManager.getCursorPosition(),
-      rayLength: SGWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
+      rayLength: sgWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
       objectID: DesktopInputManager.getCursor().ObjectID,
       isNothing: DesktopInputManager.getCursor().ObjectID === ''
     };

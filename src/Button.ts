@@ -1,4 +1,4 @@
-import { SGWorld } from "./Axiom";
+import { sgWorld } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
@@ -35,11 +35,11 @@ export class Button {
     const pos = roomToWorldCoord(this.roomPosition);
     const scaleFactor = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
     if (this.ID === undefined) {
-      const obj = SGWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
+      const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
       this.ID = obj.ID;
     } else {
       // Move the button to be in the right spot
-      const obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
+      const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;
       obj.ScaleFactor = scaleFactor
     }
@@ -50,7 +50,7 @@ export class Button {
     if (this.ID) {
       const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
       this.roomPosition = pos;
-      let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
+      let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;
       obj.ScaleFactor = boxSize
     } else {
@@ -62,7 +62,7 @@ export class Button {
   show(value: boolean) {
     if (!this.ID) this.Draw();
     if (!this.ID) return;
-    let obj: ITerrainModel = SGWorld.Creator.GetObject(this.ID) as ITerrainModel;
+    let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
     obj.Visibility.Show = value;
   }
 }
