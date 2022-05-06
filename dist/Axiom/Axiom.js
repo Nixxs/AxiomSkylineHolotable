@@ -62,7 +62,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
                 this.userMode = 0 /* Standard */;
             }
             else {
-                var modelPath = basePath + ("model/" + modelName + ".xpl2");
+                var modelPath = basePath + "model/".concat(modelName, ".xpl2");
                 var pos = exports.SGWorld.Window.CenterPixelToWorld(0).Position.Copy();
                 pos.Pitch = 0;
                 console.log("creating model:: " + modelPath);
@@ -213,7 +213,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
                         // Update the label
                         var direction = teStartPos.Yaw.toFixed(this.decimalPlaces);
                         var distance = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
-                        var strLabelText = direction + " " + String.fromCharCode(176) + " / " + distance + "m";
+                        var strLabelText = "".concat(direction, " ").concat(String.fromCharCode(176), " / ").concat(distance, "m");
                         var teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
                         var mLabel = exports.SGWorld.Creator.GetObject(this.measurementTextLabelID);
                         mLabel.Text = strLabelText;
@@ -446,7 +446,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
                 this.callback = callback;
             }
             newButton.addEventListener("click", function () {
-                console.log("simulating click on " + name);
+                console.log("simulating click on ".concat(name));
                 if (callback) {
                     OneFrame = callback;
                 }
@@ -582,7 +582,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
         Laser.prototype.UpdateDesktop = function () {
             var _a, _b;
             if (((_a = this.collision) === null || _a === void 0 ? void 0 : _a.isNothing) && DesktopInputManager.getCursor().ObjectID !== '') {
-                console.log("hitting " + DesktopInputManager.getCursor().ObjectID);
+                console.log("hitting ".concat(DesktopInputManager.getCursor().ObjectID));
             }
             else if (!((_b = this.collision) === null || _b === void 0 ? void 0 : _b.isNothing) && DesktopInputManager.getCursor().ObjectID === '') {
                 console.log('Not hitting');
@@ -987,7 +987,7 @@ define(["require", "exports", "./config/models", "./Debug", "./Mathematics", "./
             if (this.mode < newMode) {
                 // upgrade mode
                 this.mode = newMode;
-                console.log("Entered " + (this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown") + " mode");
+                console.log("Entered ".concat(this.mode == 2 ? "Table" : this.mode == 1 ? "Desktop" : "Unknown", " mode"));
             }
         };
         ProgramManager.prototype.getButtonsGroup = function (groupName) {
