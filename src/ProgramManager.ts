@@ -129,14 +129,18 @@ export class ProgramManager {
     console.log("ProgramManager:: constructor");
   }
 
-  getButtonsGroup(groupName: string) {
-    let groupId = "";
-    groupId = sgWorld.ProjectTree.FindItem(groupName);
+  deleteGroup(groupName: string) {
+    const groupId = sgWorld.ProjectTree.FindItem(groupName);
     if (groupId) {
+      console.log(`Deleted old group "${groupName}"`);
       sgWorld.ProjectTree.DeleteItem(groupId);
+      return true;
     }
-    groupId = sgWorld.ProjectTree.CreateGroup(groupName);
-    return groupId;
+    return false;
+  }
+
+  getGroupID(groupName: string) {
+    return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName);
   }
 
   getButton1Pressed() {
@@ -218,9 +222,9 @@ export class ProgramManager {
   Init() {
     try {
       console.log("init:: " + new Date(Date.now()).toISOString());
-      setComClientForcedInputMode();
       // Wait for managers to initialise on first frame
       const afterFirst = () => {
+        setComClientForcedInputMode();
         sgWorld.AttachEvent("OnFrame", () => {
           var prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };

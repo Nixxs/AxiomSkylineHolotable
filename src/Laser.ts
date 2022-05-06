@@ -1,11 +1,16 @@
 import { sgWorld } from "./Axiom";
 import { DesktopInputManager } from "./DesktopInputManager";
+import { ProgramManager } from "./ProgramManager";
 import { Ray } from "./Ray";
 import { Sphere } from "./Sphere";
 
 export class Laser {
   ray: Ray = new Ray();
   tip: Sphere = new Sphere();
+
+  constructor() {
+    ProgramManager.getInstance().deleteGroup("Laser");
+  }
 
   collision?: {
     originPoint: IPosition,
