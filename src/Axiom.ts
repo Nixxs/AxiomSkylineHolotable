@@ -97,7 +97,7 @@ class UserModeManager {
       this.modelIds.push(this.currentId)
       programManager.currentlySelected = this.currentId;
 
-      // add the new model to the lineobjects array so it can be delted via the undo button
+      // add the new model to the line objects array so it can be deleted via the undo button
       this.lineObjects.push(this.currentId);
       console.log(this.lineObjects.toString());
 
@@ -179,11 +179,11 @@ class UserModeManager {
   deleteModel(): void {
     if (!this.hasSelected()) return;
 
-    if (programManager.currentlySelected != "none"){
+    if (programManager.currentlySelected != "none") {
       const model = SGWorld.Creator.GetObject(programManager.currentlySelected) as ITerrainModel;
       SGWorld.Creator.DeleteObject(programManager.currentlySelected)
-  
-      // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
+
+      // delete the model from the lineObjects array so it doesn't cause issues with the delete button
       var indexOfDeleteObject = this.lineObjects.indexOf(programManager.currentlySelected);
       this.lineObjects.splice(indexOfDeleteObject, 1);
     } else {
@@ -197,13 +197,13 @@ class UserModeManager {
   undo(): void {
     console.log("undo")
     var objectToDelete = this.lineObjects.pop();
-    if (objectToDelete != undefined){
+    if (objectToDelete != undefined) {
       console.log("deleting: " + objectToDelete);
       SGWorld.Creator.DeleteObject(objectToDelete);
 
       // if the user selects a model then hits the undo button to delete the model then 
       // we have to update the currently selected value to none so it doesn't cause errors
-      if (objectToDelete === programManager.currentlySelected){
+      if (objectToDelete === programManager.currentlySelected) {
         programManager.currentlySelected = "none";
       }
     } else {
