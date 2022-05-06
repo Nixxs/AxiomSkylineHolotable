@@ -1,4 +1,4 @@
-define(["require", "exports", "./Axiom"], function (require, exports, Axiom_1) {
+define(["require", "exports", "./ControllerReader"], function (require, exports, ControllerReader_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.runConsole = exports.debugHandleRefreshGesture = exports.debug = void 0;
@@ -33,13 +33,13 @@ define(["require", "exports", "./Axiom"], function (require, exports, Axiom_1) {
     var debugHandleRefreshGestureTimer = undefined;
     function debugHandleRefreshGesture() {
         // Point the wand directly up for 2 sec to refresh page
-        if (Axiom_1.ControllerReader.controllerInfo && Axiom_1.ControllerReader.controllerInfo.wandPosition && Axiom_1.ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGestureTimer == undefined) {
+        if (ControllerReader_1.ControllerReader.controllerInfo && ControllerReader_1.ControllerReader.controllerInfo.wandPosition && ControllerReader_1.ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGestureTimer == undefined) {
             console.log("started debug refresh gesture");
             debugHandleRefreshGestureTimer = setTimeout(function () {
                 window.location.reload();
             }, 2000);
         }
-        else if (Axiom_1.ControllerReader.controllerInfo && Axiom_1.ControllerReader.controllerInfo.wandPosition && Axiom_1.ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGestureTimer) {
+        else if (ControllerReader_1.ControllerReader.controllerInfo && ControllerReader_1.ControllerReader.controllerInfo.wandPosition && ControllerReader_1.ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGestureTimer) {
             clearTimeout(debugHandleRefreshGestureTimer);
             console.log("canceling debug refresh gesture");
             debugHandleRefreshGestureTimer = undefined;

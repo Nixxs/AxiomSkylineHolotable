@@ -1,4 +1,5 @@
-import { Button, SGWorld } from "../Axiom";
+import { SGWorld } from "../Axiom";
+import { Button } from "../Button";
 
 export class ButtonPagingControl {
   private layout: number = 9; //square layout 9x9 at moment
