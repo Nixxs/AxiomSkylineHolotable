@@ -22,7 +22,7 @@ export class ModelsControl  {
         const pagerButtons: Button[] = [];
         this.pager = new ButtonPagingControl(pagerButtons);
 
-        let groupIdPager = ProgramManager.getInstance().getButtonsGroup("pager");
+        let groupIdPager = ProgramManager.getInstance().getGroupID("pager");
       //   const  groupIdPager = ""
         let pos = sgWorld.Creator.CreatePosition(0, 0, -1000, 3);
         modelsConfig.models.forEach(model => {

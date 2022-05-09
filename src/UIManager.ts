@@ -13,7 +13,8 @@ export class UIManager {
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
-    const groupId = ProgramManager.getInstance().getButtonsGroup("buttons");
+    ProgramManager.getInstance().deleteGroup("buttons");
+    const groupId = ProgramManager.getInstance().getGroupID("buttons");
 
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
     const yLine1 = -1.05;
