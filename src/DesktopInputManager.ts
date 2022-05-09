@@ -13,17 +13,19 @@ export class DesktopInputManager {
   private static pressed = new DesktopInput();
 
   static Update() {
-    this.pressed.leftButton = this.getLeftButton() && !this.getLeftButtonPressed();
-    this.pressed.rightButton = this.getRightButton() && !this.getRightButton();
-    this.pressed.middleButton = this.getMiddleButton() && !this.getMiddleButton();
-    this.pressed.shift = this.getShift() && !this.getShift();
-    this.pressed.control = this.getControl() && !this.getControl();
+    const mouseInfo = sgWorld.Window.GetMouseInfo();
 
-    this.state.leftButton = this.getLeftButton();
-    this.state.rightButton = this.getRightButton();
-    this.state.middleButton = this.getMiddleButton();
-    this.state.shift = this.getShift();
-    this.state.control = this.getControl();
+    this.pressed.leftButton = !!(mouseInfo.Flags & 1) && !this.getLeftButton();
+    this.pressed.rightButton = !!(mouseInfo.Flags & 2) && !this.getRightButton();
+    this.pressed.middleButton = !!(mouseInfo.Flags & 4) && !this.getMiddleButton();
+    this.pressed.shift = !!(mouseInfo.Flags & 8) && !this.getShift();
+    this.pressed.control = !!(mouseInfo.Flags & 16) && !this.getControl();
+
+    this.state.leftButton = !!(mouseInfo.Flags & 1);
+    this.state.rightButton = !!(mouseInfo.Flags & 2);
+    this.state.middleButton = !!(mouseInfo.Flags & 4);
+    this.state.shift = !!(mouseInfo.Flags & 8);
+    this.state.control = !!(mouseInfo.Flags & 16);
   }
 
   static getLeftButton() { return this.state.leftButton; }
@@ -43,7 +45,7 @@ export class DesktopInputManager {
   static getCursor() {
     const pX = sgWorld.Window.GetMouseInfo().X;
     const pY = sgWorld.Window.GetMouseInfo().Y;
-    return sgWorld.Window.PixelToWorld(pX, pY, 4)
+    return sgWorld.Window.PixelToWorld(pX, pY, 1)
   }
 
   static getCursorPosition() {

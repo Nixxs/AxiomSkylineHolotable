@@ -1,20 +1,20 @@
 import { sgWorld } from "./Axiom";
-import { ProgramManager } from "./ProgramManager";
+import { collisionInfo } from "./Laser";
 
 export class Sphere {
+  constructor(private groupID: string) { }
   ID?: string;
-  Draw(pickRayInfo: any) {
-    var rayLengthScaleFactor = pickRayInfo.rayLength * 0.004;
-    var sphereRadius = Math.max(0.01, rayLengthScaleFactor);
-    var spherePivot = pickRayInfo.hitPoint.Copy();
+  Draw(pickRayInfo: collisionInfo) {
+    const rayLengthScaleFactor = pickRayInfo.rayLength * 0.004;
+    const sphereRadius = Math.max(0.01, rayLengthScaleFactor);
+    const spherePivot = pickRayInfo.hitPoint.Copy();
     spherePivot.Altitude -= sphereRadius / 2;
-    var tip;
     if (this.ID == undefined) {
-      tip = sgWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, ProgramManager.getInstance().getGroupID("Laser"), "rayTip");
+      const tip = sgWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, this.groupID, "rayTip");
       tip.SetParam(200, 0x200);
       this.ID = tip.ID;
     } else {
-      var obj = sgWorld.Creator.GetObject(this.ID) as ITerrainSphere;
+      const obj = sgWorld.Creator.GetObject(this.ID) as ITerrainSphere;
       obj.Position = pickRayInfo.hitPoint.Copy();
       obj.Position.Altitude -= sphereRadius / 2;
       obj.SetParam(200, 0x200); // not pickable

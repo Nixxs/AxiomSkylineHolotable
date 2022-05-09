@@ -4,13 +4,13 @@ export class debug {
   static info: undefined | Function;
 
   static stacktrace(f?: Function): string {
-    var args = [];
+    const args = [];
     if (f) {
       if (f.arguments)
-        for (var i = 0; i < f.arguments.length; i++) {
-          args.push(f.arguments[i]);
+        for (let argument of f.arguments) {
+          args.push(argument);
         }
-      var function_name = f.toString().split('(')[0].substring(9);
+      const function_name = f.toString().split('(')[0].substring(9);
       if (f == f.caller)
         return "[recursive] " + function_name + '(' + args.join(', ') + ')' + "\n";
       return debug.stacktrace(f.caller) + function_name + '(' + args.join(', ') + ')' + "\n";
