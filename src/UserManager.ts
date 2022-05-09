@@ -16,21 +16,21 @@ function tableMode() {
   if (ProgramManager.getInstance().getMode() !== ProgramMode.Table)
     return;
   const table = tableMode;
-  if (ControllerReader.controllerInfo === undefined) {
+  if (ControllerReader.controllerInfos[1] === undefined) {
     console.log("No controller info");
     return;
   }
-  if (table.isDragging && !ControllerReader.controllerInfo.trigger) {
+  if (table.isDragging && !ControllerReader.controllerInfos[1].trigger) {
     table.isDragging = false;
     console.log("trigger released");
   }
 
-  if (ControllerReader.controllerInfo.wandPosition === undefined) {
+  if (ControllerReader.controllerInfos[1].wandPosition === undefined) {
     console.log("No wand position info");
     return;
   }
 
-  const wandIPos = worldToRoomCoord(ControllerReader.controllerInfo.wandPosition);
+  const wandIPos = worldToRoomCoord(ControllerReader.controllerInfos[1].wandPosition);
   const wandOri = YPRToQuat(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
   const wandPos: vecType = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
   const wandDir = QuatYAxis(wandOri, 1);
@@ -83,7 +83,7 @@ function tableMode() {
     }
   }
 
-  if (ControllerReader.controllerInfo?.trigger && !table.isDragging) {
+  if (ControllerReader.controllerInfos[1]?.trigger && !table.isDragging) {
     console.log("trigger pressed");
     var worldScale = WorldGetScale();
     var maxZoom = MaxZoom();
@@ -126,7 +126,7 @@ export const enum UserMode {
 
 // If trigger is pressed: move in the direction of the ray
 function wandMode(laser: Laser) {
-  if (ControllerReader.controllerInfo?.trigger && laser.collision) {
+  if (ControllerReader.controllerInfos[1]?.trigger && laser.collision) {
     var posCurrent = sgWorld.Navigate.GetPosition(3);
     var posDest = laser.collision.hitPoint.Copy();
     posDest.Altitude = laser.collision.originPoint.Altitude;
@@ -137,13 +137,13 @@ function wandMode(laser: Laser) {
     sgWorld.Navigate.SetPosition(newPos);
   }
   // go up
-  if (ControllerReader.controllerInfo?.button1) {
+  if (ControllerReader.controllerInfos[1]?.button1) {
     let newPos = sgWorld.Navigate.GetPosition(3);
     newPos.Altitude *= 1.1;
     sgWorld.Navigate.SetPosition(newPos);
   }
   // go down
-  if (ControllerReader.controllerInfo?.button2) {
+  if (ControllerReader.controllerInfos[1]?.button2) {
     let newPos = sgWorld.Navigate.GetPosition(3);
     newPos.Altitude *= 0.9;
     sgWorld.Navigate.SetPosition(newPos);
@@ -424,16 +424,16 @@ export class UserModeManager {
           mLabel.Position = teHalfPos;
 
           // Exit mode when pressed again
-          if (ControllerReader.controllerInfo?.button1Pressed) {
+          if (ControllerReader.controllerInfos[1]?.button1Pressed) {
             console.log("finished line");
             this.setStandardMode();
             // consume the button press
-            ControllerReader.controllerInfo.button1Pressed = false;
+            ControllerReader.controllerInfos[1].button1Pressed = false;
             this.measurementModeLineID = null;
             this.measurementTextLabelID = null;
             this.measurementModeFirstPoint = null;
           }
-        } else if (ControllerReader.controllerInfo?.button1Pressed) {
+        } else if (ControllerReader.controllerInfos[1]?.button1Pressed) {
           // Create the line and label
           console.log("new line");
 
@@ -457,22 +457,22 @@ export class UserModeManager {
           console.log(this.lineObjects.toString());
 
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
       case UserMode.DropRangeRing:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
+        if (ControllerReader.controllerInfos[1]?.button1Pressed) {
           this.dropRangeRing();
           this.setStandardMode();
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
       case UserMode.PlaceModel:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
+        if (ControllerReader.controllerInfos[1]?.button1Pressed) {
           this.setStandardMode();
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         } else {
           if (this.laser!.collision !== undefined) {
             var newModelPosition = this.laser!.collision.hitPoint.Copy();
@@ -485,10 +485,10 @@ export class UserModeManager {
         }
         break;
       case UserMode.MoveModel:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
+        if (ControllerReader.controllerInfos[1]?.button1Pressed) {
           this.setStandardMode();
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         } else {
           if (this.laser!.collision !== undefined) {
             var newModelPosition = this.laser!.collision.hitPoint.Copy();
@@ -510,7 +510,7 @@ export class UserModeManager {
           const Geometry = dLine.Geometry as ILineString;
           // start the edit session to enable modification of the geometry
           Geometry.StartEdit();
-          if (ControllerReader.controllerInfo?.button1Pressed) {
+          if (ControllerReader.controllerInfos[1]?.button1Pressed) {
             // if button 1 is pressed add a new point to the geometry
             Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
           } else {
@@ -529,7 +529,7 @@ export class UserModeManager {
             this.switchColourCD = 0;
           }
           // if user is currently drawing a line and the trigger is pressed, change the colour of the line
-          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0) {
+          if (ControllerReader.controllerInfos[1]?.trigger && this.switchColourCD <= 0) {
             this.switchColourCD = 5;// switching colours has a 5 frame cool down
             const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
             if (dLine.LineStyle.Color.ToHTMLColor() === "#000000") {
@@ -542,7 +542,7 @@ export class UserModeManager {
           }
 
           // Exit mode when button 2 is pressed
-          if (ControllerReader.controllerInfo?.button2Pressed) {
+          if (ControllerReader.controllerInfos[1]?.button2Pressed) {
             console.log("finished line");
             const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
             const Geometry = dLine.Geometry as ILineString;
@@ -553,12 +553,12 @@ export class UserModeManager {
 
             this.setStandardMode();
             // consume the button press
-            ControllerReader.controllerInfo.button2Pressed = false;
+            ControllerReader.controllerInfos[1].button2Pressed = false;
             this.drawLineID = null;
             this.drawLineFirstPoint = null;
           }
 
-        } else if (ControllerReader.controllerInfo?.button1Pressed) {
+        } else if (ControllerReader.controllerInfos[1]?.button1Pressed) {
           // Create the line
           console.log("new line");
 
@@ -579,7 +579,7 @@ export class UserModeManager {
           console.log(this.lineObjects.toString());
 
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
     }
