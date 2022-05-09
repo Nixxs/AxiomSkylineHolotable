@@ -1,9 +1,7 @@
 import { basePath, sgWorld } from "./Axiom";
 import { Button } from "./Button";
-import { modelsConfig } from "./config/models";
 import { runConsole } from "./Debug";
 import { ProgramManager } from "./ProgramManager";
-import { ButtonPagingControl } from "./UIControls/ButtonPagingControl";
 import { ModelsControl } from "./UIControls/ModelsControl";
 
 export class UIManager {
@@ -40,9 +38,18 @@ export class UIManager {
     this.buttons.push(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
 
     try {
-      const modelsControl = new ModelsControl(sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), groupId);
+      const modelsControl = new ModelsControl();
+
+      this.buttons.push(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
+        modelsControl.show(!modelsControl.isShown)
+      }));
+
+      modelsControl.on("onShow", (b)=>{
+        // do we want to hide the bottom buttons at this point?
+        console.log("modelsControl:: onShow" + b)
+      })
       // // we have to put all the buttons into the buttons of the UI control as this manages the click of the buttons
-     this.buttons.push(...modelsControl.buttons)
+      this.buttons.push(...modelsControl.buttons)
     } catch (error) {
       console.log("Error creating paging control" + error);
     }

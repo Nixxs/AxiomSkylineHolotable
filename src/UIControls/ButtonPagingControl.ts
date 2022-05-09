@@ -1,7 +1,10 @@
-import { sgWorld } from "../Axiom";
+import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
+import { modelsConfig } from "../config/models";
+import { ProgramManager } from "../ProgramManager";
 
 export class ButtonPagingControl {
+
   private layout: number = 9; //square layout 9x9 at moment
   private buttons: Button[];
   private pageNumber: number = 0;
@@ -9,37 +12,55 @@ export class ButtonPagingControl {
   private spacePerButton: number = 0.2;
   public pagers: Button[] = [];
   public isShown: boolean = false;
+  private currentFilter: { modelType: string } = { modelType: "" };
 
   constructor(buttons: Button[]) {
     console.log("ButtonPagingControl:: constructor");
     // takes an array of buttons and lays them out
     this.buttons = buttons;
-    this.totalPages = Math.ceil(this.buttons.length / this.layout);
     this.initUI();
     this.show(false);
   }
 
   private initUI() {
 
-    //   let pos = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
-    //   const groupIdPager = pm.getButtonsGroup("pager");
-    //   const basePath = "";
-    //   const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageLeft(); });
-    //   pageLeft.show(false);
-    //   pos = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
-    //   const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageRight(); });
-    //   pageRight.show(false);
-    //   pm.buttons.push(pageLeft);
-    //   pm.buttons.push(pageRight);
-    //   this.pagers = [pageLeft, pageRight];
+    let groupIdPager = ProgramManager.getInstance().getGroupID("pager");
 
-    // this.layoutUI();
+    let pos = sgWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
+    const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageLeft(); });
+    pageLeft.show(false);
+    pos = sgWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
+    const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageRight(); });
+    pageRight.show(false);
+    this.pagers = [pageLeft, pageRight];
+
+    this.layoutUI();
+  }
+
+  /**
+   * update the buttons on the UI
+   *
+   * @param {Button} buttons
+   * @memberof ButtonPagingControl
+   */
+  public setButtons(buttons: Button[]) {
+    // hide the buttons. Todo add a hide on the button class
+    this.buttons.forEach(btn => btn.show(false));
+    this.buttons = buttons;
+    // hide the pagers?
+    const showPagers = this.buttons.length > this.layout -1;
+    this.pagers.forEach(p => p.show(showPagers));
+    this.pageNumber = 0;
+    this.totalPages = Math.ceil(this.buttons.length / this.layout);
+    this.layoutUI();
   }
 
   private layoutUI() {
-    // to do
+
     // the table is 1.2 x 1.2
     console.log("ButtonPagingControl::layoutUI");
+
+    this.totalPages = Math.ceil(this.buttons.length / this.layout);
 
     let counter = 0;
     if (this.pageNumber > 0) {
@@ -72,20 +93,28 @@ export class ButtonPagingControl {
 
   }
 
+
   public pageRight() {
     this.pageNumber += 1;
     if (this.pageNumber >= this.totalPages) {
       this.pageNumber = 0;
     }
+    console.log(`page right. page number = ${this.pageNumber} of ${this.totalPages}`)
     this.layoutUI();
   }
 
   public pageLeft() {
+
     this.pageNumber += -1;
     if (this.pageNumber < 0) {
       this.pageNumber = this.totalPages - 1;
     }
+    console.log(`page left. page number = ${this.pageNumber} of ${this.totalPages}`)
     this.layoutUI();
+  }
+
+  public filter(filterVal: { modelType: string; }) {
+    throw new Error("Method not implemented.");
   }
 
   public show(value: boolean) {
