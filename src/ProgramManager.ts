@@ -92,7 +92,7 @@ export class ProgramManager {
 
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
-  public currentlySelected = "";
+  public currentlySelected?= "";
 
   getMode() { return this.mode; }
   setMode(newMode: ProgramMode) {

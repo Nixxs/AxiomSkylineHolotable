@@ -154,11 +154,14 @@ function wandMode(laser: Laser) {
 function setSelection(laser: Laser, button1pressed: boolean) {
   // if laser has collided with something and the button is pressed set the selection to the objectID
   if ((laser.collision != undefined) && button1pressed) {
-    const objectIDOfSelectedModel = laser.collision.objectID === undefined ? "none" : laser.collision.objectID;
-    console.log("selecting model: " + objectIDOfSelectedModel);
-    ProgramManager.getInstance().currentlySelected = objectIDOfSelectedModel;
-    ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
+    const objectIDOfSelectedModel = laser.collision.objectID;
+    if (objectIDOfSelectedModel === undefined) {
+      console.log("not selecting model");
+    } else {
+      console.log(`selecting model: ${objectIDOfSelectedModel}`);
+    }
     // if the laser is not colliding with something and the button is pressed update the selection to undefined
+    ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
   }
 }
 
@@ -173,7 +176,7 @@ export class UserModeManager {
   private measurementModeFirstPoint: IPosition | null = null;
   private measurementModeLineID: string | null = null;
   private measurementTextLabelID: string | null = null;
-  private currentId: string | null = null;
+  private currentlySelectedId?: string;
   private measurementLineWidth = 3;
   private measurementLineColor: IColor;
   private decimalPlaces = 3;
@@ -257,29 +260,34 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.currentId = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
-      this.modelIds.push(this.currentId)
-      ProgramManager.getInstance().currentlySelected = this.currentId;
+      this.currentlySelectedId = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+      this.modelIds.push(this.currentlySelectedId)
+      ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the lineobjects array so it can be delted via the undo button
-      this.lineObjects.push(this.currentId);
+      this.lineObjects.push(this.currentlySelectedId);
       console.log(this.lineObjects.toString());
 
       this.userMode = UserMode.PlaceModel;
     }
   }
 
-  toggleMoveModelMode(modelID: string) {
+  toggleMoveModelMode(modelID?: string) {
+    const previouslySelected = this.currentlySelectedId;
+    this.currentlySelectedId = modelID;
     if (this.userMode == UserMode.MoveModel) {
       console.log("end move model mode");
-      const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-      // this is for making the model collide-able again but skyline have to tell us what 
-      // code to use for this
-      //modelObject.SetParam(200, 2049);
+      if (previouslySelected !== undefined) {
+        const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
+        // this is for making the model collide-able again but skyline have to tell us what 
+        // code to use for this
+        //modelObject.SetParam(200, 2049);
+      }
       this.userMode = UserMode.Standard;
     } else {
-      if (modelID != "none") {
-        this.currentId = modelID;
+      // We have just selected the model
+      if (modelID !== undefined) {
+        console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
         // this will make the model not pickable which is what you want but we are waiting for 
         // skyline to get back to us on what the correct code is for making it collide-able again
@@ -335,24 +343,26 @@ export class UserModeManager {
   }
 
   scaleModel(scaleVector: number): void {
-    if (!this.hasSelected()) return;
-    const model = sgWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
-    model.ScaleFactor = model.ScaleFactor += scaleVector;
+    if (this.currentlySelectedId === undefined) {
+      console.log("Nothing selected to scale");
+      return;
+    }
+    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
+    model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
   }
 
   deleteModel(): void {
-    if (!this.hasSelected()) return;
-
-    if (ProgramManager.getInstance().currentlySelected != "none") {
-      const model = sgWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
-      sgWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected)
-
-      // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
-      const indexOfDeleteObject = this.lineObjects.indexOf(ProgramManager.getInstance().currentlySelected);
-      this.lineObjects.splice(indexOfDeleteObject, 1);
-    } else {
-      console.log("nothing to delete, please select a model first");
+    if (this.currentlySelectedId === undefined) {
+      console.log("Nothing selected to delete");
+      return;
     }
+
+    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
+    sgWorld.Creator.DeleteObject(this.currentlySelectedId)
+
+    // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
+    const indexOfDeleteObject = this.lineObjects.indexOf(this.currentlySelectedId);
+    this.lineObjects.splice(indexOfDeleteObject, 1);
   }
 
   // deletes the most recent item that was added to the lineObjects array
@@ -374,14 +384,6 @@ export class UserModeManager {
     }
   }
 
-  private hasSelected(): boolean {
-    if (!ProgramManager.getInstance().currentlySelected) {
-      console.log("scaleModel:: no model selected.");
-      return false;
-    };
-    return true;
-  }
-
   toggleDrawLine(): void {
     this.userMode = UserMode.DrawLine;
     this.drawLineID = null;
@@ -393,8 +395,8 @@ export class UserModeManager {
     switch (ProgramManager.getInstance().getMode()) {
       case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
       case ProgramMode.Table:
-        this.laser1?.UpdateTable(ProgramManager.getInstance().getCursorPosition(1)!);
-        this.laser2?.UpdateTable(ProgramManager.getInstance().getCursorPosition(0)!);
+        this.laser1?.UpdateTable(0);
+        this.laser2?.UpdateTable(1);
         break;
     }
     switch (gControlMode) {
@@ -490,7 +492,7 @@ export class UserModeManager {
             newModelPosition.Pitch = 0;
             newModelPosition.Yaw = newModelPosition.Roll * 2;
             newModelPosition.Roll = 0;
-            const modelObject = sgWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
+            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
           }
         }
