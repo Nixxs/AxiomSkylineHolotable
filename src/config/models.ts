@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-export default {
+export const modelsConfig = {
     models: [
         {
             modelName: "Model1",
@@ -94,21 +93,3 @@ export default {
         }
     ]
 }
-=======
-export const modelsConfig = {
-  models: [
-    {
-      modelName: "Model1",
-      modelType: "Model1",
-      missionType: "Model1",
-      modelPath: "Model1.xpl2"
-    },
-    {
-      modelName: "Model2",
-      modelType: "Model2",
-      missionType: "Model2",
-      modelPath: "Model2.xpl2"
-    }
-  ]
-}
->>>>>>> e493b9e275efe4f506e241765639251596fb9cdc
