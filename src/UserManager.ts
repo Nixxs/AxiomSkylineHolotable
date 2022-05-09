@@ -395,8 +395,8 @@ export class UserModeManager {
     switch (ProgramManager.getInstance().getMode()) {
       case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
       case ProgramMode.Table:
-        this.laser1?.UpdateTable(0);
-        this.laser2?.UpdateTable(1);
+        this.laser1?.UpdateTable(1);
+        this.laser2?.UpdateTable(0);
         break;
     }
     switch (gControlMode) {
