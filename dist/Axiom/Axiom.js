@@ -19,7 +19,18 @@ define("UIControls/ButtonPagingControl", ["require", "exports"], function (requi
             this.show(false);
         }
         ButtonPagingControl.prototype.initUI = function () {
-            this.layoutUI();
+            //   let pos = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
+            //   const groupIdPager = pm.getButtonsGroup("pager");
+            //   const basePath = "";
+            //   const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageLeft(); });
+            //   pageLeft.show(false);
+            //   pos = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
+            //   const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageRight(); });
+            //   pageRight.show(false);
+            //   pm.buttons.push(pageLeft);
+            //   pm.buttons.push(pageRight);
+            //   this.pagers = [pageLeft, pageRight];
+            // this.layoutUI();
         };
         ButtonPagingControl.prototype.layoutUI = function () {
             // to do

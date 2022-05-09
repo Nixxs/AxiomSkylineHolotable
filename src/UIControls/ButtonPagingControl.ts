@@ -1,4 +1,4 @@
-import { Button } from '../Axiom'
+import { Button } from "../Axiom";
 
 export class ButtonPagingControl {
   private layout: number = 9; //square layout 9x9 at moment
@@ -19,7 +19,20 @@ export class ButtonPagingControl {
   }
 
   private initUI() {
-    this.layoutUI();
+
+    //   let pos = SGWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
+    //   const groupIdPager = pm.getButtonsGroup("pager");
+    //   const basePath = "";
+    //   const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageLeft(); });
+    //   pageLeft.show(false);
+    //   pos = SGWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
+    //   const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageRight(); });
+    //   pageRight.show(false);
+    //   pm.buttons.push(pageLeft);
+    //   pm.buttons.push(pageRight);
+    //   this.pagers = [pageLeft, pageRight];
+
+    // this.layoutUI();
   }
 
   private layoutUI() {
