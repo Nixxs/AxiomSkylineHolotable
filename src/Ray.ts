@@ -1,4 +1,5 @@
 import { sgWorld } from "./Axiom";
+import { ProgramManager } from "./ProgramManager";
 
 export class Ray {
   ID?: string;
@@ -11,7 +12,7 @@ export class Ray {
     verticesArray[4] = pickRayInfo.hitPoint.Y;
     verticesArray[5] = pickRayInfo.hitPoint.Altitude;
     if (this.ID === undefined) {
-      var RightRay = sgWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, "", "ray");
+      var RightRay = sgWorld.Creator.CreatePolylineFromArray(verticesArray, pickRayInfo.isNothing ? 0xFF0000FF : 0xFFFFFFFF, 3, ProgramManager.getInstance().getGroupID("Laser"), "ray");
       RightRay.SetParam(200, 0x200);  // Make sure that the ray object itself will not be pickable
       this.ID = RightRay.ID;
     } else {

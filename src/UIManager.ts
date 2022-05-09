@@ -12,7 +12,8 @@ export class UIManager {
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
-    const groupId = ProgramManager.getInstance().getButtonsGroup("buttons");
+    ProgramManager.getInstance().deleteGroup("buttons");
+    const groupId = ProgramManager.getInstance().getGroupID("buttons");
 
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
     const yLine1 = -1.05;
@@ -38,7 +39,8 @@ export class UIManager {
     this.buttons.push(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
 
     try {
-      const groupIdPager = ProgramManager.getInstance().getButtonsGroup("pager");
+      ProgramManager.getInstance().deleteGroup("pager");
+      const groupIdPager = ProgramManager.getInstance().getGroupID("pager");
       console.log("ProgramManager:: ButtonPagingControl")
       let pos = sgWorld.Creator.CreatePosition(0, 0, -1000, 3);
       const pagerButtons: Button[] = [];

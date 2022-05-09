@@ -1,4 +1,5 @@
 import { sgWorld } from "./Axiom";
+import { ProgramManager } from "./ProgramManager";
 
 export class Sphere {
   ID?: string;
@@ -9,7 +10,7 @@ export class Sphere {
     spherePivot.Altitude -= sphereRadius / 2;
     var tip;
     if (this.ID == undefined) {
-      tip = sgWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, "", "rayTip");
+      tip = sgWorld.Creator.CreateSphere(pickRayInfo.hitPoint.Copy(), sphereRadius, 0, 0x5000FF00, 0x5000FF00, 10, ProgramManager.getInstance().getGroupID("Laser"), "rayTip");
       tip.SetParam(200, 0x200);
       this.ID = tip.ID;
     } else {
