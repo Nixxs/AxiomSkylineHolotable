@@ -77,7 +77,7 @@ export class ModelsControl extends EventEmitter {
         // get the buttons we want to show
         const newButtons: Button[] = [];
         this.buttonProperties.forEach((item)=>{
-            if(item.model.modelType === filterVal.modelType){
+            if(item.model.modelType === filterVal.modelType || filterVal.modelType === ""){
                 newButtons.push(item.button);
             }
         });
@@ -86,6 +86,7 @@ export class ModelsControl extends EventEmitter {
 
 
     show(value: boolean) {
+        this.filter({modelType: ""});
         this.pager.show(value);
         this.isShown = value;
         this.filterButtons.forEach(b => b.show(value));

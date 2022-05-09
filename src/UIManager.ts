@@ -40,7 +40,7 @@ export class UIManager {
     try {
       const modelsControl = new ModelsControl();
 
-      this.buttons.push(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
+      this.buttons.push(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
         modelsControl.show(!modelsControl.isShown)
       }));
 
