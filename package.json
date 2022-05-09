@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/Nixxs/AxiomSkylineHolotable#readme",
   "devDependencies": {
-    "@types/node": "^17.0.31",
     "typescript": "^4.6.4"
   }
 }
