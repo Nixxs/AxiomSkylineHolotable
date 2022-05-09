@@ -1,9 +1,8 @@
 import { basePath, sgWorld } from "./Axiom";
 import { Button } from "./Button";
-import { modelsConfig } from "./config/models";
 import { runConsole } from "./Debug";
 import { ProgramManager } from "./ProgramManager";
-import { ButtonPagingControl } from "./UIControls/ButtonPagingControl";
+import { ModelsControl } from "./UIControls/ModelsControl";
 
 export class UIManager {
   buttons: Button[] = [];
@@ -39,38 +38,18 @@ export class UIManager {
     this.buttons.push(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
 
     try {
-      ProgramManager.getInstance().deleteGroup("pager");
-      const groupIdPager = ProgramManager.getInstance().getGroupID("pager");
-      console.log("ProgramManager:: ButtonPagingControl")
-      let pos = sgWorld.Creator.CreatePosition(0, 0, -1000, 3);
-      const pagerButtons: Button[] = [];
-      modelsConfig.models.forEach(model => {
-        const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager);
-        b.show(false);
-        this.buttons.push(b);
-        pagerButtons.push(b);
-      });
+      const modelsControl = new ModelsControl();
 
-      const pager = new ButtonPagingControl(pagerButtons);
-
-      // I know these really should be part of the paging control, but at the moment buttons have to 
-      // exist in the buttons array for them to be clicked so creating them here
-      // create the page left and right buttons
-      pos = sgWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
-      const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageLeft() });
-      pageLeft.show(false);
-      pos = sgWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
-      const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { pager.pageRight(); });
-      pageRight.show(false);
-      this.buttons.push(pageLeft);
-      this.buttons.push(pageRight);
-      pager.pagers = [pageLeft, pageRight];
-
-      // Select model
       this.buttons.push(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
-        pager.show(!pager.isShown)
+        modelsControl.show(!modelsControl.isShown)
       }));
 
+      modelsControl.on("onShow", (b)=>{
+        // do we want to hide the bottom buttons at this point?
+        console.log("modelsControl:: onShow" + b)
+      })
+      // // we have to put all the buttons into the buttons of the UI control as this manages the click of the buttons
+      this.buttons.push(...modelsControl.buttons)
     } catch (error) {
       console.log("Error creating paging control" + error);
     }

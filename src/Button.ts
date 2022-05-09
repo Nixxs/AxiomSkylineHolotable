@@ -7,7 +7,7 @@ export class Button {
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
-    callback?: () => void) {
+    callback?: () => void, hidden?: boolean) {
     const newButton = document.createElement("button");
     newButton.textContent = name;
     if (callback) {
@@ -20,6 +20,9 @@ export class Button {
       }
     });
     document.getElementById("buttons")?.appendChild(newButton);
+    if(hidden === true){
+      this.show(false);
+    }
   }
 
   // buttonPressed is whether the button was down this frame but not last frame
