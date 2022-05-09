@@ -3,14 +3,14 @@ export type vecType = [number, number, number];
 
 export function YPRToQuat(yRad: number, pRad: number, rRad: number): quatType {
 
-  var r: quatType = [0, 0, 0, 1];
+  const r: quatType = [0, 0, 0, 1];
 
-  var cy = Math.cos(yRad / 2.0); // cos(Yaw)
-  var sy = Math.sin(yRad / 2.0); // sin(Yaw)
-  var cp = Math.cos(pRad / 2.0); // cos(Pitch)
-  var sp = Math.sin(pRad / 2.0); // sin(Pitch)
-  var cr = Math.cos(rRad / 2.0); // cos(Roll)
-  var sr = Math.sin(rRad / 2.0); // sin(Roll)
+  const cy = Math.cos(yRad / 2.0); // cos(Yaw)
+  const sy = Math.sin(yRad / 2.0); // sin(Yaw)
+  const cp = Math.cos(pRad / 2.0); // cos(Pitch)
+  const sp = Math.sin(pRad / 2.0); // sin(Pitch)
+  const cr = Math.cos(rRad / 2.0); // cos(Roll)
+  const sr = Math.sin(rRad / 2.0); // sin(Roll)
 
   r[0] = cy * sp * cr - sy * cp * sr;
   r[1] = cy * cp * sr + sy * sp * cr;
@@ -82,16 +82,16 @@ export function cross(a: vecType, b: vecType): vecType {
 }
 
 export function vecAdd(a: number[], b: number[]) {
-  var ret = [];
-  for (var i = 0; i < a.length && i < b.length; ++i) {
+  const ret = [];
+  for (let i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] + b[i]);
   }
   return ret;
 }
 
 export function vecSub(a: number[], b: number[]) {
-  var ret = [];
-  for (var i = 0; i < a.length && i < b.length; ++i) {
+  const ret = [];
+  for (let i = 0; i < a.length && i < b.length; ++i) {
     ret.push(a[i] - b[i]);
   }
   return ret;
@@ -102,18 +102,15 @@ export function vecMul(a: number[], s: number) {
 }
 
 export function QuatApply(q: quatType, v: vecType) {
-
-  var u: vecType = [q[0], q[1], q[2]];
-  var crossUV = cross(u, v);
+  const u: vecType = [q[0], q[1], q[2]];
+  const crossUV = cross(u, v);
   return vecAdd(v, vecMul((vecAdd(vecMul(crossUV, q[3]), cross(u, crossUV))), 2));
 }
 
 export function dot(a: number[], b: number[]) {
-
-  var ret = 0;
-  for (var i = 0; i < a.length && i < b.length; ++i)
+  let ret = 0;
+  for (let i = 0; i < a.length && i < b.length; ++i)
     ret += a[i] * b[i];
-
   return ret;
 }
 
@@ -122,17 +119,16 @@ export function mag(v: number[]) {
 }
 
 export function normalize(v: number[]) {
-  var vMag = mag(v);
+  const vMag = mag(v);
   return v.map(function (e) { return e / vMag; });
 }
 
 export function intersectRayOnPlane(planeNormal: vecType, laserStart: vecType, laserDirection: vecType, alignPoint: vecType): vecType | null {
-
-  var denom = dot(laserDirection, planeNormal);
+  const denom = dot(laserDirection, planeNormal);
   if (denom == 0.0)
     return null;
 
-  var t = (dot(vecSub(alignPoint, laserStart), planeNormal)) / denom;
+  const t = (dot(vecSub(alignPoint, laserStart), planeNormal)) / denom;
   if (t < 0.0)
     return null;
 

@@ -14,14 +14,12 @@ export function unsetComClientForcedInputMode() {
   sgWorld.SetParam(8166, 0); // UNForce COM input mode (Meaning your code here is NOT in control)
 }
 export function getVRControllersInfo() {
-  var VRCstr = sgWorld.GetParam(8600) as string; // get the VR controls status
-  var VRC = JSON.parse(VRCstr);
-  return VRC;
+  const VRCstr = sgWorld.GetParam(8600) as string; // get the VR controls status
+  return JSON.parse(VRCstr);
 }
 export function getRoomExtent() {
-  var extent = sgWorld.SetParamEx(9015) as string; // get the VR controls status
-  var roomExtent = JSON.parse(extent);
-  return roomExtent;
+  const extent = sgWorld.SetParamEx(9015) as string; // get the VR controls status
+  return JSON.parse(extent);
 }
 
 function roomToWorldCoordEx(position: IPosition) {
@@ -35,7 +33,7 @@ function worldToRoomCoordEx(position: IPosition) {
 }
 
 function roomToWorldCoordD(position: IPosition) {
-  let ret = sgWorld.Navigate.GetPosition(3);
+  const ret = sgWorld.Navigate.GetPosition(3);
   ret.X += position.X / 40000;
   ret.Y += (position.Altitude + 2) / 40000;
   ret.Altitude += position.Y - 3;
@@ -45,7 +43,7 @@ function roomToWorldCoordD(position: IPosition) {
   return ret;
 }
 function worldToRoomCoordD(position: IPosition) {
-  let ret = sgWorld.Navigate.GetPosition(3);
+  const ret = sgWorld.Navigate.GetPosition(3);
   ret.Cartesian = true;
   ret.X = 40000 * position.X - ret.X;
   ret.Y = 40000 * position.Altitude - ret.Y;
@@ -62,17 +60,17 @@ let roomToWorldCoordF = roomToWorldCoordEx;
 let worldToRoomCoordF = worldToRoomCoordEx;
 
 export function roomToWorldCoord(position: IPosition) {
-  var temp = position.Y;
+  const temp = position.Y;
   position.Y = position.Altitude;
   position.Altitude = temp;
-  var ret = roomToWorldCoordF(position);
+  const ret = roomToWorldCoordF(position);
   position.Altitude = position.Y;
   position.Y = temp;
   return ret;
 }
 export function worldToRoomCoord(position: IPosition) {
-  var ret = worldToRoomCoordF(position);
-  var temp = ret.Y;
+  const ret = worldToRoomCoordF(position);
+  const temp = ret.Y;
   ret.Y = ret.Altitude;
   ret.Altitude = temp;
   return ret;
@@ -94,7 +92,7 @@ export class ProgramManager {
 
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
-  public currentlySelected = "";
+  public currentlySelected?= "";
 
   getMode() { return this.mode; }
   setMode(newMode: ProgramMode) {
@@ -143,68 +141,92 @@ export class ProgramManager {
     return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName);
   }
 
-  getButton1Pressed() {
+  getButton1Pressed(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.button1Pressed ?? false;
+        return ControllerReader.controllerInfos[userIndex]?.button1Pressed ?? false;
       case ProgramMode.Desktop:
-        return DesktopInputManager.getLeftButtonPressed();
+        return userIndex == 1 && DesktopInputManager.getLeftButtonPressed();
     }
     return false;
   }
 
-  setButton1Pressed(pressed: boolean) {
+  setButton1Pressed(userIndex: number, pressed: boolean) {
     switch (this.mode) {
       case ProgramMode.Table:
-        ControllerReader.controllerInfo!.button1Pressed = pressed;
+        ControllerReader.controllerInfos[1]!.button1Pressed = pressed;
+        break;
       case ProgramMode.Desktop:
         DesktopInputManager.setLeftButtonPressed(pressed);
+        break;
     }
   }
 
-  getButton2Pressed() {
+  getButton2Pressed(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.button2Pressed ?? false;
+        return ControllerReader.controllerInfos[userIndex]?.button2Pressed ?? false;
       case ProgramMode.Desktop:
-        return DesktopInputManager.getRightButtonPressed();
-    }
-    return false;
-  }
-
-  getButton3() {
-    switch (this.mode) {
-      case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.trigger ?? false;
-      case ProgramMode.Desktop:
-        return DesktopInputManager.getMiddleButton();
+        return userIndex == 1 && DesktopInputManager.getRightButtonPressed();
     }
     return false;
   }
 
-  getButton3Pressed() {
+  getButton3Pressed(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.triggerPressed ?? false;
+        return ControllerReader.controllerInfos[userIndex]?.triggerPressed ?? false;
       case ProgramMode.Desktop:
-        return DesktopInputManager.getMiddleButtonPressed();
+        return userIndex == 1 && DesktopInputManager.getMiddleButtonPressed();
     }
     return false;
   }
 
-  getCursorPosition() {
+  getButton1(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo!.wandPosition!;
+        return ControllerReader.controllerInfos[userIndex]?.button1 ?? false;
       case ProgramMode.Desktop:
-        return DesktopInputManager.getCursorPosition();
+        return userIndex == 1 && DesktopInputManager.getLeftButton();
+    }
+    return false;
+  }
+
+  getButton2(userIndex: number) {
+    switch (this.mode) {
+      case ProgramMode.Table:
+        return ControllerReader.controllerInfos[userIndex]?.button2 ?? false;
+      case ProgramMode.Desktop:
+        return userIndex == 1 && DesktopInputManager.getRightButton();
+    }
+    return false;
+  }
+
+  getButton3(userIndex: number) {
+    switch (this.mode) {
+      case ProgramMode.Table:
+        return ControllerReader.controllerInfos[userIndex]?.trigger ?? false;
+      case ProgramMode.Desktop:
+        return userIndex == 1 && DesktopInputManager.getMiddleButton();
+    }
+    return false;
+  }
+
+  getCursorPosition(userIndex: number) {
+    switch (this.mode) {
+      case ProgramMode.Table:
+        return this.userModeManager!.getCollisionPosition(userIndex);
+      case ProgramMode.Desktop:
+        return userIndex == 1 ? DesktopInputManager.getCursorPosition() : undefined;
+      default:
+        throw new Error("Could not get cursor position without a program mode");
     }
   }
 
   Update() {
     switch (this.mode) {
       case ProgramMode.Table:
-        ControllerReader.Update();  // Read controllers info
+        ControllerReader.Update(); // Read controllers info
         break;
       case ProgramMode.Desktop:
         DesktopInputManager.Update();
@@ -226,7 +248,7 @@ export class ProgramManager {
       const afterFirst = () => {
         setComClientForcedInputMode();
         sgWorld.AttachEvent("OnFrame", () => {
-          var prev = ProgramManager.OneFrame;
+          const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
           ProgramManager.getInstance().setMode(ProgramMode.Desktop);
           if (ProgramManager.getInstance().getMode() == ProgramMode.Desktop) {
@@ -334,12 +356,12 @@ function Draw() {
 }
 
 function WorldGetPosition() {
-  var pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
+  const pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   return [pos.X, pos.Y, pos.Altitude];
 }
 
 function WorldSetPosition(v: any) {
-  var newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
+  const newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   newPos.X = v[0];
   newPos.Y = v[1];
   sgWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
@@ -354,7 +376,7 @@ export function WorldGetScale() {
 }
 
 export function WorldGetOri() {
-  var pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
+  const pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   return YPRToQuat(pos.Yaw, pos.Pitch, pos.Roll);
 }
 

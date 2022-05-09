@@ -62,8 +62,10 @@ export class UIManager {
   }
 
   Update() {
+    if (ProgramManager.getInstance().getButton1Pressed(1))
+      console.log(`Pressed on ${ProgramManager.getInstance().userModeManager?.getCollisionID(1)}`);
     for (let button of this.buttons) {
-      ProgramManager.getInstance().setButton1Pressed(button.Update(ProgramManager.getInstance().getButton1Pressed(), ProgramManager.getInstance().userModeManager?.getCollisionID()));
+      ProgramManager.getInstance().setButton1Pressed(1, button.Update(ProgramManager.getInstance().getButton1Pressed(1), ProgramManager.getInstance().userModeManager?.getCollisionID(1)));
     }
   }
 }

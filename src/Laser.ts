@@ -1,26 +1,29 @@
 import { sgWorld } from "./Axiom";
+import { ControllerReader } from "./ControllerReader";
 import { DesktopInputManager } from "./DesktopInputManager";
-import { ProgramManager } from "./ProgramManager";
 import { Ray } from "./Ray";
 import { Sphere } from "./Sphere";
 
+export type collisionInfo = {
+  originPoint: IPosition,
+  hitPoint: IPosition,
+  rayLength: number,
+  objectID?: string,
+  isNothing: boolean
+};
+
 export class Laser {
-  ray: Ray = new Ray();
-  tip: Sphere = new Sphere();
+  ray: Ray = new Ray(this.groupID);
+  tip: Sphere = new Sphere(this.groupID);
 
-  constructor() {
-    ProgramManager.getInstance().deleteGroup("Laser");
-  }
+  constructor(private groupID: string) { }
 
-  collision?: {
-    originPoint: IPosition,
-    hitPoint: IPosition,
-    rayLength: number,
-    objectID?: string,
-    isNothing: boolean
-  };
+  collision?: collisionInfo;
 
-  UpdateTable(position: IPosition) {
+  UpdateTable(userIndex: number) {
+    const position = ControllerReader.controllerInfos[userIndex].wandPosition;
+    if (position === undefined)
+      return;
     sgWorld.SetParam(8300, position); // Pick ray
     const hitObjectID = sgWorld.GetParam(8310) as string | undefined;
     let distToHitPoint = sgWorld.GetParam(8312) as number;    // Get distance to hit point
@@ -55,12 +58,14 @@ export class Laser {
       originPoint: sgWorld.Navigate.GetPosition(3),
       hitPoint: DesktopInputManager.getCursorPosition(),
       rayLength: sgWorld.Navigate.GetPosition(3).DistanceTo(DesktopInputManager.getCursorPosition()),
-      objectID: DesktopInputManager.getCursor().ObjectID,
+      objectID: DesktopInputManager.getCursor().ObjectID === '' ? undefined : DesktopInputManager.getCursor().ObjectID,
       isNothing: DesktopInputManager.getCursor().ObjectID === ''
     };
   }
 
   Draw() {
+    if (this.collision === undefined)
+      return;
     this.ray.Draw(this.collision);
     this.tip.Draw(this.collision);
   }

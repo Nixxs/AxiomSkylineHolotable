@@ -36,7 +36,7 @@ export class Button {
 
   Draw() {
     const pos = roomToWorldCoord(this.roomPosition);
-    const scaleFactor = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
+    const scaleFactor = (ControllerReader.controllerInfos[1]?.scaleFactor ?? 1) / 12;
     if (this.ID === undefined) {
       console.log(`Creating ${this.name} button with model path ${this.modelPath}`);
       const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
@@ -52,7 +52,7 @@ export class Button {
   setPosition(pos: IPosition) {
     console.log("setPosition:: " + this.ID);
     if (this.ID) {
-      const boxSize = (ControllerReader.controllerInfo?.scaleFactor ?? 1) / 12;
+      const boxSize = (ControllerReader.controllerInfos[1]?.scaleFactor ?? 1) / 12;
       this.roomPosition = pos;
       let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;

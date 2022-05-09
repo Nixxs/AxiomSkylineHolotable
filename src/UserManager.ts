@@ -16,21 +16,21 @@ function tableMode() {
   if (ProgramManager.getInstance().getMode() !== ProgramMode.Table)
     return;
   const table = tableMode;
-  if (ControllerReader.controllerInfo === undefined) {
+  if (ControllerReader.controllerInfos[1] === undefined) {
     console.log("No controller info");
     return;
   }
-  if (table.isDragging && !ControllerReader.controllerInfo.trigger) {
+  if (table.isDragging && !ControllerReader.controllerInfos[1].trigger) {
     table.isDragging = false;
     console.log("trigger released");
   }
 
-  if (ControllerReader.controllerInfo.wandPosition === undefined) {
+  if (ControllerReader.controllerInfos[1].wandPosition === undefined) {
     console.log("No wand position info");
     return;
   }
 
-  const wandIPos = worldToRoomCoord(ControllerReader.controllerInfo.wandPosition);
+  const wandIPos = worldToRoomCoord(ControllerReader.controllerInfos[1].wandPosition);
   const wandOri = YPRToQuat(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
   const wandPos: vecType = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
   const wandDir = QuatYAxis(wandOri, 1);
@@ -40,31 +40,31 @@ function tableMode() {
     let planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
     if (planeCollisionPoint !== null) {
 
-      var newIntersect = planeCollisionPoint;
-      var deadzone = 1;
+      const newIntersect = planeCollisionPoint;
+      const deadzone = 1;
       console.log(`first intersect ${table.firstIntersect}`);
       console.log(`new intersect ${newIntersect}`);
-      var pan = vecSub(table.firstIntersect, newIntersect);
+      let pan = vecSub(table.firstIntersect, newIntersect);
       if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
         // Scale
-        var wandPosDiff = vecSub(wandPos, table.wandPosLastFrame);
+        const wandPosDiff = vecSub(wandPos, table.wandPosLastFrame);
 
-        var degs = radsToDegs(Math.acos(Math.abs(dot(normalize(wandPosDiff), normalize(table.wandDirLastFrame)))));
-        var thresholdLower = 25;
-        var thresholdUpper = 40;
-        var thresholdRange = thresholdUpper - thresholdLower;
-        var scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
+        const degs = radsToDegs(Math.acos(Math.abs(dot(normalize(wandPosDiff), normalize(table.wandDirLastFrame)))));
+        const thresholdLower = 25;
+        const thresholdUpper = 40;
+        const thresholdRange = thresholdUpper - thresholdLower;
+        const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-        var magDifference = mag(wandPosDiff);
+        const magDifference = mag(wandPosDiff);
         if (magDifference > 0 && magDifference < 1) {
-          var forwardOrBack = dot(wandPosDiff, table.wandDirLastFrame);
+          let forwardOrBack = dot(wandPosDiff, table.wandDirLastFrame);
           forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
-          var scaleRatio = 5;
-          var power = forwardOrBack * scalingRatio * magDifference * 4;
-          var factor = Math.pow(scaleRatio, power);
-          var newScale = table.prevWorldScale * factor;
+          const scaleRatio = 5;
+          const power = forwardOrBack * scalingRatio * magDifference * 4;
+          const factor = Math.pow(scaleRatio, power);
+          const newScale = table.prevWorldScale * factor;
 
-          var appliedScale = Math.min(newScale, MaxZoom());
+          const appliedScale = Math.min(newScale, MaxZoom());
 
           let prevPos = sgWorld.Navigate.GetPosition(3);
           prevPos.Altitude = appliedScale;
@@ -83,10 +83,10 @@ function tableMode() {
     }
   }
 
-  if (ControllerReader.controllerInfo?.trigger && !table.isDragging) {
+  if (ControllerReader.controllerInfos[1]?.trigger && !table.isDragging) {
     console.log("trigger pressed");
-    var worldScale = WorldGetScale();
-    var maxZoom = MaxZoom();
+    let worldScale = WorldGetScale();
+    const maxZoom = MaxZoom();
     if (worldScale > maxZoom) {
       worldScale = maxZoom;
       let prevPos = sgWorld.Navigate.GetPosition(3);
@@ -96,7 +96,7 @@ function tableMode() {
     table.prevWorldScale = worldScale;
 
     let planeNormal: vecType = [0, 0, 1];
-    var collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
+    const collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
     if (collPoint !== null) {
       table.isDragging = true;
 
@@ -126,24 +126,24 @@ export const enum UserMode {
 
 // If trigger is pressed: move in the direction of the ray
 function wandMode(laser: Laser) {
-  if (ControllerReader.controllerInfo?.trigger && laser.collision) {
-    var posCurrent = sgWorld.Navigate.GetPosition(3);
-    var posDest = laser.collision.hitPoint.Copy();
+  if (ProgramManager.getInstance().getButton3(1) && laser.collision) {
+    const posCurrent = sgWorld.Navigate.GetPosition(3);
+    const posDest = laser.collision.hitPoint.Copy();
     posDest.Altitude = laser.collision.originPoint.Altitude;
-    var dir = laser.collision.originPoint.AimTo(posDest);
+    const dir = laser.collision.originPoint.AimTo(posDest);
     let newPos = posCurrent.Move(posDest.Altitude * 0.05, dir.Yaw, 0);
     newPos.Yaw = posCurrent.Yaw;
     newPos.Pitch = posCurrent.Pitch;
     sgWorld.Navigate.SetPosition(newPos);
   }
   // go up
-  if (ControllerReader.controllerInfo?.button1) {
+  if (ProgramManager.getInstance().getButton1(1)) {
     let newPos = sgWorld.Navigate.GetPosition(3);
     newPos.Altitude *= 1.1;
     sgWorld.Navigate.SetPosition(newPos);
   }
   // go down
-  if (ControllerReader.controllerInfo?.button2) {
+  if (ProgramManager.getInstance().getButton2(1)) {
     let newPos = sgWorld.Navigate.GetPosition(3);
     newPos.Altitude *= 0.9;
     sgWorld.Navigate.SetPosition(newPos);
@@ -151,19 +151,17 @@ function wandMode(laser: Laser) {
 }
 
 // sets the selection whenever the user presses a button on the on a valid model or collision object
-function selectMode(laser: Laser, button1pressed: boolean) {
+function setSelection(laser: Laser, button1pressed: boolean) {
   // if laser has collided with something and the button is pressed set the selection to the objectID
   if ((laser.collision != undefined) && button1pressed) {
-    var objectIDOfSelectedModel: string;
-    if (laser.collision.objectID === undefined) {
-      objectIDOfSelectedModel = "none";
+    const objectIDOfSelectedModel = laser.collision.objectID;
+    if (objectIDOfSelectedModel === undefined) {
+      console.log("not selecting model");
     } else {
-      objectIDOfSelectedModel = laser.collision.objectID;
+      console.log(`selecting model: ${objectIDOfSelectedModel}`);
     }
-    console.log("selecting model: " + objectIDOfSelectedModel);
-    ProgramManager.getInstance().currentlySelected = objectIDOfSelectedModel;
-    ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
     // if the laser is not colliding with something and the button is pressed update the selection to undefined
+    ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
   }
 }
 
@@ -178,7 +176,7 @@ export class UserModeManager {
   private measurementModeFirstPoint: IPosition | null = null;
   private measurementModeLineID: string | null = null;
   private measurementTextLabelID: string | null = null;
-  private currentId: string | null = null;
+  private currentlySelectedId?: string;
   private measurementLineWidth = 3;
   private measurementLineColor: IColor;
   private decimalPlaces = 3;
@@ -189,10 +187,10 @@ export class UserModeManager {
   private drawLineFirstPoint: IPosition | null = null;
   private drawLineWidth = 5;
   private drawLineColor: IColor;
-  private switchColourCD = 0;
 
   private lineObjects: Array<string> = [];
-  private laser?: Laser;
+  private laser1?: Laser;
+  private laser2?: Laser;
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -202,16 +200,29 @@ export class UserModeManager {
     this.drawLineColor = sgWorld.Creator.CreateColor(0, 0, 0, 0); //black
   }
 
-  getCollisionID() {
-    return this.laser?.collision?.objectID;
+  getCollisionID(userIndex: number) {
+    switch (userIndex) {
+      case 0: return this.laser2?.collision?.objectID;
+      case 1: return this.laser1?.collision?.objectID;
+    }
+  }
+
+  getCollisionPosition(userIndex: number) {
+    switch (userIndex) {
+      case 0: return this.laser2?.collision?.hitPoint;
+      case 1: return this.laser1?.collision?.hitPoint;
+    }
   }
 
   Init() {
-    this.laser = new Laser();
+    ProgramManager.getInstance().deleteGroup("Laser");
+    this.laser1 = new Laser(ProgramManager.getInstance().getGroupID("Laser"));
+    this.laser2 = new Laser(ProgramManager.getInstance().getGroupID("Laser"));
   }
 
   Draw() {
-    this.laser?.Draw();
+    this.laser1?.Draw();
+    this.laser2?.Draw();
   }
 
   jumpToSydney() {
@@ -246,32 +257,37 @@ export class UserModeManager {
       this.userMode = UserMode.Standard;
     } else {
       const modelPath = basePath + `model/${modelName}.xpl2`;
-      var pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.currentId = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
-      this.modelIds.push(this.currentId)
-      ProgramManager.getInstance().currentlySelected = this.currentId;
+      this.currentlySelectedId = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+      this.modelIds.push(this.currentlySelectedId)
+      ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the line objects array so it can be deleted via the undo button
-      this.lineObjects.push(this.currentId);
+      this.lineObjects.push(this.currentlySelectedId);
       console.log(this.lineObjects.toString());
 
       this.userMode = UserMode.PlaceModel;
     }
   }
 
-  toggleMoveModelMode(modelID: string) {
+  toggleMoveModelMode(modelID?: string) {
+    const previouslySelected = this.currentlySelectedId;
+    this.currentlySelectedId = modelID;
     if (this.userMode == UserMode.MoveModel) {
       console.log("end move model mode");
-      const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-      // this is for making the model collide-able again but skyline have to tell us what 
-      // code to use for this
-      //modelObject.SetParam(200, 2049);
+      if (previouslySelected !== undefined) {
+        const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
+        // this is for making the model collide-able again but skyline have to tell us what 
+        // code to use for this
+        //modelObject.SetParam(200, 2049);
+      }
       this.userMode = UserMode.Standard;
     } else {
-      if (modelID != "none") {
-        this.currentId = modelID;
+      // We have just selected the model
+      if (modelID !== undefined) {
+        console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
         // this will make the model not pickable which is what you want but we are waiting for 
         // skyline to get back to us on what the correct code is for making it collide-able again
@@ -298,14 +314,14 @@ export class UserModeManager {
     console.log("dropRangeRing");
     let lineColor; //red for customer requirements
     const fillColor = sgWorld.Creator.CreateColor(0, 0, 0, 0); //"0x00000000";
-    const pos = this.laser!.collision!.hitPoint.Copy();
+    const pos = this.laser1!.collision!.hitPoint.Copy();
     const objNamePrefix = pos.X + "long" + pos.Y + "lat" + pos.Altitude + "mAlt_";
 
     //create centre circle
-    var centerFillColour = sgWorld.Creator.CreateColor(0, 0, 0, 255);
+    const centerFillColour = sgWorld.Creator.CreateColor(0, 0, 0, 255);
     sgWorld.Creator.CreateCircle(pos, 500, fillColor, centerFillColour, "", "Centre Range Ring");
 
-    for (var i = 1; i <= this.numRings; i++) {
+    for (let i = 1; i <= this.numRings; i++) {
       const radius = this.spacing * i
       const itemName = objNamePrefix + "RangeRing" + radius + "m";
       if (radius >= 25000) {
@@ -327,32 +343,33 @@ export class UserModeManager {
   }
 
   scaleModel(scaleVector: number): void {
-    if (!this.hasSelected()) return;
-    const model = sgWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
-    model.ScaleFactor = model.ScaleFactor += scaleVector;
+    if (this.currentlySelectedId === undefined) {
+      console.log("Nothing selected to scale");
+      return;
+    }
+    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
+    model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
   }
 
   deleteModel(): void {
-    if (!this.hasSelected()) return;
-
-    if (ProgramManager.getInstance().currentlySelected != "none") {
-      const model = sgWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
-      sgWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected)
-
-      // delete the model from the lineObjects array so it doesn't cause issues with the delete button
-      var indexOfDeleteObject = this.lineObjects.indexOf(ProgramManager.getInstance().currentlySelected);
-      this.lineObjects.splice(indexOfDeleteObject, 1);
-    } else {
-      console.log("nothing to delete, please select a model first");
+    if (this.currentlySelectedId === undefined) {
+      console.log("Nothing selected to delete");
+      return;
     }
 
+    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
+    sgWorld.Creator.DeleteObject(this.currentlySelectedId)
+
+    // delete the model from the lineObjects array so it doesn't cause issues with the delete button
+    const indexOfDeleteObject = this.lineObjects.indexOf(this.currentlySelectedId);
+    this.lineObjects.splice(indexOfDeleteObject, 1);
   }
 
   // deletes the most recent item that was added to the lineObjects array
   // if there is nothing in the array doesn't do anything
   undo(): void {
     console.log("undo")
-    var objectToDelete = this.lineObjects.pop();
+    const objectToDelete = this.lineObjects.pop();
     if (objectToDelete != undefined) {
       console.log("deleting: " + objectToDelete);
       sgWorld.Creator.DeleteObject(objectToDelete);
@@ -367,14 +384,6 @@ export class UserModeManager {
     }
   }
 
-  private hasSelected(): boolean {
-    if (!ProgramManager.getInstance().currentlySelected) {
-      console.log("scaleModel:: no model selected.");
-      return false;
-    };
-    return true;
-  }
-
   toggleDrawLine(): void {
     this.userMode = UserMode.DrawLine;
     this.drawLineID = null;
@@ -382,30 +391,33 @@ export class UserModeManager {
   }
 
   Update() {
-    const button1pressed = ProgramManager.getInstance().getButton1Pressed();
+    const button1pressed = ProgramManager.getInstance().getButton1Pressed(1);
     switch (ProgramManager.getInstance().getMode()) {
-      case ProgramMode.Desktop: this.laser?.UpdateDesktop(); break;
-      case ProgramMode.Table: this.laser?.UpdateTable(ProgramManager.getInstance().getCursorPosition()!); break;
+      case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
+      case ProgramMode.Table:
+        this.laser1?.UpdateTable(1);
+        this.laser2?.UpdateTable(0);
+        break;
+    }
+    switch (gControlMode) {
+      case ControlMode.Table:
+        tableMode();
+        break;
+      case ControlMode.Wall:
+        wallMode(this.laser1!);
+        break;
+      case ControlMode.Wand:
+        wandMode(this.laser1!);
+        break;
     }
     switch (this.userMode) {
       case UserMode.Standard:
-        switch (gControlMode) {
-          case ControlMode.Table:
-            tableMode();
-            selectMode(this.laser!, button1pressed);
-            break;
-          case ControlMode.Wall:
-            wallMode(this.laser!);
-            break;
-          case ControlMode.Wand:
-            wandMode(this.laser!);
-            break;
-        }
+        setSelection(this.laser1!, button1pressed);
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
           // Move the line end position to the cursor
-          const teEndPos = this.laser!.collision!.hitPoint.Copy();
+          const teEndPos = this.laser1!.collision!.hitPoint.Copy();
           const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
           const mLine = sgWorld.Creator.GetObject(this.measurementModeLineID) as ITerrainPolyline;
           const Geometry = mLine.Geometry as ILineString;
@@ -424,20 +436,20 @@ export class UserModeManager {
           mLabel.Position = teHalfPos;
 
           // Exit mode when pressed again
-          if (ControllerReader.controllerInfo?.button1Pressed) {
+          if (ProgramManager.getInstance().getButton1Pressed(1)) {
             console.log("finished line");
             this.setStandardMode();
             // consume the button press
-            ControllerReader.controllerInfo.button1Pressed = false;
+            ControllerReader.controllerInfos[1].button1Pressed = false;
             this.measurementModeLineID = null;
             this.measurementTextLabelID = null;
             this.measurementModeFirstPoint = null;
           }
-        } else if (ControllerReader.controllerInfo?.button1Pressed) {
+        } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
           // Create the line and label
           console.log("new line");
 
-          this.measurementModeFirstPoint = this.laser!.collision!.hitPoint.Copy();
+          this.measurementModeFirstPoint = this.laser1!.collision!.hitPoint.Copy();
 
           const teStartPos = this.measurementModeFirstPoint.Copy();
           const teEndPos = teStartPos.Copy();
@@ -457,81 +469,60 @@ export class UserModeManager {
           console.log(this.lineObjects.toString());
 
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
       case UserMode.DropRangeRing:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
+        if (ProgramManager.getInstance().getButton1Pressed(1)) {
           this.dropRangeRing();
           this.setStandardMode();
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
-      case UserMode.PlaceModel:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
-          this.setStandardMode();
-          // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
-        } else {
-          if (this.laser!.collision !== undefined) {
-            var newModelPosition = this.laser!.collision.hitPoint.Copy();
-            newModelPosition.Pitch = 0;
-            newModelPosition.Yaw = newModelPosition.Roll * 2;
-            newModelPosition.Roll = 0;
-            const modelObject = sgWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
-            modelObject.Position = newModelPosition;
-          }
-        }
-        break;
+      case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
       case UserMode.MoveModel:
-        if (ControllerReader.controllerInfo?.button1Pressed) {
+        if (ProgramManager.getInstance().getButton1Pressed(1)) {
           this.setStandardMode();
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ProgramManager.getInstance().setButton1Pressed(1, false);
         } else {
-          if (this.laser!.collision !== undefined) {
-            var newModelPosition = this.laser!.collision.hitPoint.Copy();
+          const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+          if (newModelPosition !== undefined) {
             newModelPosition.Pitch = 0;
             newModelPosition.Yaw = newModelPosition.Roll * 2;
             newModelPosition.Roll = 0;
-            const modelObject = sgWorld.Creator.GetObject(this.currentId!) as ITerrainModel;
+            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
           }
         }
         break;
-
       case UserMode.DrawLine:
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
           // Move the line end position to the cursor
-          const teEndPos = this.laser!.collision!.hitPoint.Copy();
           const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
           const Geometry = dLine.Geometry as ILineString;
-          // start the edit session to enable modification of the geometry
-          Geometry.StartEdit();
-          if (ControllerReader.controllerInfo?.button1Pressed) {
-            // if button 1 is pressed add a new point to the geometry
-            Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
-          } else {
-            // if button hasn't been pressed just move the last point to the current
-            // position of the laser so the user what the new line will look like
-            var drawPointIndex = Geometry.Points.Count - 1;
-            Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
-            Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
-          }
-          Geometry.EndEdit();
 
-          // this is a cool down for the trigger press since it can trigger twice while the user
-          // is clicking the button on the controller
-          this.switchColourCD -= 1;
-          if (this.switchColourCD < 0) {
-            this.switchColourCD = 0;
+          const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+          if (teEndPos !== undefined) {
+            // start the edit session to enable modification of the geometry
+            Geometry.StartEdit();
+            if (ProgramManager.getInstance().getButton1Pressed(1)) {
+              // if button 1 is pressed add a new point to the geometry
+              Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+            } else {
+              // if button hasn't been pressed just move the last point to the current
+              // position of the laser so the user what the new line will look like
+              const drawPointIndex = Geometry.Points.Count - 1;
+              Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+              Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+            }
+            Geometry.EndEdit();
           }
+
           // if user is currently drawing a line and the trigger is pressed, change the colour of the line
-          if (ControllerReader.controllerInfo?.trigger && this.switchColourCD <= 0) {
-            this.switchColourCD = 5;// switching colours has a 5 frame cool down
-            const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+          if (ProgramManager.getInstance().getButton3Pressed(1)) {
             if (dLine.LineStyle.Color.ToHTMLColor() === "#000000") {
               console.log("Draw Line: swap colour to red");
               dLine.LineStyle.Color.FromHTMLColor("#ff1000");
@@ -542,10 +533,8 @@ export class UserModeManager {
           }
 
           // Exit mode when button 2 is pressed
-          if (ControllerReader.controllerInfo?.button2Pressed) {
+          if (ProgramManager.getInstance().getButton2Pressed(1)) {
             console.log("finished line");
-            const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
-            const Geometry = dLine.Geometry as ILineString;
             // delete the last point as this will not have been placed by the user just drawn for planning
             Geometry.StartEdit();
             Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
@@ -553,16 +542,15 @@ export class UserModeManager {
 
             this.setStandardMode();
             // consume the button press
-            ControllerReader.controllerInfo.button2Pressed = false;
+            ControllerReader.controllerInfos[1].button2Pressed = false;
             this.drawLineID = null;
             this.drawLineFirstPoint = null;
           }
-
-        } else if (ControllerReader.controllerInfo?.button1Pressed) {
+        } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
           // Create the line
           console.log("new line");
 
-          this.drawLineFirstPoint = this.laser!.collision!.hitPoint.Copy();
+          this.drawLineFirstPoint = this.laser1!.collision!.hitPoint.Copy();
 
           const teStartPos = this.drawLineFirstPoint.Copy();
           const teEndPos = teStartPos.Copy();
@@ -579,7 +567,7 @@ export class UserModeManager {
           console.log(this.lineObjects.toString());
 
           // consume the button press
-          ControllerReader.controllerInfo.button1Pressed = false;
+          ControllerReader.controllerInfos[1].button1Pressed = false;
         }
         break;
     }
