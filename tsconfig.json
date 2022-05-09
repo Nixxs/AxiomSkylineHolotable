@@ -1,18 +1,22 @@
 {
-  "files": [
-    "src/Axiom.ts",
-    "src/Debug.js",
-    "src/Mathematics.js",
-    "src/Axiom.d.ts",
-    "src/UIControls/ButtonPagingControl.ts"
+  "include": [
+    "src",
+    "types"
   ],
   "compilerOptions": {
+    "typeRoots": [
+      "types"
+    ],
+    "rootDir": "src",
     "strict": true,
     "allowJs": true,
     "outDir": "dist/Axiom/",
-    "outFile": "dist/Axiom/Axiom.js",
     "target": "ES5",
     "module": "AMD",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
     "moduleResolution": "Node",
     "resolveJsonModule": true
   }
