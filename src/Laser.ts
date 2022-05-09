@@ -1,24 +1,23 @@
 import { sgWorld } from "./Axiom";
 import { DesktopInputManager } from "./DesktopInputManager";
-import { ProgramManager } from "./ProgramManager";
 import { Ray } from "./Ray";
 import { Sphere } from "./Sphere";
 
+export type collisionInfo = {
+  originPoint: IPosition,
+  hitPoint: IPosition,
+  rayLength: number,
+  objectID?: string,
+  isNothing: boolean
+};
+
 export class Laser {
-  ray: Ray = new Ray();
-  tip: Sphere = new Sphere();
+  ray: Ray = new Ray(this.groupID);
+  tip: Sphere = new Sphere(this.groupID);
 
-  constructor() {
-    ProgramManager.getInstance().deleteGroup("Laser");
-  }
+  constructor(private groupID: string) { }
 
-  collision?: {
-    originPoint: IPosition,
-    hitPoint: IPosition,
-    rayLength: number,
-    objectID?: string,
-    isNothing: boolean
-  };
+  collision?: collisionInfo;
 
   UpdateTable(position: IPosition) {
     sgWorld.SetParam(8300, position); // Pick ray
@@ -61,6 +60,8 @@ export class Laser {
   }
 
   Draw() {
+    if (this.collision === undefined)
+      return;
     this.ray.Draw(this.collision);
     this.tip.Draw(this.collision);
   }
