@@ -30,13 +30,13 @@ export class debug {
 let debugHandleRefreshGestureTimer: number | undefined = undefined;
 export function debugHandleRefreshGesture() {
   // Point the wand directly up for 2 sec to refresh page
-  if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch > 70 && debugHandleRefreshGestureTimer == undefined) {
+  if (ControllerReader.controllerInfos[1] && ControllerReader.controllerInfos[1].wandPosition && ControllerReader.controllerInfos[1].wandPosition.Pitch > 70 && debugHandleRefreshGestureTimer == undefined) {
     console.log("started debug refresh gesture");
     debugHandleRefreshGestureTimer = setTimeout(function () {
       window.location.reload();
     }, 2000);
   }
-  else if (ControllerReader.controllerInfo && ControllerReader.controllerInfo.wandPosition && ControllerReader.controllerInfo.wandPosition.Pitch < 70 && debugHandleRefreshGestureTimer) {
+  else if (ControllerReader.controllerInfos[1] && ControllerReader.controllerInfos[1].wandPosition && ControllerReader.controllerInfos[1].wandPosition.Pitch < 70 && debugHandleRefreshGestureTimer) {
     clearTimeout(debugHandleRefreshGestureTimer);
     console.log("canceling debug refresh gesture");
     debugHandleRefreshGestureTimer = undefined;

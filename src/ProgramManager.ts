@@ -146,7 +146,7 @@ export class ProgramManager {
   getButton1Pressed() {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.button1Pressed ?? false;
+        return ControllerReader.controllerInfos[1]?.button1Pressed ?? false;
       case ProgramMode.Desktop:
         return DesktopInputManager.getLeftButtonPressed();
     }
@@ -156,7 +156,7 @@ export class ProgramManager {
   setButton1Pressed(pressed: boolean) {
     switch (this.mode) {
       case ProgramMode.Table:
-        ControllerReader.controllerInfo!.button1Pressed = pressed;
+        ControllerReader.controllerInfos[1]!.button1Pressed = pressed;
       case ProgramMode.Desktop:
         DesktopInputManager.setLeftButtonPressed(pressed);
     }
@@ -165,7 +165,7 @@ export class ProgramManager {
   getButton2Pressed() {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.button2Pressed ?? false;
+        return ControllerReader.controllerInfos[1]?.button2Pressed ?? false;
       case ProgramMode.Desktop:
         return DesktopInputManager.getRightButtonPressed();
     }
@@ -175,7 +175,7 @@ export class ProgramManager {
   getButton3() {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.trigger ?? false;
+        return ControllerReader.controllerInfos[1]?.trigger ?? false;
       case ProgramMode.Desktop:
         return DesktopInputManager.getMiddleButton();
     }
@@ -185,7 +185,7 @@ export class ProgramManager {
   getButton3Pressed() {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo?.triggerPressed ?? false;
+        return ControllerReader.controllerInfos[1]?.triggerPressed ?? false;
       case ProgramMode.Desktop:
         return DesktopInputManager.getMiddleButtonPressed();
     }
@@ -195,7 +195,7 @@ export class ProgramManager {
   getCursorPosition() {
     switch (this.mode) {
       case ProgramMode.Table:
-        return ControllerReader.controllerInfo!.wandPosition!;
+        return ControllerReader.controllerInfos[1]!.wandPosition!;
       case ProgramMode.Desktop:
         return DesktopInputManager.getCursorPosition();
     }
