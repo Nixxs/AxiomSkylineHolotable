@@ -151,7 +151,7 @@ function wandMode(laser: Laser) {
 }
 
 // sets the selection whenever the user presses a button on the on a valid model or collision object
-function selectMode(laser: Laser, button1pressed: boolean) {
+function setSelection(laser: Laser, button1pressed: boolean) {
   // if laser has collided with something and the button is pressed set the selection to the objectID
   if ((laser.collision != undefined) && button1pressed) {
     var objectIDOfSelectedModel: string;
@@ -387,20 +387,20 @@ export class UserModeManager {
       case ProgramMode.Desktop: this.laser?.UpdateDesktop(); break;
       case ProgramMode.Table: this.laser?.UpdateTable(ProgramManager.getInstance().getCursorPosition()!); break;
     }
+    switch (gControlMode) {
+      case ControlMode.Table:
+        tableMode();
+        break;
+      case ControlMode.Wall:
+        wallMode(this.laser!);
+        break;
+      case ControlMode.Wand:
+        wandMode(this.laser!);
+        break;
+    }
     switch (this.userMode) {
       case UserMode.Standard:
-        switch (gControlMode) {
-          case ControlMode.Table:
-            tableMode();
-            selectMode(this.laser!, button1pressed);
-            break;
-          case ControlMode.Wall:
-            wallMode(this.laser!);
-            break;
-          case ControlMode.Wand:
-            wandMode(this.laser!);
-            break;
-        }
+        setSelection(this.laser!, button1pressed);
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
@@ -500,7 +500,6 @@ export class UserModeManager {
           }
         }
         break;
-
       case UserMode.DrawLine:
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
