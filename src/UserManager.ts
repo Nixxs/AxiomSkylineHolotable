@@ -253,7 +253,7 @@ export class UserModeManager {
       this.modelIds.push(this.currentId)
       ProgramManager.getInstance().currentlySelected = this.currentId;
 
-      // add the new model to the lineobjects array so it can be delted via the undo button
+      // add the new model to the line objects array so it can be deleted via the undo button
       this.lineObjects.push(this.currentId);
       console.log(this.lineObjects.toString());
 
@@ -339,7 +339,7 @@ export class UserModeManager {
       const model = sgWorld.Creator.GetObject(ProgramManager.getInstance().currentlySelected) as ITerrainModel;
       sgWorld.Creator.DeleteObject(ProgramManager.getInstance().currentlySelected)
 
-      // delete the model from the lineObjects array so it doesn't cuase issues with the delete button
+      // delete the model from the lineObjects array so it doesn't cause issues with the delete button
       var indexOfDeleteObject = this.lineObjects.indexOf(ProgramManager.getInstance().currentlySelected);
       this.lineObjects.splice(indexOfDeleteObject, 1);
     } else {
