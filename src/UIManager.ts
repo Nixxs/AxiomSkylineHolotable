@@ -26,14 +26,14 @@ export class UIManager {
     const xPos = [-0.4, -0.24, -0.08, 0.08, 0.24, 0.4]
 
     this.menus.push(new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true));
-    
+
     const bookmarkManager = new BookmarkManager();
     this.menus[0].addButton(new Button("PreviousBookmark", sgWorld.Creator.CreatePosition(xPos[1], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomPrevious()));
     this.menus[0].addButton(new Button("NextBookmark", sgWorld.Creator.CreatePosition(xPos[0], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomNext()));
     const yLine1 = -1.05;
 
+    this.menus[0].addButton(new Button("Measurement", sgWorld.Creator.CreatePosition(xPos[2], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleMeasurementMode()));
     this.menus[0].addButton(new Button("RangeRing", sgWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleRangeRingMode()));
-    this.menus[0].addButton(new Button("Whyalla", sgWorld.Creator.CreatePosition(0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.jumpToWhyalla()));
     this.menus[0].addButton(new Button("Artillery", sgWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("Support by Fire")));
     this.menus[0].addButton(new Button("ArtilleryRange", sgWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("HowitzerWithRangeIndicator")));
 
@@ -51,14 +51,10 @@ export class UIManager {
     // add line
     this.menus[0].addButton(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
 
-    this.buttons.push(new Button("Measurement", sgWorld.Creator.CreatePosition(xPos[2], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleMeasurementMode()));
-    this.buttons.push(new Button("RangeRing", sgWorld.Creator.CreatePosition(xPos[3], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleRangeRingMode()));
- 
     // model selector
     try {
       const modelsControl = new ModelsControl();
 
-      this.buttons.push(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, yPos[1], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
       this.menus[0].addButton(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
         modelsControl.show(!modelsControl.isShown)
       }));
@@ -72,21 +68,6 @@ export class UIManager {
     } catch (error) {
       console.log("Error creating paging control" + error);
     }
-
-    // scale models
-    this.buttons.push(new Button("ScaleModelUp", sgWorld.Creator.CreatePosition(0.4, yPos[1], 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(+1)));
-    this.buttons.push(new Button("ScaleModelDown", sgWorld.Creator.CreatePosition(0.24, yPos[1], 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(-1)));
-
-    // delete selected model
-    this.buttons.push(new Button("DeleteSelected", sgWorld.Creator.CreatePosition(0.08, yPos[1], 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.deleteModel()));
-
-    // undo
-    this.buttons.push(new Button("Undo", sgWorld.Creator.CreatePosition(-0.08, yPos[1], 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.undo()));
-
-    // add line
-    this.buttons.push(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yPos[1], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
-
-
   }
 
   Draw() {
