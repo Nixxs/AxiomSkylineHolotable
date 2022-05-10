@@ -4,6 +4,7 @@ import { ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
 export class Button {
   ID?: string;
+  scale = 1;
   callback: () => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
@@ -20,47 +21,44 @@ export class Button {
       }
     });
     document.getElementById("buttons")?.appendChild(newButton);
-    if(hidden === true){
+    if (hidden === true) {
       this.show(false);
     }
   }
 
   // buttonPressed is whether the button was down this frame but not last frame
-  Update(button1Pressed: boolean, selectedID?: string) {
+  Update() {
+    const button1Pressed = ProgramManager.getInstance().getButton1Pressed(1);
+    const selectedID = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
     if (this.ID !== undefined && this.ID === selectedID && button1Pressed) {
       this.callback();
-      return false;
+      ProgramManager.getInstance().setButton1Pressed(1, false);
     }
-    return button1Pressed;
   }
 
   Draw() {
     const pos = roomToWorldCoord(this.roomPosition);
-    const scaleFactor = (ControllerReader.controllerInfos[1]?.scaleFactor ?? 1) / 12;
     if (this.ID === undefined) {
       console.log(`Creating ${this.name} button with model path ${this.modelPath}`);
-      const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, scaleFactor, 0, this.groupID, this.name);
+      const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
       this.ID = obj.ID;
     } else {
       // Move the button to be in the right spot
       const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;
-      obj.ScaleFactor = scaleFactor
+      obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
     }
   }
 
   setPosition(pos: IPosition) {
-    console.log("setPosition:: " + this.ID);
-    if (this.ID) {
-      const boxSize = (ControllerReader.controllerInfos[1]?.scaleFactor ?? 1) / 12;
-      this.roomPosition = pos;
-      let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
-      obj.Position = pos;
-      obj.ScaleFactor = boxSize
-    } else {
-      this.roomPosition = pos;
-      this.Draw();
-    }
+    console.log(`setPosition:: ${this.ID} (${roomToWorldCoord(pos).ToString()})`);
+    this.roomPosition = pos;
+  }
+
+  // scale should be the actual side length of the button in room space
+  // (for the math to work then, the button model should have 1m side length)
+  setScale(scale: number) {
+    this.scale = scale;
   }
 
   show(value: boolean) {

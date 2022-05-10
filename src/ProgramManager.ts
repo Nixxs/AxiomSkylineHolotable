@@ -3,7 +3,8 @@ import { Button } from "./Button";
 import { ControllerReader } from "./ControllerReader";
 import { debug, debugHandleRefreshGesture } from "./Debug";
 import { DesktopInputManager } from "./DesktopInputManager";
-import { vecAdd, YPRToQuat } from "./Mathematics";
+import { Quaternion } from "./math/quaternion";
+import { Vector } from "./math/vector";
 import { UIManager } from "./UIManager";
 import { UserModeManager } from "./UserManager";
 
@@ -357,18 +358,18 @@ function Draw() {
 
 function WorldGetPosition() {
   const pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
-  return [pos.X, pos.Y, pos.Altitude];
+  return new Vector<3>([pos.X, pos.Y, pos.Altitude]);
 }
 
-function WorldSetPosition(v: any) {
+function WorldSetPosition(v: Vector<3>) {
   const newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
-  newPos.X = v[0];
-  newPos.Y = v[1];
+  newPos.X = v.data[0];
+  newPos.Y = v.data[1];
   sgWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
 }
 
-export function WorldIncreasePosition(v: any) {
-  WorldSetPosition(vecAdd(v, WorldGetPosition()));
+export function WorldIncreasePosition(v: Vector<3>) {
+  WorldSetPosition(v.Copy().Add(WorldGetPosition()));
 }
 
 export function WorldGetScale() {
@@ -377,7 +378,7 @@ export function WorldGetScale() {
 
 export function WorldGetOri() {
   const pos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
-  return YPRToQuat(pos.Yaw, pos.Pitch, pos.Roll);
+  return Quaternion.FromYPR(pos.Yaw, pos.Pitch, pos.Roll);
 }
 
 export function deviceHeightOffset() {
