@@ -108,6 +108,7 @@ function tableMode() {
   table.wandDirLastFrame = wandDir;
 
 }
+
 tableMode.isDragging = false;
 tableMode.wandPosLastFrame = [0, 0, 0];
 tableMode.wandDirLastFrame = [1, 0, 0];
@@ -162,6 +163,20 @@ function setSelection(laser: Laser, button1pressed: boolean) {
     }
     // if the laser is not colliding with something and the button is pressed update the selection to undefined
     ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
+  }
+}
+
+function highlightIntersected(laser: Laser){
+  if (laser.collision != undefined) {
+    const oid = laser.collision.objectID;
+    if (oid !== undefined) {
+        const object =sgWorld.Creator.GetObject(oid);
+        if (object.ObjectType === ObjectType.OT_MODEL){
+          const model: ITerrainModel = object as ITerrainModel;
+          model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+          model.Terrain.Highlight = true;
+        }
+    }
   }
 }
 
@@ -225,17 +240,6 @@ export class UserModeManager {
     this.laser2?.Draw();
   }
 
-  jumpToSydney() {
-    console.log("sydney");
-    sgWorld.Navigate.FlyTo(sgWorld.Creator.CreatePosition(151.2067675, -33.8667266, 5000, 3, 0, -80, 0, 5000));
-    this.userMode = UserMode.Standard;
-  }
-  jumpToWhyalla() {
-    console.log("whyalla");
-    sgWorld.Navigate.FlyTo(sgWorld.Creator.CreatePosition(137.5576346, -33.0357364, 5000, 3, 0, -80, 0, 5000));
-    this.userMode = UserMode.Standard;
-  }
-
   toggleMeasurementMode() {
     if (this.userMode == UserMode.Measurement) {
       if (this.measurementModeLineID !== null) {
@@ -260,7 +264,8 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      this.currentlySelectedId = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName).ID;
+      const model =  sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
+      this.currentlySelectedId =model.ID;
       this.modelIds.push(this.currentlySelectedId)
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
@@ -413,6 +418,8 @@ export class UserModeManager {
     switch (this.userMode) {
       case UserMode.Standard:
         setSelection(this.laser1!, button1pressed);
+        highlightIntersected(this.laser1!);
+
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {

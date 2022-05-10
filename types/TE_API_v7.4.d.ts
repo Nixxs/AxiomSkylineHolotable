@@ -241,7 +241,7 @@ interface I3DViewshed {
   HiddenAreaColor: Color;
   ID: string;
   Message: IMessageObject;
-  ObjectType: number;
+  ObjectType: ObjectType;
   Position: IPosition;
   Quality: number;
   RayColor: Color;
@@ -262,10 +262,60 @@ interface IAnalysis {
 interface ITerraExplorerObject {
   ClientData: FClientData;
   ID: string;
-  ObjectType: number;
+  ObjectType: ObjectType;
   SaveInFlyFile: boolean;
   GetParam: any;
   SetParam: any;
+}
+
+declare const enum ObjectType {
+  OT_UNDEFINED = 0,
+  OT_POLYLINE = 1,
+  OT_POLYGON = 2,
+  OT_RECTANGLE = 3,
+  OT_REGULAR_POLYGON = 4,
+  OT_CIRCLE = 5,
+  OT_3D_POLYGON = 6,
+  OT_BUILDING = 7,
+  OT_BOX = 8,
+  OT_PYRAMID = 9,
+  OT_CYLINDER = 10,
+  OT_CONE = 11,
+  OT_ELLIPSE = 12,
+  OT_ARC = 13,
+  OT_ARROW = 14,
+  OT_3D_ARROW = 15,
+  OT_SPHERE = 16,
+  OT_MODEL = 17,
+  OT_LABEL = 18,
+  OT_LOCATION = 19,
+  OT_TREE_HOTLINK = 20,
+  OT_ROUTE = 21,
+  OT_MESSAGE = 22,
+  OT_DYNAMIC = 23,
+  OT_IMAGE_LABEL = 24,
+  OT_THREAT_DOME = 25,
+  OT_IMAGERY_LAYER = 26,
+  OT_TERRAIN_VIDEO = 27,
+  OT_POINT_CLOUD = 28,
+  OT_ELEVATION_LAYER = 29,
+  OT_TERRAIN_MODIFIER = 30,
+  OT_TERRAIN_HOLE = 31,
+  OT_POPUP_MESSAGE = 32,
+  OT_FEATURE = 33,
+  OT_PRESENTATION = 34,
+  OT_ANALYSIS_LOS = 35,
+  OT_FEATURE_LAYER = 36,
+  OT_FEATURE_GROUP = 37,
+  OT_3D_MESH_LAYER = 38,
+  OT_3D_MESH_FEATURE_LAYER = 39,
+  OT_KML_LAYER = 40,
+  OT_3D_VIEWSHED = 41,
+  OT_CONTOUR_MAP = 42,
+  OT_SLOPE_MAP = 43,
+  OT_EFFECT = 44,
+  OT_NETWORK_LINK = 45,
+  OT_SCREEN_OVERLAY = 46,
 }
 
 interface IClipboard {
