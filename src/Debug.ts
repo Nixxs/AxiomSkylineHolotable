@@ -56,8 +56,8 @@ console.log = function (str) {
 
 export function runConsole() {
   const el = document.getElementById("consoleInput");
-  if (el === null || !(el instanceof HTMLInputElement))
-    throw new Error("Expected console input to be an input element");
+  if (el === null || !(el instanceof HTMLTextAreaElement))
+    throw new Error("Expected console input to be a textarea element");
   const input = el.value;
   console.log("> " + input);
 
