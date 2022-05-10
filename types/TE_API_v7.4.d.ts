@@ -3,7 +3,12 @@
 
 interface IPosition {
   Altitude: number;
-  AltitudeType: 0 | 1 | 2 | 3 | 4;
+  /**
+   * Gets and sets an enum determining how the altitude is interpreted. 
+   * @type {AltitudeTypeCode}
+   * @memberof IPosition
+   */
+  AltitudeType: AltitudeTypeCode;
   Cartesian: boolean;
   Distance: number;
   Pitch: number;
@@ -26,6 +31,34 @@ interface IPosition {
   ToRelative: unknown;
   ToString(): string;
 }
+
+/**
+ * ATC_PIVOT_RELATIVE and ATC_ON_TERRAIN values apply only for 2D shapes and polygons. ATC_3DML_RELATIVE only applies to image and text labels.
+ * @enum {number}
+ */
+declare const enum AltitudeTypeCode {
+  /**
+   * Places the position’s pivot point at a specified altitude above the ground.
+   */
+  ATC_TERRAIN_RELATIVE = 0,
+  /**
+   * Places each point of the object at a specified altitude above the pivot point altitude, defined by its Point Altitude. The pivot is located at the center of the object.
+   */
+  ATC_PIVOT_RELATIVE = 1,
+  /**
+   * The altitude is ignored and the coordinate is on the terrain itself
+   */
+  ATC_ON_TERRAIN = 2,
+  /**
+   * Places the position’s pivot point at a specified altitude above the terrain database vertical datum base ellipsoid.
+   */
+  ATC_TERRAIN_ABSOLUTE = 3,
+  /**
+   * Places the object’s pivot point at a specified altitude above the 3DML layer.
+   */
+  ATC_3DML_RELATIVE = 4
+}
+
 
 declare const enum IActionCode {
   AC_FLYTO = 0, // Fly to the object operation.
@@ -576,7 +609,17 @@ interface ICreator {
   CreateImageryLayer: unknown; //Creates an ITerrainRasterLayer73, representing the imagery layer in the 3D Window.
   CreateKMLLayer: unknown; //Creates an IKMLLayer73, representing the KML layer in the 3D Window.
   CreateLabel: unknown; //Creates an ITerrainLabel73, representing the label in the 3D Window.
-  CreateLabelStyle(ls: 0 | 1 | 2): ILabelStyle; //Creates an ILabelStyle73 that defines label style properties for text and image labels.
+  /**
+   * Creates an ILabelStyle73 that defines label style properties for text and image labels.
+   * An enum that determines the label style type. The following are the possible values:
+   * LS_DEFAULT = 0
+   * LS_STREET = 1
+   * LS_STATE = 2
+   * @param {(0 | 1 | 2)} ls
+   * @return {*}  {ILabelStyle}
+   * @memberof ICreator
+   */
+  CreateLabelStyle(ls: 0 | 1 | 2): ILabelStyle;
   CreateLocation: unknown; //Creates an ITerrainLocation73, representing the point of interest in the 3D Window.
   CreateLocationHere: unknown; //Creates an ITerrainLocation73 representing the location in the current camera position.
   CreateMeshLayerFromFile: unknown; //Loads from a file an IMeshLayer73 representing a unified, stream optimized 3D Mesh Layer (3DML) database.
@@ -599,10 +642,26 @@ interface ICreator {
   CreateScreenOverlay: unknown; //Creates IScreenOverlay73 representing the newly created screen overlay.
   CreateSphere(Position: IPosition, Radius: number, Style: number, SegmentDensity: number, LineColor: Color, FillColor: Color, GroupID: string, Description: string): ITerrainSphere; //Creates an ITerrainSphere73 representing the newly created sphere.
   CreateTerrainModifier: unknown; //Creates an ITerrainModifier73 representing the terrain modifier polygon.
-  CreateTextLabel(Position: IPosition, Text: string, labelStyle: ILabelStyle, GroupID: string, Description: string): ITerrainLabel; //Creates an ITerrainLabel73 representing the newly created label.
+  /**
+   * Creates an ITerrainLabel73 representing the newly created label.
+   *
+   * @param {IPosition} Position
+   * @param {string} Text
+   * @param {ILabelStyle} labelStyle
+   * @param {string} GroupID
+   * @param {string} Description
+   * @return {*}  {ITerrainLabel}
+   * @memberof ICreator
+   */
+  CreateTextLabel(Position: IPosition, Text: string, labelStyle: ILabelStyle, GroupID: string, Description: string): ITerrainLabel;
   CreateTreeHotlink: unknown; //Creates an ITreeHotlink73 representing the newly created hotlink.
   CreateVideoOnTerrain: unknown; //Creates an ITerrainVideo73 representing the newly created video on terrain object.  
-  DeleteObject(ObjectIF: string): void; //Deletes an object from the terrain.
+  /**
+   *  Deletes an object from the terrain by ID
+   * @param {string} ObjectID
+   * @memberof ICreator
+   */
+  DeleteObject(ObjectID: string): void;
   GetObject(ObjectID: string): ITerraExplorerObject; //
 }
 

@@ -34,7 +34,7 @@ export class ModelsControl extends EventEmitter {
         let modelButtons: Button[] = []
         modelsConfig.models.forEach(model => {
             // filter this model?
-            const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager, ()=>{ this.onShowModelClick(model)});
+            const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.onShowModelClick(model) });
             b.show(false);
             modelButtons.push(b);
             this.buttonProperties.push({ button: b, model: { modelType: model.modelType, missionType: model.missionType } });
@@ -69,15 +69,18 @@ export class ModelsControl extends EventEmitter {
 
 
     onShowModelClick(model: { modelName: string; modelType: string; missionType: string; buttonPath: string; modelPath: string; }) {
-       this.show(false);
-       console.log(`todo adding model ${model.modelPath} to view`);
+        this.show(false);
+        console.log(`todo adding model ${model.modelPath} to view`);
+        const um = ProgramManager.getInstance().userModeManager;
+        if (!um) return;
+        um.toggleModelMode("Support by Fire");
     }
 
     filter(filterVal: { modelType: string; }) {
         // get the buttons we want to show
         const newButtons: Button[] = [];
-        this.buttonProperties.forEach((item)=>{
-            if(item.model.modelType === filterVal.modelType || filterVal.modelType === ""){
+        this.buttonProperties.forEach((item) => {
+            if (item.model.modelType === filterVal.modelType || filterVal.modelType === "") {
                 newButtons.push(item.button);
             }
         });
@@ -86,7 +89,7 @@ export class ModelsControl extends EventEmitter {
 
 
     show(value: boolean) {
-        this.filter({modelType: ""});
+        this.filter({ modelType: "" });
         this.pager.show(value);
         this.isShown = value;
         this.filterButtons.forEach(b => b.show(value));
