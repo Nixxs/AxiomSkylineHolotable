@@ -168,16 +168,28 @@ function setSelection(laser: Laser, button1pressed: boolean) {
   }
 }
 
-function highlightIntersected(laser: Laser){
+
+let lastHighlight: string | undefined;
+function highlightIntersected(laser: Laser) {
+  highlightById(false, lastHighlight);
   if (laser.collision != undefined) {
     const oid = laser.collision.objectID;
-    if (oid !== undefined) {
-        const object =sgWorld.Creator.GetObject(oid);
-        if (object.ObjectType === ObjectType.OT_MODEL){
-          const model: ITerrainModel = object as ITerrainModel;
-          model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
-          model.Terrain.Highlight = true;
-        }
+    highlightById(true, oid);
+    lastHighlight = oid;
+  }
+}
+
+function highlightById(highlight: boolean, oid?: string, ): void {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === ObjectType.OT_MODEL) {
+      const model: ITerrainModel = object as ITerrainModel;
+      if(highlight){
+        // highlight adds a slight tint to the item. Currently this is yellow
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+      }else{
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+      }
     }
   }
 }
@@ -266,8 +278,8 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const model =  sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
-      this.currentlySelectedId =model.ID;
+      const model = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
+      this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
