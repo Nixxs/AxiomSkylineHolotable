@@ -25,7 +25,7 @@ export class UIManager {
     const yPos = [-1.05, -1.15]
     const xPos = [-0.4, -0.24, -0.08, 0.08, 0.24, 0.4]
 
-    this.menus.push(new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true));
+    this.menus.push(new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true));
 
     const bookmarkManager = new BookmarkManager();
     this.menus[0].addButton(new Button("PreviousBookmark", sgWorld.Creator.CreatePosition(xPos[1], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomPrevious()));
