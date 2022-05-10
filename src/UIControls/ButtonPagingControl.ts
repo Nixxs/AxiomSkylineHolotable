@@ -1,11 +1,10 @@
 import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
-import { modelsConfig } from "../config/models";
 import { ProgramManager } from "../ProgramManager";
 
 export class ButtonPagingControl {
 
-  private layout: number = 9; //square layout 9x9 at moment
+  private layout: number = 9; //square layout 3x3 at moment
   private buttons: Button[];
   private pageNumber: number = 0;
   private totalPages: number = 0;
@@ -48,7 +47,7 @@ export class ButtonPagingControl {
     this.buttons.forEach(btn => btn.show(false));
     this.buttons = buttons;
     // hide the pagers?
-    const showPagers = this.buttons.length > this.layout -1;
+    const showPagers = this.buttons.length > this.layout - 1;
     this.pagers.forEach(p => p.show(showPagers));
     this.pageNumber = 0;
     this.totalPages = Math.ceil(this.buttons.length / this.layout);

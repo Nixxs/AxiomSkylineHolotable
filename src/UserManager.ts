@@ -1,7 +1,9 @@
 import { basePath, sgWorld, } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
-import { dot, intersectRayOnPlane, mag, normalize, QuatYAxis, radsToDegs, vecAdd, vecMul, vecSub, vecType, YPRToQuat } from "./Mathematics";
+import { Quaternion } from "./math/quaternion";
+import { Vector } from "./math/vector";
+import { intersectRayOnPlane, radsToDegs } from "./Mathematics";
 import { deviceHeightOffset, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
@@ -31,33 +33,33 @@ function tableMode() {
   }
 
   const wandIPos = worldToRoomCoord(ControllerReader.controllerInfos[1].wandPosition);
-  const wandOri = YPRToQuat(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
-  const wandPos: vecType = [wandIPos.X, wandIPos.Y, wandIPos.Altitude];
-  const wandDir = QuatYAxis(wandOri, 1);
+  const wandOri = Quaternion.FromYPR(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
+  const wandPos = new Vector<3>([wandIPos.X, wandIPos.Y, wandIPos.Altitude]);
+  const wandDir = wandOri.GetYAxis(1);
 
   if (table.isDragging) {
-    let planeNormal: vecType = [0, 0, 1];
-    let planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
+    let planeNormal = new Vector<3>([0, 0, 1]);
+    let planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, new Vector<3>([0, 0, deviceHeightOffset()]));
     if (planeCollisionPoint !== null) {
 
       const newIntersect = planeCollisionPoint;
       const deadzone = 1;
-      console.log(`first intersect ${table.firstIntersect}`);
-      console.log(`new intersect ${newIntersect}`);
-      let pan = vecSub(table.firstIntersect, newIntersect);
-      if (newIntersect !== null && newIntersect[0] > -0.6 - deadzone && newIntersect[0] < 0.6 + deadzone && newIntersect[1] < 0 + deadzone && newIntersect[1] > -1.2 - deadzone) {
+      console.log(`first intersect ${table.firstIntersect.data}`);
+      console.log(`new intersect ${newIntersect.data}`);
+      let pan = table.firstIntersect.Copy().Sub(newIntersect);
+      if (newIntersect !== null && newIntersect.data[0] > -0.6 - deadzone && newIntersect.data[0] < 0.6 + deadzone && newIntersect.data[1] < 0 + deadzone && newIntersect.data[1] > -1.2 - deadzone) {
         // Scale
-        const wandPosDiff = vecSub(wandPos, table.wandPosLastFrame);
+        const wandPosDiff = wandPos.Copy().Sub(table.wandPosLastFrame);
 
-        const degs = radsToDegs(Math.acos(Math.abs(dot(normalize(wandPosDiff), normalize(table.wandDirLastFrame)))));
+        const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(table.wandDirLastFrame.Copy().Normalise()))));
         const thresholdLower = 25;
         const thresholdUpper = 40;
         const thresholdRange = thresholdUpper - thresholdLower;
         const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-        const magDifference = mag(wandPosDiff);
+        const magDifference = wandPosDiff.Mag();
         if (magDifference > 0 && magDifference < 1) {
-          let forwardOrBack = dot(wandPosDiff, table.wandDirLastFrame);
+          let forwardOrBack = wandPosDiff.Dot(table.wandDirLastFrame);
           forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
           const scaleRatio = 5;
           const power = forwardOrBack * scalingRatio * magDifference * 4;
@@ -70,13 +72,13 @@ function tableMode() {
           prevPos.Altitude = appliedScale;
           sgWorld.Navigate.SetPosition(prevPos);
 
-          pan = vecAdd(pan, vecMul(vecAdd(newIntersect, [0, 0.6, 0]), 1 - factor));
+          pan = pan.Add(newIntersect.Copy().Add(new Vector<3>([0, 0.6, 0])).Mul(1 - factor));
 
           table.prevWorldScale = newScale;
         }
 
         // Pan
-        console.log(`pan ${pan}`);
+        console.log(`pan ${pan.data}`);
         WorldIncreasePosition(pan);
         table.firstIntersect = newIntersect;
       }
@@ -95,8 +97,8 @@ function tableMode() {
     }
     table.prevWorldScale = worldScale;
 
-    let planeNormal: vecType = [0, 0, 1];
-    const collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, [0, 0, deviceHeightOffset()]);
+    let planeNormal = new Vector<3>([0, 0, 1]);
+    const collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, new Vector<3>([0, 0, deviceHeightOffset()]));
     if (collPoint !== null) {
       table.isDragging = true;
 
@@ -110,11 +112,11 @@ function tableMode() {
 }
 
 tableMode.isDragging = false;
-tableMode.wandPosLastFrame = [0, 0, 0];
-tableMode.wandDirLastFrame = [1, 0, 0];
+tableMode.wandPosLastFrame = new Vector<3>([0, 0, 0]);
+tableMode.wandDirLastFrame = new Vector<3>([1, 0, 0]);
 tableMode.prevWorldScale = 1;
-tableMode.firstIntersect = [0, 0, 0];
-tableMode.lastIntersect = [0, 0, 0];
+tableMode.firstIntersect = new Vector<3>([0, 0, 0]);
+tableMode.lastIntersect = new Vector<3>([0, 0, 0]);
 
 export const enum UserMode {
   Standard, // this can include FlyTo, but also just standard navigation; we don't distinguish them for now
