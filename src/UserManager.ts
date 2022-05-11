@@ -15,7 +15,7 @@ const enum ControlMode {
 const gControlMode: ControlMode = ControlMode.Table;
 
 function tableMode() {
-  if (ProgramManager.getInstance().getMode() !== ProgramMode.Table)
+  if (ProgramManager.getInstance().getMode() !== ProgramMode.Device)
     return;
   const table = tableMode;
   if (ControllerReader.controllerInfos[1] === undefined) {
@@ -179,15 +179,15 @@ function highlightIntersected(laser: Laser) {
   }
 }
 
-function highlightById(highlight: boolean, oid?: string, ): void {
+function highlightById(highlight: boolean, oid?: string): void {
   if (oid !== undefined && oid != "") {
     const object = sgWorld.Creator.GetObject(oid);
     if (object && object.ObjectType === ObjectType.OT_MODEL) {
       const model: ITerrainModel = object as ITerrainModel;
-      if(highlight){
+      if (highlight) {
         // highlight adds a slight tint to the item. Currently this is yellow
         model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
-      }else{
+      } else {
         model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
       }
     }
@@ -418,7 +418,7 @@ export class UserModeManager {
     const button1pressed = ProgramManager.getInstance().getButton1Pressed(1);
     switch (ProgramManager.getInstance().getMode()) {
       case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         this.laser1?.UpdateTable(1);
         this.laser2?.UpdateTable(0);
         break;
