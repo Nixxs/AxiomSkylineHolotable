@@ -9,6 +9,7 @@ import { Button } from "./Button";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { radsToDegs } from "./Mathematics";
+import { DeviceType, GetDeviceType } from "./ProgramManager";
 
 export class Menu {
   // buttonSize is the roomspace width of one button
@@ -103,8 +104,9 @@ export class Menu {
         const button = this.buttons[i];
         const newPosition = this.getNthButtonPosition(i);
         const ypr = this.orientation.GetYPR();
-        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
-        button.setScale(this.buttonSize * 0.95); // 10% used for borders
+        // There is a 90 degree difference between wall and table
+        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
+        button.setScale(this.buttonSize * 0.9); // 10% used for borders
       }
       this.recomputeButtons = false;
     }

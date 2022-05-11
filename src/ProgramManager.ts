@@ -80,7 +80,29 @@ export function worldToRoomCoord(position: IPosition) {
 export const enum ProgramMode {
   Unknown,
   Desktop,
-  Table
+  Device
+}
+
+export const enum DeviceType {
+  Table,
+  Wall,
+  Desktop
+}
+
+// Desktop until proven hologram device
+let deviceType: DeviceType = DeviceType.Desktop;
+export function GetDeviceType() {
+  if (deviceType === DeviceType.Desktop && ControllerReader.roomExtent?.max !== undefined) {
+    console.log(`roomExtent.max.z = ${ControllerReader.roomExtent?.max[2]}`);
+    if (ControllerReader.roomExtent?.max[2] > 1.9) {
+      deviceType = DeviceType.Wall;
+      console.log("Therefore the device type is Wall");
+    } else {
+      deviceType = DeviceType.Table;
+      console.log("Therefore the device type is Table");
+    }
+  }
+  return deviceType;
 }
 
 /**
@@ -113,7 +135,6 @@ export class ProgramManager {
 
   userModeManager?: UserModeManager;
   uiManager?: UIManager;
-  buttons: Button[] = [];
 
   private static instance?: ProgramManager;
   public static getInstance(): ProgramManager {
@@ -144,7 +165,7 @@ export class ProgramManager {
 
   getButton1Pressed(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.button1Pressed ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getLeftButtonPressed();
@@ -154,7 +175,7 @@ export class ProgramManager {
 
   setButton1Pressed(userIndex: number, pressed: boolean) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         ControllerReader.controllerInfos[1]!.button1Pressed = pressed;
         break;
       case ProgramMode.Desktop:
@@ -165,7 +186,7 @@ export class ProgramManager {
 
   getButton2Pressed(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.button2Pressed ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getRightButtonPressed();
@@ -175,7 +196,7 @@ export class ProgramManager {
 
   getButton3Pressed(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.triggerPressed ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getMiddleButtonPressed();
@@ -185,7 +206,7 @@ export class ProgramManager {
 
   getButton1(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.button1 ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getLeftButton();
@@ -195,7 +216,7 @@ export class ProgramManager {
 
   getButton2(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.button2 ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getRightButton();
@@ -205,7 +226,7 @@ export class ProgramManager {
 
   getButton3(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return ControllerReader.controllerInfos[userIndex]?.trigger ?? false;
       case ProgramMode.Desktop:
         return userIndex == 1 && DesktopInputManager.getMiddleButton();
@@ -215,7 +236,7 @@ export class ProgramManager {
 
   getCursorPosition(userIndex: number) {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         return this.userModeManager!.getCollisionPosition(userIndex);
       case ProgramMode.Desktop:
         return userIndex == 1 ? DesktopInputManager.getCursorPosition() : undefined;
@@ -226,7 +247,7 @@ export class ProgramManager {
 
   Update() {
     switch (this.mode) {
-      case ProgramMode.Table:
+      case ProgramMode.Device:
         ControllerReader.Update(); // Read controllers info
         break;
       case ProgramMode.Desktop:
@@ -235,6 +256,7 @@ export class ProgramManager {
     }
     this.uiManager?.Update();
     this.userModeManager?.Update();
+    GetDeviceType();
   }
 
   Draw() {
@@ -266,8 +288,8 @@ export class ProgramManager {
         sgWorld.AttachEvent("OnSGWorld", (eventID, _eventParam) => {
           if (eventID == 14) {
             // This is the place were you need to read wand information and respond to it.
-            ProgramManager.getInstance().setMode(ProgramMode.Table);
-            if (ProgramManager.getInstance().getMode() == ProgramMode.Table) {
+            ProgramManager.getInstance().setMode(ProgramMode.Device);
+            if (ProgramManager.getInstance().getMode() == ProgramMode.Device) {
               Update();
               Draw();
               debugHandleRefreshGesture();
