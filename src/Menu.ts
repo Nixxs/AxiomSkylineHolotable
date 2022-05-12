@@ -20,8 +20,7 @@ export class Menu {
   public corner: Vector<3>;
   public xDirection: Vector<3>;
   public yDirection: Vector<3>;
-
-  private recomputeButtons = true;
+  public recomputeButtons = true;
 
   constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean) {
     // anchorPosition is bottomLeft + [x * width, y * height]
@@ -76,7 +75,7 @@ export class Menu {
     }
   }
 
-  private getNthButtonPosition(n: number) {
+  getNthButtonPosition(n: number) {
     const strip = Math.floor(n / (this.horizontal ? this.cols : this.rows));
     const along = n - strip * (this.horizontal ? this.cols : this.rows);
     console.log(`${n}th at ${strip}th strip, ${along}th along`);
