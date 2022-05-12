@@ -70,10 +70,10 @@ export class Menu {
     }
   }
 
-  createButton(name: string, icon: string, callback?: () => void){
+  createButton(name: string, icon: string, callback?: (id?: string) => void){
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
-    const btn = new Button(name, pos, basePath + "ui/blank.xpl2", groupId, callback);
+    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
     this.addButton(btn);
   }
 

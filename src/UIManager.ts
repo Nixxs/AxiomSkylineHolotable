@@ -5,16 +5,20 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { ModelsControl } from "./UIControls/ModelsControl";
 
 export class UIManager {
-  buttons: Button[] = [];
 
   menus: [Menu, Menu][] = []; // [Table, Wall]
   menusTable: Menu[] = [];
   menusWall: Menu[] = [];
+
+  bookmarkManager = new BookmarkManager();
+  polygonId: string = "";
+
+  groupId: string = ""
 
   constructor() { }
 
@@ -22,8 +26,11 @@ export class UIManager {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
     ProgramManager.getInstance().deleteGroup("buttons");
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
-
+    this.groupId = groupId;
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
+
+    this.createMenus();
+    return;
 
     this.menus.push([
       new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true),
@@ -66,7 +73,6 @@ export class UIManager {
         console.log("modelsControl:: onShow" + b)
       })
       // // we have to put all the buttons into the buttons of the UI control as this manages the click of the buttons
-      this.buttons.push(...modelsControl.buttons)
     } catch (error) {
       console.log("Error creating paging control" + error);
     }
@@ -77,53 +83,110 @@ export class UIManager {
     }
   }
 
-  createMenus(){
+  createMenus() {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
 
     // tools menu
-    const toolsMenuTable = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
-    const toolsMenuWall = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
 
-    toolsMenuTable.createButton("Draw", "blank.xpl2", ()=>{})
+    toolsMenuTable.createButton("Draw", "blank.xpl2", (id) => this.onButtonClick("Draw"));
+    toolsMenuTable.createButton("Measure", "blank.xpl2", (id) => this.onButtonClick("Measure"));
+    toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"));
+    toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"));
+    toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"));
+    toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"));
+    toolsMenuTable.createButton("PreviousBookmark", "blank.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
+    toolsMenuTable.createButton("NextBookmark", "blank.xpl2", (id) => this.onButtonClick("NextBookmark"));
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
-    
+  }
 
+  drawTable() {
+
+    if (GetDeviceType() === DeviceType.Desktop) {
+      return;
+    }
+
+    let minXY = sgWorld.Creator.CreatePosition(-0.6, 0, 0.69, 3);
+    let maxXY = sgWorld.Creator.CreatePosition(0.6, -1.2, 0.69, 3);
+    let minXY2 = roomToWorldCoord(minXY);
+    let maxXY2 = roomToWorldCoord(maxXY);
+    var cVerticesArray = [
+      minXY2.X, minXY2.Y, minXY2.Altitude,
+      minXY2.X, maxXY2.Y, minXY2.Altitude,
+      maxXY2.X, maxXY2.Y, minXY2.Altitude,
+      maxXY2.X, minXY2.Y, minXY2.Altitude,
+      minXY2.X, minXY2.Y, minXY2.Altitude,
+    ];
+    var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry(cVerticesArray);
+    var cPolygonGeometry = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing, null);
+    var nLineColor = 0xFF00FF00; // Abgr value -> solid green
+
+    var nFillColor = 0x7FFF0000; // Abgr value -> 50% transparent blue
+
+    var eAltitudeTypeCode = 3; //AltitudeTypeCode.ATC_TERRAIN_RELATIVE;
+    // D2. Create polygon
+
+    if (this.polygonId) {
+      const poly: ITerrainPolygon = sgWorld.Creator.GetObject(this.polygonId) as ITerrainPolygon;
+      poly.geometry = cPolygonGeometry;
+    } else {
+      const polygon = sgWorld.Creator.CreatePolygon(cPolygonGeometry, nLineColor, nFillColor, eAltitudeTypeCode, this.groupId, "Table");
+      this.polygonId = polygon.ID;
+    }
+
+  }
+
+  onButtonClick(name: string) {
+    const pm = ProgramManager.getInstance().userModeManager;
+    if (!pm) return;
+    switch (name) {
+      case "NextBookmark":
+        this.bookmarkManager.ZoomNext();
+        break;
+      case "PreviousBookmark":
+        this.bookmarkManager.ZoomPrevious();
+        break;
+      case "Draw":
+        pm.toggleDrawLine()
+      case "Measure":
+        pm.toggleMeasurementMode();
+      case "Undo":
+        pm.undo();
+      case "Delete":
+        pm.deleteModel();
+      case "ScaleModelUp":
+        pm.scaleModel(+1);
+      case "ScaleModelDown":
+        pm.scaleModel(-1);
+    }
   }
 
   Draw() {
-    for (let button of this.buttons) {
-      button.Draw();
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop: // Desktop renders the table button layout
+      case DeviceType.Table:
+        this.menusTable.forEach(m => m.Draw());
+        break;
+      case DeviceType.Wall:
+        this.menusWall.forEach(m => m.Draw());
+        break;
     }
-    for (let [tableMenu, wallMenu] of this.menus) {
-      switch (GetDeviceType()) {
-        case DeviceType.Desktop: // Desktop renders the table button layout
-        case DeviceType.Table:
-          tableMenu.Draw();
-          break;
-        case DeviceType.Wall:
-          wallMenu.Draw();
-          break;
-      }
-    }
+    this.drawTable()
   }
 
   Update() {
-    for (let button of this.buttons) {
-      button.Update();
-    }
-    for (let [tableMenu, wallMenu] of this.menus) {
-      switch (GetDeviceType()) {
-        case DeviceType.Desktop: // Desktop updates the table buttons
-        case DeviceType.Table:
-          tableMenu.Update();
-          break;
-        case DeviceType.Wall:
-          wallMenu.Update();
-          break;
-      }
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop: // Desktop updates the table buttons
+      case DeviceType.Table:
+        this.menusTable.forEach(m => m.Draw());
+        break;
+      case DeviceType.Wall:
+        this.menusWall.forEach(m => m.Draw());
+        break;
     }
   }
 }

@@ -39,7 +39,6 @@ export class Button {
   Draw() {
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
-      console.log(`Creating ${this.name} button with model path ${this.modelPath}`);
       const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
       this.ID = obj.ID;
     } else {
@@ -51,7 +50,6 @@ export class Button {
   }
 
   setPosition(pos: IPosition) {
-    console.log(`setPosition:: ${this.ID} (${roomToWorldCoord(pos).ToString()})`);
     this.roomPosition = pos;
   }
 
