@@ -24,6 +24,7 @@ export class MenuPaging extends Menu {
     super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal);
 
     // recalculate the anchor so that it is centred. @Ruben better way to do this in the base class as an option
+    // @ruben better way to do this?
     const newX = anchor.data[0] - ((this.cols * this.buttonSize) / 2);
     anchor.data[0] = newX
 
