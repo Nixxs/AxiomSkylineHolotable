@@ -84,7 +84,7 @@ export class UIManager {
     const toolsMenuTable = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
     const toolsMenuWall = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
 
-    toolsMenuTable.createButton("Draw", "blank.xpl2",)
+    toolsMenuTable.createButton("Draw", "blank.xpl2", ()=>{})
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
