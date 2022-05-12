@@ -5,10 +5,10 @@ import { ProgramManager, roomToWorldCoord } from "./ProgramManager";
 export class Button {
   ID?: string;
   scale = 1;
-  callback: () => void = () => { };
+  callback: (id?: string) => void = () => { };
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
-    callback?: () => void, hidden?: boolean) {
+    callback?: (id?: string) => void, hidden?: boolean) {
     const newButton = document.createElement("button");
     newButton.textContent = name;
     if (callback) {
@@ -31,7 +31,7 @@ export class Button {
     const button1Pressed = ProgramManager.getInstance().getButton1Pressed(1);
     const selectedID = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
     if (this.ID !== undefined && this.ID === selectedID && button1Pressed) {
-      this.callback();
+      this.callback(this.ID); // callback optionally provides the id of the button for use
       ProgramManager.getInstance().setButton1Pressed(1, false);
     }
   }

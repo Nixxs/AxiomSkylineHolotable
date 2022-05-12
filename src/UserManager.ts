@@ -216,10 +216,12 @@ export class UserModeManager {
   private drawLineFirstPoint: IPosition | null = null;
   private drawLineWidth = 5;
   private drawLineColor: IColor;
+  private drawButtonId: string | undefined;
 
   private lineObjects: Array<string> = [];
   private laser1?: Laser;
   private laser2?: Laser;
+
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -254,8 +256,9 @@ export class UserModeManager {
     this.laser2?.Draw();
   }
 
-  toggleMeasurementMode() {
+  toggleMeasurementMode(buttonId?: string) {
     if (this.userMode == UserMode.Measurement) {
+      highlightById(true, buttonId);
       if (this.measurementModeLineID !== null) {
         sgWorld.Creator.DeleteObject(this.measurementModeLineID);
         sgWorld.Creator.DeleteObject(this.measurementTextLabelID!);
@@ -403,10 +406,12 @@ export class UserModeManager {
     }
   }
 
-  toggleDrawLine(): void {
+  toggleDrawLine(buttonId?: string): void {
     this.userMode = UserMode.DrawLine;
     this.drawLineID = null;
     this.drawLineFirstPoint = null;
+    this.drawButtonId = buttonId;
+    highlightById(true, this.drawButtonId);
   }
 
   Update() {
@@ -459,6 +464,7 @@ export class UserModeManager {
           // Exit mode when pressed again
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
             console.log("finished line");
+            highlightById(false, this.drawButtonId);
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
