@@ -519,13 +519,13 @@ interface ILineString extends IGeometry {
 interface IGeometryCreator {
   CreateGeometryFromWKB: unknown;
   CreateGeometryFromWKT: unknown;
-  CreateLinearRingGeometry: unknown;
+  CreateLinearRingGeometry: any;
   CreateLineStringGeometry(vertices: [number, number, number][] | string): ILineString;
   CreateMultiLineStringGeometry: unknown;
   CreateMultiPointGeometry: unknown;
   CreateMultiPolygonGeometry: unknown;
   CreatePointGeometry: unknown;
-  CreatePolygonGeometry: unknown;
+  CreatePolygonGeometry: any;
 }
 
 type ITerrain3DArrow = unknown;
@@ -678,7 +678,7 @@ interface ICreator {
   CreateModel(Position: IPosition, FileName: string, Scale: number, ModelType: 0 | 1 | 2, GroupID: string, Description: string): ITerrainModel; //Imports from a file an ITerrainModel73, representing a model object.
   CreateNewFeatureLayer: unknown; //Creates directly from TerraExplorer an IFeatureLayer73, representing a new feature layer.
   CreatePointCloudModel: unknown; //Imports an ITerrainPointCloudModel73 object from a file.
-  CreatePolygon: unknown; //Creates an ITerrainPolygon73 in the 3D Window.
+  CreatePolygon(geometry: IGeometry, LineColor?: number, FillColor?: number, AltitudeTypeCode?: AltitudeTypeCode, GroupID?: string,  Description?: string): ITerrainPolygon; //Creates an ITerrainPolygon73 in the 3D Window.
   CreatePolygonFromArray: unknown; //Creates an ITerrainPolygon73 representing the polygon by connecting the points in an array of points.
   CreatePolyline(Geometry: IGeometry, LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, in the 3D Window.
   CreatePolylineFromArray(verticesArray: [number, number, number][], LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, by connecting the points in an array of points.
@@ -853,3 +853,23 @@ interface ISGWorld {
   SetParamEx(...a: any[]): unknown;
 }
 
+interface ITerrainPolygon extends ITerrainPolyline {
+  ID: string;
+  objectType: ObjectType;
+  saveInFlyFile: boolean;
+  treeItem: unknown;
+  message: IMessageObject;
+  action: IAction;
+  position: IPosition;
+  terrain: ITerrainObject;
+  tooltip: ITooltip;
+  attachment: IAttachment;
+  visibility: IVisibility;
+  timeSpan: ITimeSpan;
+  lineStyle: ILineStyle;
+  fillStyle: IFillStyle;
+  geometry: IGeometry;
+  spline: boolean;
+  extendToGround: boolean;
+  volumeClassification: unknown;
+}

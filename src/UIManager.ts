@@ -5,14 +5,20 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { ModelsControl } from "./UIControls/ModelsControl";
 
 export class UIManager {
-  buttons: Button[] = [];
 
   menus: [Menu, Menu][] = []; // [Table, Wall]
+  menusTable: Menu[] = [];
+  menusWall: Menu[] = [];
+
+  bookmarkManager = new BookmarkManager();
+  polygonId: string = "";
+
+  groupId: string = ""
 
   constructor() { }
 
@@ -20,10 +26,11 @@ export class UIManager {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
     ProgramManager.getInstance().deleteGroup("buttons");
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
-
+    this.groupId = groupId;
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
-    const yPos = [-1.05, -1.15]
-    const xPos = [-0.4, -0.24, -0.08, 0.08, 0.24, 0.4]
+
+    this.createMenus();
+    return;
 
     this.menus.push([
       new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.2, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true),
@@ -31,35 +38,41 @@ export class UIManager {
     ]);
 
     const bookmarkManager = new BookmarkManager();
-    this.menus[0][0].addButton(new Button("PreviousBookmark", sgWorld.Creator.CreatePosition(xPos[1], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomPrevious()));
-    this.menus[0][0].addButton(new Button("NextBookmark", sgWorld.Creator.CreatePosition(xPos[0], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomNext()));
+    this.menus[0][0].addButton(new Button("PreviousBookmark", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomPrevious()));
+    this.menus[0][0].addButton(new Button("NextBookmark", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomNext()));
     const yLine1 = -1.05;
 
+<<<<<<< HEAD
   
     this.menus[0][0].addButton(new Button("Measurement", sgWorld.Creator.CreatePosition(xPos[2], yPos[0], 0.7, 3), basePath + "ui/measure.xpl2", groupId, (buttonId) => ProgramManager.getInstance().userModeManager?.toggleMeasurementMode(buttonId)));
     // this.menus[0][0].addButton(new Button("RangeRing", sgWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleRangeRingMode()));
     // this.menus[0][0].addButton(new Button("Artillery", sgWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("Support by Fire")));
     // this.menus[0][0].addButton(new Button("ArtilleryRange", sgWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("HowitzerWithRangeIndicator")));
+=======
+>>>>>>> origin/new_menu_structure
 
     // scale models
-    const yLine2 = -1.15
-    this.menus[0][0].addButton(new Button("ScaleModelUp", sgWorld.Creator.CreatePosition(0.4, yLine2, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(+1)));
-    this.menus[0][0].addButton(new Button("ScaleModelDown", sgWorld.Creator.CreatePosition(0.24, yLine2, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(-1)));
+    this.menus[0][0].addButton(new Button("ScaleModelUp", sgWorld.Creator.CreatePosition(0.4, 0, 0.7, 3), basePath + "ui/plus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(+1)));
+    this.menus[0][0].addButton(new Button("ScaleModelDown", sgWorld.Creator.CreatePosition(0.24, 0, 0.7, 3), basePath + "ui/minus.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.scaleModel(-1)));
 
     // delete selected model
-    this.menus[0][0].addButton(new Button("DeleteSelected", sgWorld.Creator.CreatePosition(0.08, yLine2, 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.deleteModel()));
+    this.menus[0][0].addButton(new Button("DeleteSelected", sgWorld.Creator.CreatePosition(0.08, 0, 0.7, 3), basePath + "ui/delete.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.deleteModel()));
 
     // undo
-    this.menus[0][0].addButton(new Button("Undo", sgWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.undo()));
+    this.menus[0][0].addButton(new Button("Undo", sgWorld.Creator.CreatePosition(-0.08, 0, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.undo()));
 
     // add line
+<<<<<<< HEAD
     this.menus[0][0].addButton(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/add_line.xpl2", groupId, (buttonId) => ProgramManager.getInstance().userModeManager?.toggleDrawLine(buttonId)));
+=======
+    this.menus[0][0].addButton(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, 0, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
+>>>>>>> origin/new_menu_structure
 
     // model selector
     try {
       const modelsControl = new ModelsControl();
 
-      this.menus[0][0].addButton(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
+      this.menus[0][0].addButton(new Button("Model Selector", sgWorld.Creator.CreatePosition(-0.4, 0, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => {
         modelsControl.show(!modelsControl.isShown)
       }));
 
@@ -68,7 +81,6 @@ export class UIManager {
         console.log("modelsControl:: onShow" + b)
       })
       // // we have to put all the buttons into the buttons of the UI control as this manages the click of the buttons
-      this.buttons.push(...modelsControl.buttons)
     } catch (error) {
       console.log("Error creating paging control" + error);
     }
@@ -79,37 +91,110 @@ export class UIManager {
     }
   }
 
-  Draw() {
-    for (let button of this.buttons) {
-      button.Draw();
+  createMenus() {
+    // create the main control menu. Each menu must be replicated twice, once for wall once for table
+
+    // tools menu
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+
+    toolsMenuTable.createButton("Draw", "blank.xpl2", (id) => this.onButtonClick("Draw"));
+    toolsMenuTable.createButton("Measure", "blank.xpl2", (id) => this.onButtonClick("Measure"));
+    toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"));
+    toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"));
+    toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"));
+    toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"));
+    toolsMenuTable.createButton("PreviousBookmark", "blank.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
+    toolsMenuTable.createButton("NextBookmark", "blank.xpl2", (id) => this.onButtonClick("NextBookmark"));
+
+    this.menusTable.push(toolsMenuTable);
+    this.menusWall.push(toolsMenuWall);
+
+  }
+
+  drawTable() {
+
+    if (GetDeviceType() === DeviceType.Desktop) {
+      return;
     }
-    for (let [tableMenu, wallMenu] of this.menus) {
-      switch (GetDeviceType()) {
-        case DeviceType.Desktop: // Desktop renders the table button layout
-        case DeviceType.Table:
-          tableMenu.Draw();
-          break;
-        case DeviceType.Wall:
-          wallMenu.Draw();
-          break;
-      }
+
+    let minXY = sgWorld.Creator.CreatePosition(-0.6, 0, 0.69, 3);
+    let maxXY = sgWorld.Creator.CreatePosition(0.6, -1.2, 0.69, 3);
+    let minXY2 = roomToWorldCoord(minXY);
+    let maxXY2 = roomToWorldCoord(maxXY);
+    var cVerticesArray = [
+      minXY2.X, minXY2.Y, minXY2.Altitude,
+      minXY2.X, maxXY2.Y, minXY2.Altitude,
+      maxXY2.X, maxXY2.Y, minXY2.Altitude,
+      maxXY2.X, minXY2.Y, minXY2.Altitude,
+      minXY2.X, minXY2.Y, minXY2.Altitude,
+    ];
+    var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry(cVerticesArray);
+    var cPolygonGeometry = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing, null);
+    var nLineColor = 0xFF00FF00; // Abgr value -> solid green
+
+    var nFillColor = 0x7FFF0000; // Abgr value -> 50% transparent blue
+
+    var eAltitudeTypeCode = 3; //AltitudeTypeCode.ATC_TERRAIN_RELATIVE;
+    // D2. Create polygon
+
+    if (this.polygonId) {
+      const poly: ITerrainPolygon = sgWorld.Creator.GetObject(this.polygonId) as ITerrainPolygon;
+      poly.geometry = cPolygonGeometry;
+    } else {
+      const polygon = sgWorld.Creator.CreatePolygon(cPolygonGeometry, nLineColor, nFillColor, eAltitudeTypeCode, this.groupId, "Table");
+      this.polygonId = polygon.ID;
+    }
+
+  }
+
+  onButtonClick(name: string) {
+    const pm = ProgramManager.getInstance().userModeManager;
+    if (!pm) return;
+    switch (name) {
+      case "NextBookmark":
+        this.bookmarkManager.ZoomNext();
+        break;
+      case "PreviousBookmark":
+        this.bookmarkManager.ZoomPrevious();
+        break;
+      case "Draw":
+        pm.toggleDrawLine()
+      case "Measure":
+        pm.toggleMeasurementMode();
+      case "Undo":
+        pm.undo();
+      case "Delete":
+        pm.deleteModel();
+      case "ScaleModelUp":
+        pm.scaleModel(+1);
+      case "ScaleModelDown":
+        pm.scaleModel(-1);
     }
   }
 
-  Update() {
-    for (let button of this.buttons) {
-      button.Update();
+  Draw() {
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop: // Desktop renders the table button layout
+      case DeviceType.Table:
+        this.menusTable.forEach(m => m.Draw());
+        break;
+      case DeviceType.Wall:
+        this.menusWall.forEach(m => m.Draw());
+        break;
     }
-    for (let [tableMenu, wallMenu] of this.menus) {
-      switch (GetDeviceType()) {
-        case DeviceType.Desktop: // Desktop updates the table buttons
-        case DeviceType.Table:
-          tableMenu.Update();
-          break;
-        case DeviceType.Wall:
-          wallMenu.Update();
-          break;
-      }
+    this.drawTable()
+  }
+
+  Update() {
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop: // Desktop updates the table buttons
+      case DeviceType.Table:
+        this.menusTable.forEach(m => m.Draw());
+        break;
+      case DeviceType.Wall:
+        this.menusWall.forEach(m => m.Draw());
+        break;
     }
   }
 }
