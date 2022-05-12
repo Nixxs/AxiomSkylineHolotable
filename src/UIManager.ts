@@ -35,7 +35,8 @@ export class UIManager {
     this.menus[0][0].addButton(new Button("NextBookmark", sgWorld.Creator.CreatePosition(xPos[0], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => bookmarkManager.ZoomNext()));
     const yLine1 = -1.05;
 
-    this.menus[0][0].addButton(new Button("Measurement", sgWorld.Creator.CreatePosition(xPos[2], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleMeasurementMode()));
+  
+    this.menus[0][0].addButton(new Button("Measurement", sgWorld.Creator.CreatePosition(xPos[2], yPos[0], 0.7, 3), basePath + "ui/blank.xpl2", groupId, (buttonId) => ProgramManager.getInstance().userModeManager?.toggleMeasurementMode(buttonId)));
     this.menus[0][0].addButton(new Button("RangeRing", sgWorld.Creator.CreatePosition(-0.08, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleRangeRingMode()));
     this.menus[0][0].addButton(new Button("Artillery", sgWorld.Creator.CreatePosition(0.24, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("Support by Fire")));
     this.menus[0][0].addButton(new Button("ArtilleryRange", sgWorld.Creator.CreatePosition(0.4, yLine1, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleModelMode("HowitzerWithRangeIndicator")));
@@ -52,7 +53,7 @@ export class UIManager {
     this.menus[0][0].addButton(new Button("Undo", sgWorld.Creator.CreatePosition(-0.08, yLine2, 0.7, 3), basePath + "ui/undo.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.undo()));
 
     // add line
-    this.menus[0][0].addButton(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, () => ProgramManager.getInstance().userModeManager?.toggleDrawLine()));
+    this.menus[0][0].addButton(new Button("DrawLine", sgWorld.Creator.CreatePosition(-0.24, yLine2, 0.7, 3), basePath + "ui/blank.xpl2", groupId, (buttonId) => ProgramManager.getInstance().userModeManager?.toggleDrawLine(buttonId)));
 
     // model selector
     try {
