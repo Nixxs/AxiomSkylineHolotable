@@ -723,7 +723,7 @@ interface INavigate {
   FlyThrough: unknown;
   FlyTo(target: string | ITerraExplorerObject | IPosition, Pattern?: number): void;
   GetPosition(AltitudeType: 0 | 3 | 4): IPosition;
-  JumpTo: unknown;
+  JumpTo(target: string | ITerraExplorerObject | IPosition, Pattern?: number): void;
   SetGPSMode: unknown;
   SetGPSPosition: unknown;
   SetPosition(Position: IPosition): void;
