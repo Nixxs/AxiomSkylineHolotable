@@ -22,7 +22,8 @@ export class ModelsControl extends EventEmitter {
   //  private pager: ButtonPagingControl;
   private filterButtons: Button[] = [];
 
-  private pagingMenu!: MenuPaging;
+  private pagingMenuTable!: MenuPaging;
+  private pagingMenuWall!: MenuPaging;
 
   private menusWall: Menu[] = [];
   private menusTable: Menu[] = [];
@@ -56,12 +57,16 @@ export class ModelsControl extends EventEmitter {
     this.filterButtons.push(btnModel);
 
     // filter menu
-    const menu = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.0, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const filterMenuTable = new Menu(0.8, 0.2, new Vector<3>([-0.4, -1.0, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    this.filterButtons.forEach(b => filterMenuTable.addButton(b));
+    filterMenuTable.Draw();
+    filterMenuTable.show(false)
+    this.menusTable.push(filterMenuTable)
 
-    this.filterButtons.forEach(b => menu.addButton(b));
-    menu.Draw();
-    menu.show(false)
-    this.menusTable.push(menu)
+    // duplicate for the wall
+    const filterMenuWall = new Menu(0.8, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+    this.filterButtons.forEach(b => filterMenuWall.addButton(b));
+    this.menusWall.push(filterMenuWall)
 
     // fix button size  
     // temp? set the size of the filter menu buttons
@@ -69,8 +74,12 @@ export class ModelsControl extends EventEmitter {
       button.setScale(0.1);
 
     // models paging menu
-    this.pagingMenu = new MenuPaging(0, 0, new Vector<3>([0, -0.5, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true);
-    this.menusTable.push(this.pagingMenu);
+    this.pagingMenuTable = new MenuPaging(0, 0, new Vector<3>([0, -0.5, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true);
+    this.menusTable.push(this.pagingMenuTable);
+
+    // wall version @ruben where should this go?
+    this.pagingMenuWall = new MenuPaging(0, 0, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+    this.menusWall.push(this.pagingMenuWall);
 
   }
 
@@ -82,7 +91,7 @@ export class ModelsControl extends EventEmitter {
     um.toggleModelMode("Support by Fire");
   }
 
-  filter(filterVal: { modelType: string; }) {
+  private filter(filterVal: { modelType: string; }) {
 
     let groupIdPager = ProgramManager.getInstance().getGroupID("pager");
 
@@ -94,12 +103,19 @@ export class ModelsControl extends EventEmitter {
         // filter this model?
         const b = new Button("new" + model.modelName, pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.onShowModelClick(model) });
         modelButtons.push(b);
-
       }
     });
-    this.pagingMenu.addButtons(modelButtons);
-    this.pagingMenu.show(true)
 
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop: // Desktop renders the table button layout
+      case DeviceType.Table:
+        this.pagingMenuTable.addButtons(modelButtons);
+        break;
+      case DeviceType.Wall:
+        this.pagingMenuWall.addButtons(modelButtons);
+        break;
+    }
+ 
   }
 
 
@@ -109,7 +125,7 @@ export class ModelsControl extends EventEmitter {
     this.isShown = value;
     this.menusTable.forEach(t => t?.show(value))
     this.menusWall.forEach(t => t?.show(value))
-    this.emit("onShow", value)
+    // this.emit("onShow", value)
   }
 
   Draw() {

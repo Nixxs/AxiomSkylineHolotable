@@ -42,6 +42,7 @@ export class MenuPaging extends Menu {
    * @memberof MenuPaging
    */
   addButtons(buttons: Button[]) {
+    this.recomputeButtons = false; // stop recompute while we destroy the old ones
     this.buttons.forEach(b => b.destroy());
     this.buttons = [];
     this.buttons.push(...buttons);
@@ -105,6 +106,7 @@ export class MenuPaging extends Menu {
       this.pageNumber = this.totalPages - 1;
     }
     console.log(`page left. page number = ${this.pageNumber} of ${this.totalPages}`);
+    this.show(true);
     this.recomputeButtons = true;
     this.Draw();
   }
