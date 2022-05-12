@@ -4,12 +4,12 @@
  * Once buttons no longer fit into their growing direction they shrink until they're small enough to fit another strip or another into a strip
  */
 
-import { sgWorld } from "./Axiom";
+import { basePath, sgWorld } from "./Axiom";
 import { Button } from "./Button";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
 
 export class Menu {
   // buttonSize is the roomspace width of one button
@@ -69,6 +69,14 @@ export class Menu {
       }
     }
   }
+
+  createButton(name: string, icon: string, callback?: () => void){
+    const groupId = ProgramManager.getInstance().getGroupID("buttons");
+    const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
+    const btn = new Button(name, pos, basePath + "ui/blank.xpl2", groupId, callback);
+    this.addButton(btn);
+  }
+
 
   Update() {
     for (let button of this.buttons) {
