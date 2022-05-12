@@ -106,7 +106,7 @@ export class UIManager {
 
   drawTable() {
 
-    if (GetDeviceType() === DeviceType.Desktop) {
+    if (GetDeviceType() !== DeviceType.Desktop) {
       return;
     }
 
