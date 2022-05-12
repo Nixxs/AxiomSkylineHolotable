@@ -3,8 +3,8 @@ import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { intersectRayOnPlane, radsToDegs } from "./Mathematics";
-import { deviceHeightOffset, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
+import { degsToRads, intersectRayOnPlane, radsToDegs } from "./Mathematics";
+import { deviceHeightOffset, DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -33,13 +33,15 @@ function tableMode() {
   }
 
   const wandIPos = worldToRoomCoord(ControllerReader.controllerInfos[1].wandPosition);
-  const wandOri = Quaternion.FromYPR(-wandIPos.Yaw / 180 * Math.PI, wandIPos.Pitch / 180 * Math.PI, wandIPos.Roll / 180 * Math.PI);
+  const wandOri1 = Quaternion.FromYPR(-degsToRads(wandIPos.Yaw), degsToRads(wandIPos.Pitch), degsToRads(wandIPos.Roll));
+  // orientation is wrong on the wall. Pitch down
+  const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
   const wandPos = new Vector<3>([wandIPos.X, wandIPos.Y, wandIPos.Altitude]);
   const wandDir = wandOri.GetYAxis(1);
 
   if (table.isDragging) {
-    let planeNormal = new Vector<3>([0, 0, 1]);
-    let planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, new Vector<3>([0, 0, deviceHeightOffset()]));
+    const planeNormal = GetDeviceType() == DeviceType.Table ? new Vector<3>([0, 0, 1]) : new Vector<3>([0, -1, 0]);
+    const planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, ControllerReader.roomExtent!.min.Add(ControllerReader.roomExtent!.max).Mul(0.5));
     if (planeCollisionPoint !== null) {
 
       const newIntersect = planeCollisionPoint;
@@ -47,7 +49,13 @@ function tableMode() {
       console.log(`first intersect ${table.firstIntersect.data}`);
       console.log(`new intersect ${newIntersect.data}`);
       let pan = table.firstIntersect.Copy().Sub(newIntersect);
-      if (newIntersect !== null && newIntersect.data[0] > -0.6 - deadzone && newIntersect.data[0] < 0.6 + deadzone && newIntersect.data[1] < 0 + deadzone && newIntersect.data[1] > -1.2 - deadzone) {
+      const x = newIntersect.data[0];
+      const y = newIntersect.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
+      const xMin = GetDeviceType() == DeviceType.Table ? -0.6 : -0.7;
+      const yMin = GetDeviceType() == DeviceType.Table ? -1.2 : 0;
+      const xMax = GetDeviceType() == DeviceType.Table ? 0.6 : 0.7;
+      const yMax = GetDeviceType() == DeviceType.Table ? 0 : 2;
+      if (newIntersect !== null && x > xMin - deadzone && x < xMax + deadzone && y < yMax + deadzone && y > yMin - deadzone) {
         // Scale
         const wandPosDiff = wandPos.Copy().Sub(table.wandPosLastFrame);
 
@@ -68,11 +76,11 @@ function tableMode() {
 
           const appliedScale = Math.min(newScale, MaxZoom());
 
-          let prevPos = sgWorld.Navigate.GetPosition(3);
+          const prevPos = sgWorld.Navigate.GetPosition(3);
           prevPos.Altitude = appliedScale;
           sgWorld.Navigate.SetPosition(prevPos);
 
-          pan = pan.Add(newIntersect.Copy().Add(new Vector<3>([0, 0.6, 0])).Mul(1 - factor));
+          pan = pan.Add(newIntersect.Copy().Mul(1 - factor));
 
           table.prevWorldScale = newScale;
         }
@@ -108,7 +116,6 @@ function tableMode() {
 
   table.wandPosLastFrame = wandPos;
   table.wandDirLastFrame = wandDir;
-
 }
 
 tableMode.isDragging = false;
@@ -167,7 +174,6 @@ function setSelection(laser: Laser, button1pressed: boolean) {
     ProgramManager.getInstance().userModeManager?.toggleMoveModelMode(objectIDOfSelectedModel);
   }
 }
-
 
 let lastHighlight: string | undefined;
 function highlightIntersected(laser: Laser) {
