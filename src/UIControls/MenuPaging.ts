@@ -56,14 +56,14 @@ export class MenuPaging extends Menu {
   private addPagingButtons() {
     // add the paging buttons to the left and the right
     const ypr = this.orientation.GetYPR();
-    const newPos = this.getNthButtonPosition(3); // @ruben I fudged this using your code for the 5th button. I'm sure you can do this a better way
+    const newPos = this.getButtonPosition(0 + 0.5, 1.5);
     let groupIdPager = ProgramManager.getInstance().getGroupID("pager");
     const posL = sgWorld.Creator.CreatePosition(newPos.data[0] - 0.1, newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     const btnPL = new Button("ButtonPageLeft1", posL, basePath + "ui/blank.xpl2", groupIdPager, () => {
       this.pageLeft()
     }, true)
 
-    const newPos2 = this.getNthButtonPosition(5);
+    const newPos2 = this.getButtonPosition((this.rows -1) + 0.5, 1.5);
     const posR = sgWorld.Creator.CreatePosition(newPos2.data[0] + 0.1, newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
     const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/blank.xpl2", groupIdPager, () => {
