@@ -238,7 +238,8 @@ export class UserModeManager {
 
   Draw() {
     this.laser1?.Draw();
-    this.laser2?.Draw();
+    if (GetDeviceType() === DeviceType.Table)
+      this.laser2?.Draw(); // On the Wall, the second laser shouldn't be rendered
   }
 
   toggleMeasurementMode(buttonId?: string) {
@@ -286,9 +287,8 @@ export class UserModeManager {
       console.log("end move model mode");
       if (previouslySelected !== undefined) {
         const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
-        // this is for making the model collide-able again but skyline have to tell us what 
-        // code to use for this
-        //modelObject.SetParam(200, 2049);
+        // this is for making the model collide-able again
+        modelObject.SetParam(200, modelObject.GetParam(200) | 512);
       }
       this.userMode = UserMode.Standard;
     } else {
@@ -296,9 +296,8 @@ export class UserModeManager {
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-        // this will make the model not pickable which is what you want but we are waiting for 
-        // skyline to get back to us on what the correct code is for making it collide-able again
-        //modelObject.SetParam(200, 0x200);
+        // this will make the model not pickable which is what you want
+        modelObject.SetParam(200, modelObject.GetParam(200) & ~512);
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
