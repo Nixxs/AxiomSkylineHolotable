@@ -3,8 +3,8 @@ import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { degsToRads, intersectRayOnPlane, radsToDegs } from "./Mathematics";
-import { deviceHeightOffset, DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
+import { degsToRads, radsToDegs } from "./Mathematics";
+import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -25,7 +25,7 @@ function dragMode() {
 
   const wandOri1 = Quaternion.FromYPR(-degsToRads(wandRoomIPos.Yaw), degsToRads(wandRoomIPos.Pitch), degsToRads(wandRoomIPos.Roll));
   // orientation is wrong on the wall. Pitch down
-  const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
+  const wandOri = wandOri1;
   const wandRoomDir = wandOri.GetYAxis(1);
   const wandRoomPos = new Vector<3>([wandRoomIPos.X, wandRoomIPos.Y, wandRoomIPos.Altitude]);
 
@@ -238,7 +238,8 @@ export class UserModeManager {
 
   Draw() {
     this.laser1?.Draw();
-    this.laser2?.Draw();
+    if (GetDeviceType() === DeviceType.Table)
+      this.laser2?.Draw(); // On the Wall, the second laser shouldn't be rendered
   }
 
   toggleMeasurementMode(buttonId?: string) {
@@ -286,9 +287,8 @@ export class UserModeManager {
       console.log("end move model mode");
       if (previouslySelected !== undefined) {
         const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
-        // this is for making the model collide-able again but skyline have to tell us what 
-        // code to use for this
-        //modelObject.SetParam(200, 2049);
+        // this is for making the model collide-able again
+        modelObject.SetParam(200, modelObject.GetParam(200) | 512);
       }
       this.userMode = UserMode.Standard;
     } else {
@@ -296,9 +296,8 @@ export class UserModeManager {
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-        // this will make the model not pickable which is what you want but we are waiting for 
-        // skyline to get back to us on what the correct code is for making it collide-able again
-        //modelObject.SetParam(200, 0x200);
+        // this will make the model not pickable which is what you want
+        modelObject.SetParam(200, modelObject.GetParam(200) & ~512);
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
