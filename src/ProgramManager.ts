@@ -93,8 +93,8 @@ export const enum DeviceType {
 let deviceType: DeviceType = DeviceType.Desktop;
 export function GetDeviceType() {
   if (deviceType === DeviceType.Desktop && ControllerReader.roomExtent?.max !== undefined) {
-    console.log(`roomExtent.max.z = ${ControllerReader.roomExtent?.max[2]}`);
-    if (ControllerReader.roomExtent?.max[2] > 1.9) {
+    console.log(`roomExtent.max.z = ${ControllerReader.roomExtent?.max.data[2]}`);
+    if (ControllerReader.roomExtent?.max.data[2] > 1.9) {
       deviceType = DeviceType.Wall;
       console.log("Therefore the device type is Wall");
     } else {
@@ -387,6 +387,7 @@ function WorldSetPosition(v: Vector<3>) {
   const newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   newPos.X = v.data[0];
   newPos.Y = v.data[1];
+  newPos.Altitude = v.data[2];
   sgWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
 }
 

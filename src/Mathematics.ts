@@ -9,7 +9,7 @@ export function intersectRayOnPlane(planeNormal: Vector<3>, laserStart: Vector<3
   if (t < 0.0)
     return null;
 
-  return laserStart.Copy().Add(laserDirection.Mul(t));
+  return laserStart.Copy().Add(laserDirection.Copy().Mul(t));
 }
 
 export function radsToDegs(rads: number) {
