@@ -65,4 +65,9 @@ export class Button {
     let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
     obj.Visibility.Show = value;
   }
+
+  destroy() {
+    if(!this.ID) return;
+    sgWorld.Creator.DeleteObject(this.ID);
+  }
 }
