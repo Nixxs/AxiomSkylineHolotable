@@ -14,108 +14,6 @@ const enum ControlMode {
 
 const gControlMode: ControlMode = ControlMode.Table;
 
-function tableMode() {
-  if (ProgramManager.getInstance().getMode() !== ProgramMode.Device)
-    return;
-  const table = tableMode;
-  if (ControllerReader.controllerInfos[1] === undefined) {
-    console.log("No controller info");
-    return;
-  }
-  if (table.isDragging && !ControllerReader.controllerInfos[1].trigger) {
-    table.isDragging = false;
-    console.log("trigger released");
-  }
-
-  if (ControllerReader.controllerInfos[1].wandPosition === undefined) {
-    console.log("No wand position info");
-    return;
-  }
-
-  const wandIPos = worldToRoomCoord(ControllerReader.controllerInfos[1].wandPosition);
-  const wandOri1 = Quaternion.FromYPR(-degsToRads(wandIPos.Yaw), degsToRads(wandIPos.Pitch), degsToRads(wandIPos.Roll));
-  // orientation is wrong on the wall. Pitch down
-  const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
-  const wandDir = wandOri.GetYAxis(1);
-  const wandPos = new Vector<3>([wandIPos.X, wandIPos.Y, wandIPos.Altitude]);
-  const planeNormal = GetDeviceType() == DeviceType.Table ? new Vector<3>([0, 0, 1]) : new Vector<3>([0, -1, 0]);
-  const midPoint = ControllerReader.roomExtent!.min.Copy().Add(ControllerReader.roomExtent!.max).Mul(0.5);
-  const planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, midPoint);
-
-  const deadzone = 1;
-  const xMin = GetDeviceType() == DeviceType.Table ? -0.6 : -0.7;
-  const yMin = GetDeviceType() == DeviceType.Table ? -1.2 : 0;
-  const xMax = GetDeviceType() == DeviceType.Table ? 0.6 : 0.7;
-  const yMax = GetDeviceType() == DeviceType.Table ? 0 : 2;
-  if (planeCollisionPoint === null)
-    return;
-
-  const x = planeCollisionPoint.data[0];
-  const y = planeCollisionPoint.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
-  if (!(x > xMin - deadzone && x < xMax + deadzone && y < yMax + deadzone && y > yMin - deadzone))
-    return;
-
-  if (table.isDragging) {
-    const newIntersect = planeCollisionPoint;
-    let pan = table.firstIntersect.Copy().Sub(newIntersect);
-
-    // Scale
-    const wandPosDiff = wandPos.Copy().Sub(table.wandPosLastFrame);
-
-    const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(table.wandDirLastFrame.Copy().Normalise()))));
-    const thresholdLower = 25;
-    const thresholdUpper = 40;
-    const thresholdRange = thresholdUpper - thresholdLower;
-    const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
-
-    const magDifference = wandPosDiff.Mag();
-    if (magDifference > 0 && magDifference < 1) {
-      let forwardOrBack = wandPosDiff.Dot(table.wandDirLastFrame);
-      forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
-      const scaleRatio = 5;
-      const power = forwardOrBack * scalingRatio * magDifference * 4;
-      const factor = Math.pow(scaleRatio, power);
-      const newScale = table.prevWorldScale * factor;
-
-      const appliedScale = Math.min(newScale, MaxZoom());
-
-      const prevPos = sgWorld.Navigate.GetPosition(3);
-      prevPos.Altitude = appliedScale;
-      sgWorld.Navigate.SetPosition(prevPos);
-
-      // subtract midpoint so pan has no altitude change
-      pan.Add(newIntersect.Copy().Sub(midPoint).Mul(1 - factor));
-
-      table.prevWorldScale = newScale;
-    }
-
-    // Pan
-    console.log(`pan ${pan.data.map(v => v.toFixed(3))}`);
-
-    WorldIncreasePosition(pan);
-    table.firstIntersect = newIntersect;
-  } else if (ControllerReader.controllerInfos[1]?.trigger) {
-    console.log("trigger pressed");
-    let worldScale = WorldGetScale();
-    const maxZoom = MaxZoom();
-    if (worldScale > maxZoom) {
-      worldScale = maxZoom;
-      let prevPos = sgWorld.Navigate.GetPosition(3);
-      prevPos.Altitude = maxZoom;
-      sgWorld.Navigate.SetPosition(prevPos);
-    }
-    table.prevWorldScale = worldScale;
-
-    const collPoint = planeCollisionPoint;
-    table.isDragging = true;
-
-    table.firstIntersect = collPoint;
-  }
-
-  table.wandPosLastFrame = wandPos;
-  table.wandDirLastFrame = wandDir;
-}
-
 function dragMode() {
   const trigger = ProgramManager.getInstance().getButton3(1);
   const newIntersect = ProgramManager.getInstance().userModeManager!.getCollisionPosition(1);
@@ -198,13 +96,6 @@ dragMode.startInfo = <{
   prevWandRoomPos: Vector<3>;
   prevWandRoomDir: Vector<3>;
 } | null>null;
-
-tableMode.isDragging = false;
-tableMode.wandPosLastFrame = new Vector<3>([0, 0, 0]);
-tableMode.wandDirLastFrame = new Vector<3>([1, 0, 0]);
-tableMode.prevWorldScale = 1;
-tableMode.firstIntersect = new Vector<3>([0, 0, 0]);
-tableMode.lastIntersect = new Vector<3>([0, 0, 0]);
 
 export const enum UserMode {
   Standard, // this can include FlyTo, but also just standard navigation; we don't distinguish them for now
