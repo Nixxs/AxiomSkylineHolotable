@@ -70,13 +70,12 @@ export class Menu {
     }
   }
 
-  createButton(name: string, icon: string, callback?: (id?: string) => void){
+  createButton(name: string, icon: string, callback?: (id?: string) => void) {
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
     const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
     this.addButton(btn);
   }
-
 
   Update() {
     for (let button of this.buttons) {

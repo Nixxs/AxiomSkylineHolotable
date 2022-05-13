@@ -3,8 +3,8 @@ import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { degsToRads, intersectRayOnPlane, radsToDegs } from "./Mathematics";
-import { deviceHeightOffset, DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, WorldGetScale, WorldIncreasePosition, worldToRoomCoord } from "./ProgramManager";
+import { degsToRads, radsToDegs } from "./Mathematics";
+import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -25,7 +25,7 @@ function dragMode() {
 
   const wandOri1 = Quaternion.FromYPR(-degsToRads(wandRoomIPos.Yaw), degsToRads(wandRoomIPos.Pitch), degsToRads(wandRoomIPos.Roll));
   // orientation is wrong on the wall. Pitch down
-  const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
+  const wandOri = wandOri1;
   const wandRoomDir = wandOri.GetYAxis(1);
   const wandRoomPos = new Vector<3>([wandRoomIPos.X, wandRoomIPos.Y, wandRoomIPos.Altitude]);
 
