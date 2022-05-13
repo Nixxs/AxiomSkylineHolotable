@@ -202,8 +202,8 @@ export class Quaternion {
   Mul(q: Quaternion) {
     [...this.data] = [
       this.data[3] * q.data[0] + q.data[3] * this.data[0] + this.data[1] * q.data[2] - this.data[2] * q.data[1],
-      this.data[3] * q.data[1] + q.data[3] * this.data[0] + this.data[2] * q.data[3] - this.data[3] * q.data[2],
-      this.data[3] * q.data[2] + q.data[3] * this.data[0] + this.data[3] * q.data[1] - this.data[1] * q.data[3],
+      this.data[3] * q.data[1] + q.data[3] * this.data[1] + this.data[2] * q.data[0] - this.data[0] * q.data[2],
+      this.data[3] * q.data[2] + q.data[3] * this.data[2] + this.data[0] * q.data[1] - this.data[1] * q.data[0],
       this.data[3] * q.data[3] - this.data[0] * q.data[0] - this.data[1] * q.data[1] - this.data[2] * q.data[2]
     ];
     return this;

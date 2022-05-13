@@ -17,15 +17,15 @@ export class DesktopInputManager {
 
     this.pressed.leftButton = !!(mouseInfo.Flags & 1) && !this.getLeftButton();
     this.pressed.rightButton = !!(mouseInfo.Flags & 2) && !this.getRightButton();
-    this.pressed.middleButton = !!(mouseInfo.Flags & 4) && !this.getMiddleButton();
-    this.pressed.shift = !!(mouseInfo.Flags & 8) && !this.getShift();
-    this.pressed.control = !!(mouseInfo.Flags & 16) && !this.getControl();
+    this.pressed.shift = !!(mouseInfo.Flags & 4) && !this.getShift();
+    this.pressed.control = !!(mouseInfo.Flags & 8) && !this.getControl();
+    this.pressed.middleButton = !!(mouseInfo.Flags & 16) && !this.getMiddleButton();
 
     this.state.leftButton = !!(mouseInfo.Flags & 1);
     this.state.rightButton = !!(mouseInfo.Flags & 2);
-    this.state.middleButton = !!(mouseInfo.Flags & 4);
-    this.state.shift = !!(mouseInfo.Flags & 8);
-    this.state.control = !!(mouseInfo.Flags & 16);
+    this.state.shift = !!(mouseInfo.Flags & 4);
+    this.state.control = !!(mouseInfo.Flags & 8);
+    this.state.middleButton = !!(mouseInfo.Flags & 16);
   }
 
   static getLeftButton() { return this.state.leftButton; }

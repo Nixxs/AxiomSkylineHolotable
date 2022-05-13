@@ -1,4 +1,5 @@
 import { sgWorld } from "./Axiom";
+import { Vector } from "./math/vector";
 import { getRoomExtent, getVRControllersInfo } from "./ProgramManager";
 
 interface ControllerInfo {
@@ -14,8 +15,8 @@ interface ControllerInfo {
 }
 
 type RoomExtent = {
-  min: [number, number, number];
-  max: [number, number, number];
+  min: Vector<3>;
+  max: Vector<3>;
 }
 
 export class ControllerReader {
@@ -82,8 +83,8 @@ export class ControllerReader {
     if (this.roomExtent === undefined) {
       const roomExtent = getRoomExtent();
       this.roomExtent = {
-        min: [roomExtent.minX, roomExtent.minY, roomExtent.minZ],
-        max: [roomExtent.maxX, roomExtent.maxY, roomExtent.maxZ]
+        min: new Vector<3>([roomExtent.minX, roomExtent.minY, roomExtent.minZ]),
+        max: new Vector<3>([roomExtent.maxX, roomExtent.maxY, roomExtent.maxZ])
       };
     }
   }
