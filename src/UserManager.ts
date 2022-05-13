@@ -36,64 +36,65 @@ function tableMode() {
   const wandOri1 = Quaternion.FromYPR(-degsToRads(wandIPos.Yaw), degsToRads(wandIPos.Pitch), degsToRads(wandIPos.Roll));
   // orientation is wrong on the wall. Pitch down
   const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
-  const wandPos = new Vector<3>([wandIPos.X, wandIPos.Y, wandIPos.Altitude]);
   const wandDir = wandOri.GetYAxis(1);
+  const wandPos = new Vector<3>([wandIPos.X, wandIPos.Y, wandIPos.Altitude]);
+  const planeNormal = GetDeviceType() == DeviceType.Table ? new Vector<3>([0, 0, 1]) : new Vector<3>([0, -1, 0]);
+  const midPoint = ControllerReader.roomExtent!.min.Copy().Add(ControllerReader.roomExtent!.max).Mul(0.5);
+  const planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, midPoint);
+
+  const deadzone = 1;
+  const xMin = GetDeviceType() == DeviceType.Table ? -0.6 : -0.7;
+  const yMin = GetDeviceType() == DeviceType.Table ? -1.2 : 0;
+  const xMax = GetDeviceType() == DeviceType.Table ? 0.6 : 0.7;
+  const yMax = GetDeviceType() == DeviceType.Table ? 0 : 2;
+  if (planeCollisionPoint === null)
+    return;
+
+  const x = planeCollisionPoint.data[0];
+  const y = planeCollisionPoint.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
+  if (!(x > xMin - deadzone && x < xMax + deadzone && y < yMax + deadzone && y > yMin - deadzone))
+    return;
 
   if (table.isDragging) {
-    const planeNormal = GetDeviceType() == DeviceType.Table ? new Vector<3>([0, 0, 1]) : new Vector<3>([0, -1, 0]);
-    const planeCollisionPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, ControllerReader.roomExtent!.min.Add(ControllerReader.roomExtent!.max).Mul(0.5));
-    if (planeCollisionPoint !== null) {
+    const newIntersect = planeCollisionPoint;
+    let pan = table.firstIntersect.Copy().Sub(newIntersect);
 
-      const newIntersect = planeCollisionPoint;
-      const deadzone = 1;
-      console.log(`first intersect ${table.firstIntersect.data}`);
-      console.log(`new intersect ${newIntersect.data}`);
-      let pan = table.firstIntersect.Copy().Sub(newIntersect);
-      const x = newIntersect.data[0];
-      const y = newIntersect.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
-      const xMin = GetDeviceType() == DeviceType.Table ? -0.6 : -0.7;
-      const yMin = GetDeviceType() == DeviceType.Table ? -1.2 : 0;
-      const xMax = GetDeviceType() == DeviceType.Table ? 0.6 : 0.7;
-      const yMax = GetDeviceType() == DeviceType.Table ? 0 : 2;
-      if (newIntersect !== null && x > xMin - deadzone && x < xMax + deadzone && y < yMax + deadzone && y > yMin - deadzone) {
-        // Scale
-        const wandPosDiff = wandPos.Copy().Sub(table.wandPosLastFrame);
+    // Scale
+    const wandPosDiff = wandPos.Copy().Sub(table.wandPosLastFrame);
 
-        const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(table.wandDirLastFrame.Copy().Normalise()))));
-        const thresholdLower = 25;
-        const thresholdUpper = 40;
-        const thresholdRange = thresholdUpper - thresholdLower;
-        const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
+    const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(table.wandDirLastFrame.Copy().Normalise()))));
+    const thresholdLower = 25;
+    const thresholdUpper = 40;
+    const thresholdRange = thresholdUpper - thresholdLower;
+    const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-        const magDifference = wandPosDiff.Mag();
-        if (magDifference > 0 && magDifference < 1) {
-          let forwardOrBack = wandPosDiff.Dot(table.wandDirLastFrame);
-          forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
-          const scaleRatio = 5;
-          const power = forwardOrBack * scalingRatio * magDifference * 4;
-          const factor = Math.pow(scaleRatio, power);
-          const newScale = table.prevWorldScale * factor;
+    const magDifference = wandPosDiff.Mag();
+    if (magDifference > 0 && magDifference < 1) {
+      let forwardOrBack = wandPosDiff.Dot(table.wandDirLastFrame);
+      forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
+      const scaleRatio = 5;
+      const power = forwardOrBack * scalingRatio * magDifference * 4;
+      const factor = Math.pow(scaleRatio, power);
+      const newScale = table.prevWorldScale * factor;
 
-          const appliedScale = Math.min(newScale, MaxZoom());
+      const appliedScale = Math.min(newScale, MaxZoom());
 
-          const prevPos = sgWorld.Navigate.GetPosition(3);
-          prevPos.Altitude = appliedScale;
-          sgWorld.Navigate.SetPosition(prevPos);
+      const prevPos = sgWorld.Navigate.GetPosition(3);
+      prevPos.Altitude = appliedScale;
+      sgWorld.Navigate.SetPosition(prevPos);
 
-          pan = pan.Add(newIntersect.Copy().Mul(1 - factor));
+      // subtract midpoint so pan has no altitude change
+      pan.Add(newIntersect.Copy().Sub(midPoint).Mul(1 - factor));
 
-          table.prevWorldScale = newScale;
-        }
-
-        // Pan
-        console.log(`pan ${pan.data}`);
-        WorldIncreasePosition(pan);
-        table.firstIntersect = newIntersect;
-      }
+      table.prevWorldScale = newScale;
     }
-  }
 
-  if (ControllerReader.controllerInfos[1]?.trigger && !table.isDragging) {
+    // Pan
+    console.log(`pan ${pan.data.map(v => v.toFixed(3))}`);
+
+    WorldIncreasePosition(pan);
+    table.firstIntersect = newIntersect;
+  } else if (ControllerReader.controllerInfos[1]?.trigger) {
     console.log("trigger pressed");
     let worldScale = WorldGetScale();
     const maxZoom = MaxZoom();
@@ -105,18 +106,98 @@ function tableMode() {
     }
     table.prevWorldScale = worldScale;
 
-    let planeNormal = new Vector<3>([0, 0, 1]);
-    const collPoint = intersectRayOnPlane(planeNormal, wandPos, wandDir, new Vector<3>([0, 0, deviceHeightOffset()]));
-    if (collPoint !== null) {
-      table.isDragging = true;
+    const collPoint = planeCollisionPoint;
+    table.isDragging = true;
 
-      table.firstIntersect = collPoint;
-    }
+    table.firstIntersect = collPoint;
   }
 
   table.wandPosLastFrame = wandPos;
   table.wandDirLastFrame = wandDir;
 }
+
+function dragMode() {
+  const trigger = ProgramManager.getInstance().getButton3(1);
+  const newIntersect = ProgramManager.getInstance().userModeManager!.getCollisionPosition(1);
+  const wandWorldIPos = ProgramManager.getInstance().userModeManager?.getWandPosition(1);
+
+  if (wandWorldIPos === undefined)
+    throw new Error("Unable to find wand position");
+  const wandRoomIPos = worldToRoomCoord(wandWorldIPos);
+
+  const wandOri1 = Quaternion.FromYPR(-degsToRads(wandRoomIPos.Yaw), degsToRads(wandRoomIPos.Pitch), degsToRads(wandRoomIPos.Roll));
+  // orientation is wrong on the wall. Pitch down
+  const wandOri = Quaternion.FromYPR(0, GetDeviceType() == DeviceType.Table ? 0 : Math.PI / 2, 0).Mul(wandOri1).Normalise();
+  const wandRoomDir = wandOri.GetYAxis(1);
+  const wandRoomPos = new Vector<3>([wandRoomIPos.X, wandRoomIPos.Y, wandRoomIPos.Altitude]);
+
+  if (newIntersect === undefined) {
+    return;
+  }
+  const worldIntersect = worldToRoomCoord(newIntersect);
+  const worldX = worldIntersect.X;
+  const worldY = GetDeviceType() == DeviceType.Table ? worldIntersect.Y : worldIntersect.Altitude;
+  if (ControllerReader.roomExtent !== undefined) {
+    const minX = ControllerReader.roomExtent.min.data[0];
+    const maxX = ControllerReader.roomExtent.max.data[0];
+    const minY = ControllerReader.roomExtent.min.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
+    const maxY = ControllerReader.roomExtent.max.data[GetDeviceType() == DeviceType.Table ? 1 : 2];
+    const deadzone = 1;
+    if (worldX < minX - deadzone || worldX > maxX + deadzone || worldY < minY - deadzone || worldY > maxY + deadzone)
+      return;
+  }
+  if (dragMode.startInfo !== null) {
+    if (!trigger) {
+      dragMode.startInfo = null;
+      return;
+    }
+    // dragged!
+    const worldPos = sgWorld.Navigate.GetPosition(3).Copy();
+
+    worldPos.X += dragMode.startInfo.intersect.X - newIntersect.X;
+    worldPos.Y += dragMode.startInfo.intersect.Y - newIntersect.Y;
+
+    // zoom
+    const wandPosDiff = wandRoomPos.Copy().Sub(dragMode.startInfo.prevWandRoomPos);
+    const magDifference = wandPosDiff.Mag();
+    if (magDifference > 0 && magDifference < 1) {
+      let forwardOrBack = wandPosDiff.Dot(dragMode.startInfo.prevWandRoomDir);
+      forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
+      const scaleRatio = 5;
+
+      const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(dragMode.startInfo.prevWandRoomDir.Copy().Normalise()))));
+      const thresholdLower = 25;
+      const thresholdUpper = 40;
+      const thresholdRange = thresholdUpper - thresholdLower;
+      const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
+
+      const power = forwardOrBack * scalingRatio * magDifference * 4;
+      const factor = Math.pow(scaleRatio, power);
+      worldPos.Altitude *= factor;
+
+      // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
+
+      if (worldPos.Altitude > 1000000) {
+        worldPos.Altitude = 1000000;
+      }
+    }
+
+    dragMode.startInfo.prevWandRoomPos = wandRoomPos;
+
+    sgWorld.Navigate.SetPosition(worldPos);
+  } else if (trigger) {
+    dragMode.startInfo = {
+      intersect: newIntersect,
+      prevWandRoomPos: wandRoomPos,
+      prevWandRoomDir: wandRoomDir
+    }
+  }
+}
+dragMode.startInfo = <{
+  intersect: IPosition;
+  prevWandRoomPos: Vector<3>;
+  prevWandRoomDir: Vector<3>;
+} | null>null;
 
 tableMode.isDragging = false;
 tableMode.wandPosLastFrame = new Vector<3>([0, 0, 0]);
@@ -248,6 +329,13 @@ export class UserModeManager {
     switch (userIndex) {
       case 0: return this.laser2?.collision?.hitPoint;
       case 1: return this.laser1?.collision?.hitPoint;
+    }
+  }
+
+  getWandPosition(userIndex: number) {
+    switch (userIndex) {
+      case 0: return this.laser2?.collision?.originPoint;
+      case 1: return this.laser1?.collision?.originPoint;
     }
   }
 
@@ -431,7 +519,7 @@ export class UserModeManager {
     }
     switch (gControlMode) {
       case ControlMode.Table:
-        tableMode();
+        dragMode();
         break;
       case ControlMode.Wall:
         wallMode(this.laser1!);

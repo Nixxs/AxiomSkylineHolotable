@@ -387,6 +387,7 @@ function WorldSetPosition(v: Vector<3>) {
   const newPos = worldToRoomCoord(sgWorld.Navigate.GetPosition(3));
   newPos.X = v.data[0];
   newPos.Y = v.data[1];
+  newPos.Altitude = v.data[2];
   sgWorld.Navigate.SetPosition(roomToWorldCoord(newPos));
 }
 
