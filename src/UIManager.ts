@@ -91,7 +91,7 @@ export class UIManager {
   }
 
   drawWall() {
-    this.drawDevice(new Vector<3>([-1.1, 0, 0]), new Vector<3>([1.1, 0, 2]));
+    this.drawDevice(new Vector<3>([-1.78, 0, 0]), new Vector<3>([1.78, 0, 2]));
   }
 
   onButtonClick(name: string) {
