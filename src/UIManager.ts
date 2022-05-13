@@ -141,6 +141,7 @@ export class UIManager {
   }
 
   onButtonClick(name: string) {
+    console.log("onButtonClick")
     const pm = ProgramManager.getInstance().userModeManager;
     if (!pm) return;
     switch (name) {
@@ -152,16 +153,22 @@ export class UIManager {
         break;
       case "Draw":
         pm.toggleDrawLine()
+        break;
       case "Measure":
         pm.toggleMeasurementMode();
+        break;
       case "Undo":
         pm.undo();
+        break;
       case "Delete":
         pm.deleteModel();
+        break;
       case "ScaleModelUp":
         pm.scaleModel(+1);
+        break;
       case "ScaleModelDown":
         pm.scaleModel(-1);
+        break;
     }
   }
 
@@ -182,10 +189,10 @@ export class UIManager {
     switch (GetDeviceType()) {
       case DeviceType.Desktop: // Desktop updates the table buttons
       case DeviceType.Table:
-        this.menusTable.forEach(m => m.Draw());
+        this.menusTable.forEach(m => m.Update());
         break;
       case DeviceType.Wall:
-        this.menusWall.forEach(m => m.Draw());
+        this.menusWall.forEach(m => m.Update());
         break;
     }
   }
