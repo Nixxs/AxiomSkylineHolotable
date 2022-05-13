@@ -8,8 +8,6 @@ import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord } from "./P
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 
 export class UIManager {
-
-  menus: [Menu, Menu][] = []; // [Table, Wall]
   menusTable: Menu[] = [];
   menusWall: Menu[] = [];
 
@@ -31,7 +29,7 @@ export class UIManager {
   }
 
   createMenus() {
-    // create the main control menu. Each menu must be replicated twice, once for wall once for table
+    // create the main control menu for each device
 
     // tools menu
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
