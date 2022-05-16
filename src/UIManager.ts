@@ -5,10 +5,11 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
-import { modelsConfig } from "./config/models";
+import { controlConfig } from "./config/ControlModels";
+import { orbatConfig } from "./config/OrbatModels";
 
 export class UIManager {
 
@@ -20,6 +21,7 @@ export class UIManager {
   polygonId: string = "";
 
   groupId: string = ""
+  modelId: string = "";
 
   constructor() { }
 
@@ -36,10 +38,9 @@ export class UIManager {
 
   createMenus() {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
-
-    // tools menu
-    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
-    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    // tools menu ============
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
+    const toolsMenuWall = new Menu(0.2, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -50,23 +51,41 @@ export class UIManager {
     toolsMenuTable.createButton("PreviousBookmark", "blank.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
     toolsMenuTable.createButton("NextBookmark", "blank.xpl2", (id) => this.onButtonClick("NextBookmark"));
 
-    this.menusTable.push(toolsMenuTable);
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
+
+    this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
 
+    // control measures menu ============
     // create the Control measures menu. Doesn't need a width as we are centre aligning it
-    const ControlsMenuTable = new MenuPaging(0, 0.1, new Vector<3>([0, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true); //new MenuPaging(0.2, 0.1, new Vector<3>([-0.8, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const ControlsMenuTable = new MenuPaging(0, 0.1, new Vector<3>([0, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05);
+    const ControlsMenuWall = new Menu(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05);
     let controls: Button[] = []
-    modelsConfig.models.forEach(model => {
-      // filter this model?
-      controls.push(new Button("new" + model.modelName, sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/blank.xpl2", this.groupId, () => { this.onControlModelAdd(model) }));
+    controlConfig.ControlModels.forEach((model) => {
+      controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, ()=> this.onControlModelAdd(model)));
     });
     ControlsMenuTable.addButtons(controls);
-    ControlsMenuTable.Draw();
-    ControlsMenuTable.show(true)
- 
+    ControlsMenuTable.buttons.forEach(b => ControlsMenuWall.addButton(b));
+    
     this.menusTable.push(ControlsMenuTable);
+    this.menusWall.push(ControlsMenuWall);
+
+
+    // orbat menu ============
+    // why is this 0.005 out? Is that the 10% padding on the button? 
+    const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.555, -1.0, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
+    controls = []
+    orbatConfig.OrbatModels.forEach((model, i) => {
+      orbatMenuTable.createButton(model.modelName,  model.buttonIcon, () => this.onOrbatModelAdd(model));
+    });
+
+   
+    orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
+
+    this.menusTable.push(orbatMenuTable);
+    this.menusWall.push(orbatMenuWall);
 
   }
 
@@ -138,8 +157,30 @@ export class UIManager {
     }
   }
 
-  onControlModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonPath: string; modelPath: string; }) {
-    throw new Error("Method not implemented.");
+  onControlModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; modelPath: string; }) {
+   console.log("Method not implemented.");
+  }
+
+  onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
+    // add the orbat model to world space in the centre of the screen
+    const modelsToPlace: ITerrainModel[] = [];
+    model.models.forEach((orbatModel, i) =>{
+      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      const roomPos = roomToWorldCoord(pos);
+      const modelPath = basePath + `model/${orbatModel.modelFile}`;
+      const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, "", orbatModel.modelName);
+      model.ScaleFactor = 0.0005;
+      modelsToPlace.push(model);
+    });
+    this.placeModelsCenterRoom(modelsToPlace)
+  }
+
+  private placeModelsCenterRoom(models: ITerrainModel[]){
+    models.forEach((m, i) =>{
+      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6 - (i * 0.05), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      const roomPos = roomToWorldCoord(pos);
+      m.Position = roomPos;
+    })
   }
 
 
@@ -153,7 +194,7 @@ export class UIManager {
         this.menusWall.forEach(m => m.Draw());
         break;
     }
-    this.drawTable()
+    this.drawTable();
   }
 
   Update() {

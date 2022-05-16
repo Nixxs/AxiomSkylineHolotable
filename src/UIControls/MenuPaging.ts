@@ -12,7 +12,6 @@ export class MenuPaging extends Menu {
   // override so we have a fixed size
   cols: number = 10;
   rows: number = 2;
-  buttonSize: number = 0.05;
 
   // for paging
   private pageNumber: number = 0;
@@ -20,7 +19,7 @@ export class MenuPaging extends Menu {
   private btnPL!: Button;
   private btnPR!: Button;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean) {
+  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public   buttonSize: number = Infinity) {
     super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal);
 
     // recalculate the anchor so that it is centred. @Ruben better way to do this in the base class as an option
@@ -48,7 +47,16 @@ export class MenuPaging extends Menu {
     this.buttons.push(...buttons);
     this.totalPages = Math.ceil(this.buttons.length / (this.cols * this.rows));
     this.recomputeButtons = true;
+    this.show(true);
     this.Draw();
+  }
+
+  createButton(name: string, icon: string, callback?: (id?: string) => void) {
+    // override and return the button as we need to add them all at once
+    const groupId = ProgramManager.getInstance().getGroupID("buttons");
+    const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
+    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
+    return btn; 
   }
   
 

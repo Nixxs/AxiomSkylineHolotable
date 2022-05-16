@@ -13,7 +13,7 @@ import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
 
 export class Menu {
   // buttonSize is the roomspace width of one button
-  public buttonSize: number = Infinity; // buttons are square
+  
   public rows: number = 0;
   public cols: number = 0;
   public buttons: Button[] = [];
@@ -22,7 +22,7 @@ export class Menu {
   public yDirection: Vector<3>;
   public recomputeButtons = true;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean) {
+  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity) {
     // anchorPosition is bottomLeft + [x * width, y * height]
 
     // let anchor = topLeft  + orientation.apply([width *  anchorPosition[0]     , 0, height * (anchorPosition[1] - 1)]);
