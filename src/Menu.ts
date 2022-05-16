@@ -76,7 +76,6 @@ export class Menu {
     this.addButton(btn);
   }
 
-
   Update() {
     for (let button of this.buttons) {
       button.Update();
