@@ -4,11 +4,11 @@ export const orbatConfig = {
             modelName: "ORBAT HQ",
             modelType: "orbat",
             missionType: "na",
-            buttonIcon: "blank.xpl2",
+            buttonIcon: "Button_ORBAT_HQ_Blu.xpl2",
             models: [
                 {
-                    modelFile: "Ambush.xpl2",
-                    modelName: "OrbatModel1"
+                    modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
+                    modelName: "ORBAT_ORBAT_HQ_Blu"
                 },{
                     modelFile: "Ambush.xpl2",
                     modelName: "OrbatModel2"
@@ -27,7 +27,7 @@ export const orbatConfig = {
             modelName: "ORBAT CTA",
             modelType: "orbat",
             missionType: "na",
-            buttonIcon: "blank.xpl2",
+            buttonIcon: "Button_Blank.xpl2",
             models: [
                 {
                     modelFile: "Ambush.xpl2",
@@ -38,7 +38,7 @@ export const orbatConfig = {
             modelName: "ORBAT CTB ",
             modelType: "orbat",
             missionType: "na",
-            buttonIcon: "blank.xpl2",
+            buttonIcon: "Button_Blank.xpl2",
             models: [
                 {
                     modelFile: "Ambush.xpl2",

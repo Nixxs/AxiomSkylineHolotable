@@ -45,8 +45,8 @@ export class UIManager {
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"));
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"));
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"));
-    toolsMenuTable.createButton("PreviousBookmark", "blank.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
-    toolsMenuTable.createButton("NextBookmark", "blank.xpl2", (id) => this.onButtonClick("NextBookmark"));
+    toolsMenuTable.createButton("PreviousBookmark", "Button_Prev.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
+    toolsMenuTable.createButton("NextBookmark", "Button_Next.xpl2", (id) => this.onButtonClick("NextBookmark"));
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 

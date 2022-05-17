@@ -26,10 +26,10 @@ export class ButtonPagingControl {
     let groupIdPager = ProgramManager.getInstance().getGroupID("pager");
 
     let pos = sgWorld.Creator.CreatePosition(-0.4, -0.6, 0.7, 3);
-    const pageLeft = new Button("pageLeft", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageLeft(); });
+    const pageLeft = new Button("pageLeft", pos, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => { this.pageLeft(); });
     pageLeft.show(false);
     pos = sgWorld.Creator.CreatePosition(0.4, -0.6, 0.7, 3);
-    const pageRight = new Button("pageRight", pos, basePath + "ui/blank.xpl2", groupIdPager, () => { this.pageRight(); });
+    const pageRight = new Button("pageRight", pos, basePath + "ui/Button_Next.xpl2", groupIdPager, () => { this.pageRight(); });
     pageRight.show(false);
     this.pagers = [pageLeft, pageRight];
 
