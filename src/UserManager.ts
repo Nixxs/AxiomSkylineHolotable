@@ -175,19 +175,10 @@ function showTooltipIntersected(laser: Laser) {
         let modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y + adj , modelInRoom.Altitude, modelInRoom.AltitudeType);
         let modelInWorldAdj = roomToWorldCoord(modelInRoomAdj);
         const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
-                // this never works on the table, it returns 0, 0
+        // this never works on the table, it returns 0, 0
         console.log("pixel " + pixel.X + " " + pixel.Y);
         let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
         console.log(col.ObjectID);
-
-        sgWorld.SetParam(8300, modelInRoomAdj); // Pick ray
-        const hitObjectID = sgWorld.GetParam(8310) as string | undefined;
-
-        if(hitObjectID){
-          console.log("collision" + col.ObjectID);
-          modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y - adj, modelInRoom.Altitude, modelInRoom.AltitudeType);
-          modelInWorldAdj = roomToWorldCoord(sgWorld.Creator.CreatePosition(modelInRoomAdj.X, modelInRoomAdj.Y, modelInRoomAdj.Altitude, modelInRoomAdj.AltitudeType));
-        }
         const tooltip = sgWorld.Creator.CreateTextLabel(roomToWorldCoord(modelInRoomAdj), model.Tooltip.Text, labelStyle,"" ,"tooltip"); 
         lastTooltip = tooltip.ID;
       }, 300)
