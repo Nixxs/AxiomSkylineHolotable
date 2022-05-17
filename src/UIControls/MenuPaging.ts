@@ -66,14 +66,14 @@ export class MenuPaging extends Menu {
     const newPos = this.getButtonPosition(0 - 0.5, this.rows / 2);
     let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
     const posL = sgWorld.Creator.CreatePosition(newPos.data[0] , newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-    const btnPL = new Button("ButtonPageLeft1", posL, basePath + "ui/blank.xpl2", groupIdPager, () => {
+    const btnPL = new Button("ButtonPageLeft1", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
       this.pageLeft()
     }, true)
 
     const newPos2 = this.getButtonPosition(this.cols + 0.5, this.rows / 2);
     const posR = sgWorld.Creator.CreatePosition(newPos2.data[0] , newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
-    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/blank.xpl2", groupIdPager, () => {
+    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Button_Next.xpl2", groupIdPager, () => {
       this.pageRight();
     }, true);
 
