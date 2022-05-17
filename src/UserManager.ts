@@ -12,6 +12,9 @@ const enum ControlMode {
   Wall
 }
 
+const redHTML = "#B80E02";
+const blueHTML = "#041DBF";
+
 const gControlMode: ControlMode = ControlMode.Table;
 
 function dragMode() {
@@ -163,10 +166,18 @@ function highlightById(highlight: boolean, oid?: string): void {
     if (object && object.ObjectType === ObjectType.OT_MODEL) {
       const model: ITerrainModel = object as ITerrainModel;
       if (highlight) {
-        // highlight adds a slight tint to the item. Currently this is yellow
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+        // if the model is already tinted red then do nothing otherwise tint yellow
+        // red = "#b80e02"
+        // blue = "#041dbf"
+        if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
+          // highlight adds a slight tint to the item. Currently this is yellow
+          model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+        }
       } else {
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+        if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
+          // remove tint
+          model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+        }
       }
     }
   }
@@ -268,6 +279,7 @@ export class UserModeManager {
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
       const model = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
+      model.Terrain.Tint.FromHTMLColor(blueHTML);
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
@@ -284,20 +296,15 @@ export class UserModeManager {
     const previouslySelected = this.currentlySelectedId;
     this.currentlySelectedId = modelID;
     if (this.userMode == UserMode.MoveModel) {
-      console.log("end move model mode");
-      if (previouslySelected !== undefined) {
-        const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
-        // this is for making the model collide-able again
-        modelObject.SetParam(200, modelObject.GetParam(200) | 512);
-      }
       this.userMode = UserMode.Standard;
     } else {
       // We have just selected the model
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-        // this will make the model not pickable which is what you want
-        modelObject.SetParam(200, modelObject.GetParam(200) & ~512);
+        // this will make the model not pickable which is what you want while moving it 
+        modelObject.SetParam(200, 0x200);
+        console.log("made it uncollidebale");
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
@@ -494,6 +501,9 @@ export class UserModeManager {
       case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
       case UserMode.MoveModel:
         if (ProgramManager.getInstance().getButton1Pressed(1)) {
+          const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+          // this is for making the model collide-able again
+          modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
           this.setStandardMode();
           // consume the button press
           ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -505,6 +515,16 @@ export class UserModeManager {
             newModelPosition.Roll = 0;
             const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
+          }
+
+          if (ProgramManager.getInstance().getButton2Pressed(1)) {
+            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+            console.log(modelObject.Terrain.Tint.ToHTMLColor());
+            if (modelObject.Terrain.Tint.ToHTMLColor() === redHTML){
+              modelObject.Terrain.Tint.FromHTMLColor(blueHTML);
+            } else {
+              modelObject.Terrain.Tint.FromHTMLColor(redHTML);
+            }
           }
         }
         break;

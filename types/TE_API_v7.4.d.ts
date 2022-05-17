@@ -185,7 +185,7 @@ interface ITerrainObject {
   DrawOrder: number;
   GroundObject: boolean;
   Highlight: boolean;
-  Tint: Color;
+  Tint: IColor;
   GetRecommendedDistance(): number;
 }
 
