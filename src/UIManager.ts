@@ -11,6 +11,7 @@ import { controlConfig } from "./config/ControlModels";
 import { orbatConfig } from "./config/OrbatModels";
 import { Button } from "./Button";
 import { verbsConfig } from "./config/verbs";
+import { MenuVerbs } from "./UIControls/MenuVerbs";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -86,14 +87,14 @@ export class UIManager {
 
 
     // create the verb menu
-    const VerbsMenuTable = new MenuPaging(0, 0.6, new Vector<3>([-0.555, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 1, 10);
-    const VerbsMenuWall = new MenuPaging(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 1, 10);
+    const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.5, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 1, 10);
+    const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 1, 10);
     let verbControls: Button[] = [];
     verbsConfig.verbs.forEach((verb) => {
-      verbControls.push(ControlsMenuTable.createButton(verb.verbName, "blank.xpl2", ()=> this.onVerbAdd(verb)));
+      verbControls.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", ()=> this.onVerbAdd(verb)));
     });
     VerbsMenuTable.addButtons(verbControls);
-    VerbsMenuWall.buttons.forEach(b => ControlsMenuWall.addButton(b));
+    VerbsMenuWall.buttons.forEach(b => VerbsMenuWall.addButton(b));
     
     this.menusTable.push(VerbsMenuTable);
    this.menusWall.push(VerbsMenuWall);
