@@ -75,11 +75,10 @@ export class MenuPaging extends Menu {
     let posR = sgWorld.Creator.CreatePosition(newPos2.data[0], newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
     if (this.rows > this.cols) {
-      // vertical
-      newPos = this.getButtonPosition(0 + 0.5, 0 - 0.5);
+      // vertical. show them at the bottom
+      newPos = this.getButtonPosition(0, this.rows + 0.5);
       posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      console.log(this.rows)
-      newPos = this.getButtonPosition(0 + 0.5, this.rows - 0.5);
+      newPos = this.getButtonPosition(1, this.rows + 0.5);
       posR = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
@@ -109,6 +108,7 @@ export class MenuPaging extends Menu {
     });
     this.btnPL.show(visibility);
     this.btnPR.show(visibility);
+    this.isVisible =visibility;
   }
 
   // paging controls

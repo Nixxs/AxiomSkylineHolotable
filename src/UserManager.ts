@@ -281,6 +281,28 @@ export class UserModeManager {
     }
   }
 
+  toggleLabel(sLabel: string) {
+    if (this.userMode == UserMode.PlaceModel) {
+      console.log("end model mode");
+      this.userMode = UserMode.Standard;
+    } else {
+
+      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+      const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+      const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, "", "label-" + sLabel);
+      pos.Pitch = 0;
+      console.log("creating label:: " + sLabel);
+      this.currentlySelectedId = label.ID;
+      // this.modelIds.push(label.ID)
+      // ProgramManager.getInstance().currentlySelected = label.ID;
+
+      // // add the new model to the line objects array so it can be deleted via the undo button
+      // this.lineObjects.push(label.ID);
+      // console.log(this.lineObjects.toString());
+      this.userMode = UserMode.PlaceModel;
+    }
+  }
+
   toggleMoveModelMode(modelID?: string) {
     const previouslySelected = this.currentlySelectedId;
     this.currentlySelectedId = modelID;

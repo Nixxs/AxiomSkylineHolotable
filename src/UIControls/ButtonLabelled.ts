@@ -19,13 +19,23 @@ export class ButtonLabelled extends Button {
       // Move the button to be in the right spot
       const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
       obj.Position = pos;
+      obj.Position.Altitude =   obj.Position.Altitude
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
-      obj.ScaleX =   obj.ScaleFactor * 4
+      obj.ScaleX =  obj.ScaleFactor * 2
       const objLbl: ITerrainLabel = sgWorld.Creator.GetObject(this.labelId) as ITerrainLabel;
       objLbl.Position = pos;
-      objLbl.Position.Pitch = 90
+      // objLbl.Position.Pitch = 90
     }
   }
+
+  show(value: boolean) {
+    super.show(value);
+    if (!this.labelId) return;
+    let obj: ITerrainLabel = sgWorld.Creator.GetObject(this.labelId) as ITerrainLabel;
+    obj.Visibility.Show = value;
+  }
+
+ 
 
 
 }
