@@ -28,16 +28,16 @@ function roomToWorldCoordEx(position: IPosition) {
   let pos = sgWorld.SetParamEx(9014, position) as IPosition;
   const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(pos.Roll));
   const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(worldIPos.Roll));
+  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
   const newOri = worldOri.Mul(originalOri);
   const newYPR = newOri.GetYPR();
-  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(newYPR[2]), pos.Distance);
+  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(-newYPR[2]), pos.Distance);
 }
 function worldToRoomCoordEx(position: IPosition) {
   let pos = sgWorld.SetParamEx(9013, position) as IPosition;
-  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(pos.Roll));
+  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(-pos.Roll));
   const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(worldIPos.Roll));
+  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
   const newOri = worldOri.Conjugate().Mul(originalOri);
   const newYPR = newOri.GetYPR();
   return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(newYPR[2]), pos.Distance);
