@@ -81,6 +81,7 @@ function dragMode() {
     }
 
     dragMode.startInfo.prevWandRoomPos = wandRoomPos;
+    dragMode.startInfo.prevWandRoomDir = wandRoomDir;
 
     sgWorld.Navigate.SetPosition(worldPos);
   } else if (trigger) {
