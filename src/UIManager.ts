@@ -128,7 +128,7 @@ export class UIManager {
   }
 
   private onButtonClick(name: string) {
-    console.log("onButtonClick")
+    console.log("onButtonClick " + name)
     const pm = ProgramManager.getInstance().userModeManager;
     if (pm === undefined) throw new Error("Could not find userModeManager");
     switch (name) {
@@ -171,7 +171,7 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, "", orbatModel.modelName);
-      model.ScaleFactor = 0.0005;
+      model.ScaleFactor = 500;
       modelsToPlace.push(model);
     });
     this.placeModelsCenterRoom(modelsToPlace)

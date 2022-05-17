@@ -6,9 +6,11 @@ export class Button {
   ID?: string;
   scale = 1;
   callback: (id?: string) => void = () => { };
+  private initError: boolean = false;
+  
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
-    callback?: (id?: string) => void, hidden?: boolean) {
+    callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "") {
     const newButton = document.createElement("button");
     newButton.textContent = name;
     if (callback) {
@@ -37,10 +39,18 @@ export class Button {
   }
 
   Draw() {
+  
+    if(this.initError) return;
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
-      const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
-      this.ID = obj.ID;
+      try {
+        const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+        obj.Tooltip.Text = this.tooltip;
+        this.ID = obj.ID;
+      } catch (error) {
+        console.log(error + " :: " + this.modelPath)
+        this.initError = true;
+      }
     } else {
       // Move the button to be in the right spot
       const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
@@ -48,6 +58,7 @@ export class Button {
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
     }
   }
+
 
   setPosition(pos: IPosition) {
     this.roomPosition = pos;

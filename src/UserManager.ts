@@ -4,7 +4,7 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, worldToRoomCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -157,19 +157,87 @@ function highlightIntersected(laser: Laser) {
   }
 }
 
+let tooltipTimeout: number;
+let lastTooltip: string = "";
+let lastTooltipModelID: string = "";
+function showTooltipIntersected(laser: Laser) {
+  if (laser.collision != undefined && laser.collision.objectID) {
+    const model = GetTerrainModelById(laser.collision.objectID);
+    if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
+      tooltipTimeout = setTimeout(()=>{
+        if(lastTooltip) sgWorld.Creator.DeleteObject(lastTooltip)
+        const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+       
+        // DW tried to check for overlaps but 
+        const modelPosition = model.Position
+        const modelInRoom = worldToRoomCoord(modelPosition);
+        const adj = 0.05;
+        let modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y + adj , modelInRoom.Altitude, modelInRoom.AltitudeType);
+        let modelInWorldAdj = roomToWorldCoord(modelInRoomAdj);
+        const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
+                // this never works on the table, it returns 0, 0
+        console.log("pixel " + pixel.X + " " + pixel.Y);
+        let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
+        console.log(col.ObjectID);
+
+        sgWorld.SetParam(8300, modelInRoomAdj); // Pick ray
+        const hitObjectID = sgWorld.GetParam(8310) as string | undefined;
+
+        if(hitObjectID){
+          console.log("collision" + col.ObjectID);
+          modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y - adj, modelInRoom.Altitude, modelInRoom.AltitudeType);
+          modelInWorldAdj = roomToWorldCoord(sgWorld.Creator.CreatePosition(modelInRoomAdj.X, modelInRoomAdj.Y, modelInRoomAdj.Altitude, modelInRoomAdj.AltitudeType));
+        }
+        const tooltip = sgWorld.Creator.CreateTextLabel(roomToWorldCoord(modelInRoomAdj), model.Tooltip.Text, labelStyle,"" ,"tooltip"); 
+        lastTooltip = tooltip.ID;
+      }, 300)
+    }
+    if(model){
+      lastTooltipModelID = model.ID
+    }
+  }
+  else{
+    if(lastTooltip) {
+      sgWorld.Creator.DeleteObject(lastTooltip);
+      lastTooltip = "";
+      lastTooltipModelID = "";
+    }
+    clearTimeout(tooltipTimeout);
+  }
+}
+
 function highlightById(highlight: boolean, oid?: string): void {
+  const model = GetTerrainModelById(oid);
+  if (model) {
+    if (highlight) {
+      // highlight adds a slight tint to the item. Currently this is yellow
+      model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+    } else {
+      model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+    }
+  }
+}
+
+function GetTerrainModelById(oid?: string): ITerrainModel | null {
   if (oid !== undefined && oid != "") {
     const object = sgWorld.Creator.GetObject(oid);
     if (object && object.ObjectType === ObjectType.OT_MODEL) {
       const model: ITerrainModel = object as ITerrainModel;
-      if (highlight) {
-        // highlight adds a slight tint to the item. Currently this is yellow
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
-      } else {
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
-      }
+      return model;
     }
   }
+  return null;
+}
+
+function GetTerrainLabelById(oid?: string): ITerrainModel | null {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === ObjectType.OT_LABEL) {
+      const model: ITerrainModel = object as ITerrainModel;
+      return model;
+    }
+  }
+  return null;
 }
 
 const wallMode = wandMode;
@@ -421,8 +489,8 @@ export class UserModeManager {
     switch (this.userMode) {
       case UserMode.Standard:
         setSelection(this.laser1!, button1pressed);
+        showTooltipIntersected(this.laser1!)
         highlightIntersected(this.laser1!);
-
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
