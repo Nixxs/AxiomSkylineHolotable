@@ -178,12 +178,11 @@ function highlightById(highlight: boolean, oid?: string): void {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
-function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | null {
+function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel |  ITerrainLabel | null {
   if (oid !== undefined && oid != "") {
     const object = sgWorld.Creator.GetObject(oid);
     if (object && object.ObjectType === objectType) {
-      const model: ITerrainModel = object as ITerrainModel;
-      return model
+      return object as any;
     }
   }
   return null;
@@ -275,16 +274,16 @@ export class UserModeManager {
     this.measurementModeFirstPoint = null;
   }
 
-  toggleModelMode(modelName: string) {
+  toggleModelMode(modelPath: string, modelName: string) {
     if (this.userMode == UserMode.PlaceModel) {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = basePath + `model/${modelName}.xpl2`;
+      const fullModelPath = basePath + `model/${modelPath}`;
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
-      console.log("creating model:: " + modelPath);
-      const model = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
+      console.log("creating model:: " + fullModelPath);
+      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, "", modelName);
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
@@ -307,7 +306,7 @@ export class UserModeManager {
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
       const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, "", "label-" + sLabel);
       pos.Pitch = 0;
-      console.log("creating label:: " + sLabel + " " +  label.ObjectType);
+      console.log("creating label:: " + sLabel + " " + label.ObjectType);
       this.currentlySelectedId = label.ID;
       // this.modelIds.push(label.ID)
       // ProgramManager.getInstance().currentlySelected = label.ID;
@@ -554,33 +553,24 @@ export class UserModeManager {
             const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
             if (intersectedItemId) {
               console.log("BUTTON PRESSED AND INTERSECTING ITEM " + intersectedItemId + " label id " + this.currentlySelectedId);
-              const model = getItemById(intersectedItemId);
-              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL);
-              if(!model) {
+              const model = getItemById(intersectedItemId) as ITerrainModel;
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              if (!model) {
                 console.log("model not found")
               }
-              if(!label) {
+              if (!label) {
                 console.log("label not found")
               }
-              console.log(model?.Terrain.BBox.MinX)
-              console.log(model?.Terrain.BBox.MaxX);
-              console.log(model?.Terrain.BBox.MinY);
-              console.log(model?.Terrain.BBox.MaxY);
-              const bBox = model?.Terrain.BBox;
-              if(bBox){
-                const deltaX = bBox.MaxX -bBox.MinX;
-                console.log(deltaX)
-              
-                if (model && label) {
-                  console.log("About TO ATTACH LABEL TO MODEL");
-                  //label.Attachment.AttachTo(console, 1, 0, 0, 0);
-                  console.log("LABEL ATTACHED TO MODEL");
-                  this.setStandardMode();
-                  // consume the button press
-                  ProgramManager.getInstance().setButton1Pressed(1, false);
-                }
+              model?.ScaleFactor
+              if (model && label) {
+                // label.Style.MaxViewingHeight = 50;
+                label.Attachment.AttachTo(model.ID, 0, 0, 0, 0, 0, 0);
+                console.log("LABEL ATTACHED TO MODEL");
+                this.setStandardMode();
+                // consume the button press
+                ProgramManager.getInstance().setButton1Pressed(1, false);
               }
-              
+
             };
           } else {
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();

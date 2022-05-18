@@ -89,8 +89,8 @@ export class Menu {
     console.log(`${n}th at ${strip}th strip, ${along}th along`);
     const x = (this.horizontal ? along : strip);
     const y = (this.horizontal ? strip : along);
-    console.log(`${n}th at ${x}, ${y}`);
-    console.log(`${n}th at ${this.corner.Copy().Add(this.xDirection.Copy().Mul(x + 0.5 * this.buttonSize)).Add(this.yDirection.Copy().Mul(y + 0.5 * this.buttonSize)).data}`);
+    //console.log(`${n}th at ${x}, ${y}`);
+    //console.log(`${n}th at ${this.corner.Copy().Add(this.xDirection.Copy().Mul(x + 0.5 * this.buttonSize)).Add(this.yDirection.Copy().Mul(y + 0.5 * this.buttonSize)).data}`);
     // Add 0.5 so the origin of the button is at the center of the button area
     return this.getButtonPosition(x + 0.5, y + 0.5);
   }

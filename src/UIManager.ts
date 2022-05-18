@@ -88,15 +88,8 @@ export class UIManager {
     // create the verb menu
     const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 2, 10);
     const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 1, 10);
-    let verbControls: Button[] = [];
-    verbsConfig.verbs.forEach((verb) => {
-      verbControls.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
-    });
-    VerbsMenuTable.addButtons(verbControls);
-    VerbsMenuWall.buttons.forEach(b => VerbsMenuWall.addButton(b));
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
-
     this.menusTable.push(VerbsMenuTable);
     this.menusWall.push(VerbsMenuWall);
 
@@ -104,13 +97,11 @@ export class UIManager {
     const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
     showVerbsTable.createButton("TaskVerbs", "blank.xpl2", () => {
-      VerbsMenuTable.show(!VerbsMenuTable.isVisible);
-      showVerbsWall.show(!showVerbsWall.isVisible)
+       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsTable.createButton("MissionVerbs", "blank.xpl2", () => {
-      VerbsMenuTable.show(!VerbsMenuTable.isVisible);
-      showVerbsWall.show(!showVerbsWall.isVisible)
-    })
+    showVerbsTable.createButton("MissionTaskVerbs", "blank.xpl2", () => {
+       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
+    });
     this.menusTable.push(showVerbsTable);
     this.menusWall.push(showVerbsWall);
   }
@@ -119,6 +110,37 @@ export class UIManager {
     menus.forEach(m => m.show(false));
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.toggleLabel(verb.verbName);
+  }
+
+  onVerbMenuShow(veryType: string,  menus: MenuVerbs[]){
+    let VerbsMenuTable = menus[0];
+    let VerbsMenuWall = menus[1];
+    if(VerbsMenuTable.isVisible){ // turn it off
+      console.log("turn it off")
+      VerbsMenuTable.show(false);
+      VerbsMenuWall.show(false);
+      return;
+    }
+    let verbControlsTable: Button[] = []; // we need two arrays as the buttons will get destroyed
+    let verbControlsWall: Button[] = [];
+    verbsConfig.verbs.forEach((verb) => {
+      if(verb.verbType ===  veryType){
+        verbControlsTable.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
+        verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
+      }
+    });
+    switch (GetDeviceType()) {
+      case DeviceType.Desktop:
+      // Fallthrough. Desktop renders the table button layout
+      case DeviceType.Table:
+        VerbsMenuTable.addButtons(verbControlsTable);
+        break;
+      case DeviceType.Wall:
+        VerbsMenuWall.addButtons(verbControlsWall);
+        break;
+    }
+ 
+   
   }
 
   drawTable() {
@@ -195,7 +217,8 @@ export class UIManager {
   }
 
   onControlModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; modelPath: string; }) {
-    console.log("Method not implemented.");
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.toggleModelMode(model.modelPath, model.modelName)
   }
 
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
