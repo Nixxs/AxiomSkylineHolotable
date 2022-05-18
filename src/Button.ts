@@ -6,8 +6,13 @@ export class Button {
   ID?: string;
   scale = 1;
   callback: (id?: string) => void = () => { };
+<<<<<<< HEAD
   private initError: boolean = false;
   
+=======
+  initError: boolean = false;
+
+>>>>>>> 8f379c3c7b6f764abdf9e1b9613ce49507acf4f6
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
     callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "") {
@@ -42,15 +47,23 @@ export class Button {
   
     if(this.initError) return;
     const pos = roomToWorldCoord(this.roomPosition);
+    if(this.initError) return;
     if (this.ID === undefined) {
       try {
         const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+<<<<<<< HEAD
         obj.Tooltip.Text = this.tooltip;
+=======
+>>>>>>> 8f379c3c7b6f764abdf9e1b9613ce49507acf4f6
         this.ID = obj.ID;
       } catch (error) {
         console.log(error + " :: " + this.modelPath)
         this.initError = true;
       }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8f379c3c7b6f764abdf9e1b9613ce49507acf4f6
     } else {
       // Move the button to be in the right spot
       const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;

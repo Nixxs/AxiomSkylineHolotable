@@ -12,6 +12,9 @@ const enum ControlMode {
   Wall
 }
 
+const redRGBA = [255, 0, 0, 128];
+const blueRGBA = [0, 0, 255, 128];
+
 const gControlMode: ControlMode = ControlMode.Table;
 
 function dragMode() {
@@ -81,6 +84,7 @@ function dragMode() {
     }
 
     dragMode.startInfo.prevWandRoomPos = wandRoomPos;
+    dragMode.startInfo.prevWandRoomDir = wandRoomDir;
 
     sgWorld.Navigate.SetPosition(worldPos);
   } else if (trigger) {
@@ -103,7 +107,8 @@ export const enum UserMode {
   DropRangeRing,
   PlaceModel,
   MoveModel,
-  DrawLine
+  DrawLine,
+  PlaceLabel // when placing a label it will attach to another object
 }
 
 // If trigger is pressed: move in the direction of the ray
@@ -162,7 +167,7 @@ let lastTooltip: string = "";
 let lastTooltipModelID: string = "";
 function showTooltipIntersected(laser: Laser) {
   if (laser.collision != undefined && laser.collision.objectID) {
-    const model = GetTerrainModelById(laser.collision.objectID);
+    const model = getItemById(laser.collision.objectID);
     if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
       tooltipTimeout = setTimeout(()=>{
         if(lastTooltip) sgWorld.Creator.DeleteObject(lastTooltip)
@@ -174,11 +179,11 @@ function showTooltipIntersected(laser: Laser) {
         const adj = 0.05;
         let modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y + adj , modelInRoom.Altitude, modelInRoom.AltitudeType);
         let modelInWorldAdj = roomToWorldCoord(modelInRoomAdj);
-        const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
         // this never works on the table, it returns 0, 0
-        console.log("pixel " + pixel.X + " " + pixel.Y);
-        let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
-        console.log(col.ObjectID);
+        // const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
+        // console.log("pixel " + pixel.X + " " + pixel.Y);
+        // let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
+        // console.log(col.ObjectID);
         const tooltip = sgWorld.Creator.CreateTextLabel(roomToWorldCoord(modelInRoomAdj), model.Tooltip.Text, labelStyle,"" ,"tooltip"); 
         lastTooltip = tooltip.ID;
       }, 300)
@@ -198,26 +203,23 @@ function showTooltipIntersected(laser: Laser) {
 }
 
 function highlightById(highlight: boolean, oid?: string): void {
-  const model = GetTerrainModelById(oid);
+  const model = getItemById(oid)
   if (model) {
+    var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+    var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
     if (highlight) {
-      // highlight adds a slight tint to the item. Currently this is yellow
-      model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
+      // if the model is already tinted red then do nothing otherwise tint yellow
+      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
+        // highlight adds a slight tint to the item. Currently this is yellow
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50);
+      }
     } else {
-      model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
+        // remove tint
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0);
+      }
     }
   }
-}
-
-function GetTerrainModelById(oid?: string): ITerrainModel | null {
-  if (oid !== undefined && oid != "") {
-    const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === ObjectType.OT_MODEL) {
-      const model: ITerrainModel = object as ITerrainModel;
-      return model;
-    }
-  }
-  return null;
 }
 
 function GetTerrainLabelById(oid?: string): ITerrainModel | null {
@@ -226,6 +228,23 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
     if (object && object.ObjectType === ObjectType.OT_LABEL) {
       const model: ITerrainModel = object as ITerrainModel;
       return model;
+    }
+  }
+  return null;
+}
+
+/**
+ * Returns models by their ID
+ * Optionally supply a model type for other items such as labels
+ * @param {string} [oid]
+ * @param {*} [objectType=ObjectType.OT_MODEL]
+ * @return {*}  {(ITerrainModel | null)}
+ */
+function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | ITerrainLabel | null {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === objectType) {
+      return object as any;
     }
   }
   return null;
@@ -317,18 +336,26 @@ export class UserModeManager {
     this.measurementModeFirstPoint = null;
   }
 
-  toggleModelMode(modelName: string) {
+  toggleModelMode(modelPath: string, modelName: string) {
     if (this.userMode == UserMode.PlaceModel) {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-      const modelPath = basePath + `model/${modelName}.xpl2`;
+      const fullModelPath = basePath + `model/${modelPath}`;
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const model = sgWorld.Creator.CreateModel(pos, modelPath, 1, 0, "", modelName);
+      const grp = ProgramManager.getInstance().getGroupID("models");
+      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+      const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
+      model.ScaleFactor = 8 * roomPos.Altitude;
+      // this will make the model not pickable which is what you want while moving it 
+      model.SetParam(200, 0x200);
+
+      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0],blueRGBA[1],blueRGBA[2],blueRGBA[3]);
+      model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
-      this.modelIds.push(this.currentlySelectedId)
+      this.modelIds.push(this.currentlySelectedId);
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the line objects array so it can be deleted via the undo button
@@ -339,24 +366,38 @@ export class UserModeManager {
     }
   }
 
+  toggleLabel(sLabel: string) {
+    if (this.userMode == UserMode.PlaceModel) {
+      console.log("end model mode");
+      this.userMode = UserMode.Standard;
+    } else {
+
+      const grp = ProgramManager.getInstance().getGroupID("models");
+      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+      const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+      const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, grp, "label-" + sLabel);
+      pos.Pitch = 0;
+      console.log("creating label:: " + sLabel + " " + label.ObjectType);
+      this.currentlySelectedId = label.ID;
+      // add the new label to the line objects array so it can be deleted via the undo button
+      this.lineObjects.push(label.ID);
+      this.userMode = UserMode.PlaceLabel;
+    }
+  }
+
   toggleMoveModelMode(modelID?: string) {
     const previouslySelected = this.currentlySelectedId;
     this.currentlySelectedId = modelID;
     if (this.userMode == UserMode.MoveModel) {
-      console.log("end move model mode");
-      if (previouslySelected !== undefined) {
-        const modelObject = sgWorld.Creator.GetObject(previouslySelected) as ITerrainModel;
-        // this is for making the model collide-able again
-        modelObject.SetParam(200, modelObject.GetParam(200) | 512);
-      }
       this.userMode = UserMode.Standard;
     } else {
       // We have just selected the model
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
         const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-        // this will make the model not pickable which is what you want
-        modelObject.SetParam(200, modelObject.GetParam(200) & ~512);
+        // this will make the model not pickable which is what you want while moving it 
+        modelObject.SetParam(200, 0x200);
+        console.log("made it uncollidebale");
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
@@ -553,6 +594,9 @@ export class UserModeManager {
       case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
       case UserMode.MoveModel:
         if (ProgramManager.getInstance().getButton1Pressed(1)) {
+          const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+          // this is for making the model collide-able again
+          modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
           this.setStandardMode();
           // consume the button press
           ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -565,6 +609,53 @@ export class UserModeManager {
             const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
             modelObject.Position = newModelPosition;
           }
+
+          if (ProgramManager.getInstance().getButton2Pressed(1)) {
+            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+            console.log(modelObject.Terrain.Tint.ToHTMLColor());
+            console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+
+            var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+            var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+            if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
+              modelObject.Terrain.Tint = blueColor;
+            } else {
+              modelObject.Terrain.Tint = redColor;
+            }
+          }
+        }
+        break;
+      case UserMode.PlaceLabel:
+        try {
+          // we will only let the label be placed on another object
+          if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
+            if (intersectedItemId) {
+              const model = getItemById(intersectedItemId) as ITerrainModel;
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              model?.ScaleFactor
+              if (model && label) {
+                // label.Style.MaxViewingHeight = 50;
+                label.Attachment.AttachTo(model.ID, 0, 0, 0, 0, 0, 0);
+                console.log("LABEL ATTACHED TO MODEL");
+                this.setStandardMode();
+                // consume the button press
+                ProgramManager.getInstance().setButton1Pressed(1, false);
+              }
+
+            };
+          } else {
+            const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (newModelPosition !== undefined) {
+              newModelPosition.Pitch = 0;
+              newModelPosition.Yaw = newModelPosition.Roll * 2;
+              newModelPosition.Roll = 0;
+              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+              modelObject.Position = newModelPosition;
+            }
+          }
+        } catch (error) {
+          console.log(JSON.stringify(error));
         }
         break;
       case UserMode.DrawLine:
