@@ -5,14 +5,15 @@ export const controlConfig = {
             modelType: "control",
             missionType: "ControlModel1",
             buttonIcon: "Button_Blank.xpl2",
-            modelPath: "ControlModel1.xpl2"
+            modelPath: "CM_-_Company_Harbour.xpl2",
+            
         },
         {
             modelName: "CM - AA",
             modelType: "control",
             missionType: "ControlModel2",
             buttonIcon: "Button_Blank.xpl2",
-            modelPath: "ControlModel2.xpl2"
+            modelPath: "CM_-_AA.xpl2"
         },
         {
             modelName: "CM - AMA",
@@ -27,6 +28,7 @@ export const controlConfig = {
             missionType: "ControlModel4",
             modelPath: "Ambush.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            scale:1
         },
         {
             modelName: "ControlModel5",
@@ -34,6 +36,7 @@ export const controlConfig = {
             missionType: "ControlModel5",
             modelPath: "ControlModel5.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel6",
@@ -41,6 +44,7 @@ export const controlConfig = {
             missionType: "ControlModel6",
             modelPath: "ControlModel6.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel7",
@@ -48,6 +52,7 @@ export const controlConfig = {
             missionType: "ControlModel7",
             modelPath: "ControlModel7.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel8",
@@ -55,6 +60,7 @@ export const controlConfig = {
             missionType: "ControlModel8",
             modelPath: "ControlModel8.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel9",
@@ -62,6 +68,7 @@ export const controlConfig = {
             missionType: "ControlModel9",
             modelPath: "ControlModel9.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel10",
@@ -69,6 +76,7 @@ export const controlConfig = {
             missionType: "ControlModel10",
             modelPath: "ControlModel10.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel11",
@@ -76,6 +84,7 @@ export const controlConfig = {
             missionType: "ControlModel11",
             modelPath: "ControlModel11.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel12",
@@ -83,6 +92,7 @@ export const controlConfig = {
             missionType: "ControlModel12",
             modelPath: "ControlModel12.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel13",
@@ -90,6 +100,7 @@ export const controlConfig = {
             missionType: "ControlModel13",
             modelPath: "ControlModel13.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel14",
@@ -97,6 +108,7 @@ export const controlConfig = {
             missionType: "ControlModel14",
             modelPath: "ControlModel14.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel15",
@@ -104,6 +116,7 @@ export const controlConfig = {
             missionType: "ControlModel15",
             modelPath: "ControlModel15.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel16",
@@ -111,6 +124,7 @@ export const controlConfig = {
             missionType: "ControlModel16",
             modelPath: "ControlModel16.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel17",
@@ -118,6 +132,7 @@ export const controlConfig = {
             missionType: "ControlModel17",
             modelPath: "ControlModel17.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel18",
@@ -125,6 +140,7 @@ export const controlConfig = {
             missionType: "ControlModel18",
             modelPath: "ControlModel18.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel19",
@@ -132,12 +148,14 @@ export const controlConfig = {
             missionType: "ControlModel19",
             modelPath: "ControlModel19.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },{
             modelName: "ControlModel10",
             modelType: "controlMeasure",
             missionType: "ControlModel10",
             modelPath: "ControlModel10.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel11",
@@ -145,6 +163,7 @@ export const controlConfig = {
             missionType: "ControlModel11",
             modelPath: "ControlModel11.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel12",
@@ -152,6 +171,7 @@ export const controlConfig = {
             missionType: "ControlModel12",
             modelPath: "ControlModel12.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel23",
@@ -159,6 +179,7 @@ export const controlConfig = {
             missionType: "ControlModel13",
             modelPath: "ControlModel13.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel24",
@@ -166,6 +187,7 @@ export const controlConfig = {
             missionType: "ControlModel14",
             modelPath: "ControlModel14.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel25",
@@ -173,6 +195,7 @@ export const controlConfig = {
             missionType: "ControlModel15",
             modelPath: "ControlModel15.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel26",
@@ -180,6 +203,7 @@ export const controlConfig = {
             missionType: "ControlModel16",
             modelPath: "ControlModel16.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel27",
@@ -187,6 +211,7 @@ export const controlConfig = {
             missionType: "ControlModel17",
             modelPath: "ControlModel17.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel28",
@@ -194,6 +219,7 @@ export const controlConfig = {
             missionType: "ControlModel18",
             modelPath: "ControlModel18.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel29",
@@ -201,6 +227,7 @@ export const controlConfig = {
             missionType: "ControlModel29",
             modelPath: "ControlModel19.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel11",
@@ -208,6 +235,7 @@ export const controlConfig = {
             missionType: "ControlModel11",
             modelPath: "ControlModel11.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel12",
@@ -215,6 +243,7 @@ export const controlConfig = {
             missionType: "ControlModel12",
             modelPath: "ControlModel12.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel23",
@@ -222,6 +251,7 @@ export const controlConfig = {
             missionType: "ControlModel13",
             modelPath: "ControlModel13.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel24",
@@ -229,6 +259,7 @@ export const controlConfig = {
             missionType: "ControlModel14",
             modelPath: "ControlModel14.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel25",
@@ -236,6 +267,7 @@ export const controlConfig = {
             missionType: "ControlModel15",
             modelPath: "ControlModel15.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel26",
@@ -243,6 +275,7 @@ export const controlConfig = {
             missionType: "ControlModel16",
             modelPath: "ControlModel16.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel27",
@@ -250,6 +283,7 @@ export const controlConfig = {
             missionType: "ControlModel17",
             modelPath: "ControlModel17.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel28",
@@ -257,6 +291,7 @@ export const controlConfig = {
             missionType: "ControlModel18",
             modelPath: "ControlModel18.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel29",
@@ -264,6 +299,7 @@ export const controlConfig = {
             missionType: "ControlModel29",
             modelPath: "ControlModel19.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel11",
@@ -271,6 +307,7 @@ export const controlConfig = {
             missionType: "ControlModel11",
             modelPath: "ControlModel11.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel12",
@@ -278,6 +315,7 @@ export const controlConfig = {
             missionType: "ControlModel12",
             modelPath: "ControlModel12.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel23",
@@ -285,6 +323,7 @@ export const controlConfig = {
             missionType: "ControlModel13",
             modelPath: "ControlModel13.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel24",
@@ -292,6 +331,7 @@ export const controlConfig = {
             missionType: "ControlModel14",
             modelPath: "ControlModel14.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
         {
             modelName: "ControlModel25",
@@ -299,34 +339,8 @@ export const controlConfig = {
             missionType: "ControlModel15",
             modelPath: "ControlModel15.xpl2",
             buttonIcon: "Button_Blank.xpl2",
+            
         },
-        {
-            modelName: "ControlModel26",
-            modelType: "control",
-            missionType: "ControlModel16",
-            modelPath: "ControlModel16.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-        },
-        {
-            modelName: "ControlModel27",
-            modelType: "control",
-            missionType: "ControlModel17",
-            modelPath: "ControlModel17.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-        },
-        {
-            modelName: "ControlModel28",
-            modelType: "control",
-            missionType: "ControlModel18",
-            modelPath: "ControlModel18.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-        },
-        {
-            modelName: "ControlModel29",
-            modelType: "control",
-            missionType: "ControlModel29",
-            modelPath: "ControlModel19.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-        },
+    
     ]
 }

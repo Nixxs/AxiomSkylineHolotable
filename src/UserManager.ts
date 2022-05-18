@@ -4,7 +4,7 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, worldToRoomCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -296,6 +296,10 @@ export class UserModeManager {
       console.log("creating model:: " + modelPath);
       const grp = ProgramManager.getInstance().getGroupID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+      // get the current altitude
+      const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
+
+      model.ScaleFactor = 8 * roomPos.Altitude;
       model.Terrain.Tint.FromHTMLColor(blueHTML);
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
