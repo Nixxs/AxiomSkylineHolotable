@@ -21,6 +21,7 @@ export class Menu {
   public xDirection: Vector<3>;
   public yDirection: Vector<3>;
   public recomputeButtons = true;
+  public isVisible: boolean = true;
 
   constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity) {
     // anchorPosition is bottomLeft + [x * width, y * height]
@@ -124,5 +125,6 @@ export class Menu {
   show(visibility: boolean) {
     for (let button of this.buttons)
       button.show(visibility);
+    this.isVisible = visibility;
   }
 }

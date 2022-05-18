@@ -107,7 +107,8 @@ export const enum UserMode {
   DropRangeRing,
   PlaceModel,
   MoveModel,
-  DrawLine
+  DrawLine,
+  PlaceLabel // when placing a label it will attach to another object
 }
 
 // If trigger is pressed: move in the direction of the ray
@@ -162,11 +163,9 @@ function highlightIntersected(laser: Laser) {
 }
 
 function highlightById(highlight: boolean, oid?: string): void {
-  if (oid !== undefined && oid != "") {
-    const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === ObjectType.OT_MODEL) {
-      const model: ITerrainModel = object as ITerrainModel;
-      if (highlight) {
+  const model = getItemById(oid)
+  if (model) {
+    if (highlight) {
         // if the model is already tinted red then do nothing otherwise tint yellow
         // red = "#b80e02"
         // blue = "#041dbf"
@@ -174,14 +173,31 @@ function highlightById(highlight: boolean, oid?: string): void {
           // highlight adds a slight tint to the item. Currently this is yellow
           model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
         }
-      } else {
-        if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
-          // remove tint
-          model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
-        }
+    } else {
+      if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
+        // remove tint
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
       }
     }
   }
+}
+
+/**
+ * Returns models by their ID
+ * Optionally supply a model type for other items such as labels
+ * @param {string} [oid]
+ * @param {*} [objectType=ObjectType.OT_MODEL]
+ * @return {*}  {(ITerrainModel | null)}
+ */
+function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | null {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === objectType) {
+      const model: ITerrainModel = object as ITerrainModel;
+      return model
+    }
+  }
+  return null;
 }
 
 const wallMode = wandMode;
@@ -290,6 +306,28 @@ export class UserModeManager {
       console.log(this.lineObjects.toString());
 
       this.userMode = UserMode.PlaceModel;
+    }
+  }
+
+  toggleLabel(sLabel: string) {
+    if (this.userMode == UserMode.PlaceModel) {
+      console.log("end model mode");
+      this.userMode = UserMode.Standard;
+    } else {
+
+      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+      const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+      const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, "", "label-" + sLabel);
+      pos.Pitch = 0;
+      console.log("creating label:: " + sLabel + " " +  label.ObjectType);
+      this.currentlySelectedId = label.ID;
+      // this.modelIds.push(label.ID)
+      // ProgramManager.getInstance().currentlySelected = label.ID;
+
+      // // add the new model to the line objects array so it can be deleted via the undo button
+      // this.lineObjects.push(label.ID);
+      // console.log(this.lineObjects.toString());
+      this.userMode = UserMode.PlaceLabel;
     }
   }
 
@@ -527,6 +565,55 @@ export class UserModeManager {
               modelObject.Terrain.Tint.FromHTMLColor(redHTML);
             }
           }
+        }
+        break;
+      case UserMode.PlaceLabel:
+        try {
+          // we will only let the label be placed on another object
+          if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
+            if (intersectedItemId) {
+              console.log("BUTTON PRESSED AND INTERSECTING ITEM " + intersectedItemId + " label id " + this.currentlySelectedId);
+              const model = getItemById(intersectedItemId);
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL);
+              if(!model) {
+                console.log("model not found")
+              }
+              if(!label) {
+                console.log("label not found")
+              }
+              console.log(model?.Terrain.BBox.MinX)
+              console.log(model?.Terrain.BBox.MaxX);
+              console.log(model?.Terrain.BBox.MinY);
+              console.log(model?.Terrain.BBox.MaxY);
+              const bBox = model?.Terrain.BBox;
+              if(bBox){
+                const deltaX = bBox.MaxX -bBox.MinX;
+                console.log(deltaX)
+              
+                if (model && label) {
+                  console.log("About TO ATTACH LABEL TO MODEL");
+                  //label.Attachment.AttachTo(console, 1, 0, 0, 0);
+                  console.log("LABEL ATTACHED TO MODEL");
+                  this.setStandardMode();
+                  // consume the button press
+                  ProgramManager.getInstance().setButton1Pressed(1, false);
+                }
+              }
+              
+            };
+          } else {
+            const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (newModelPosition !== undefined) {
+              newModelPosition.Pitch = 0;
+              newModelPosition.Yaw = newModelPosition.Roll * 2;
+              newModelPosition.Roll = 0;
+              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+              modelObject.Position = newModelPosition;
+            }
+          }
+        } catch (error) {
+          console.log(JSON.stringify(error));
         }
         break;
       case UserMode.DrawLine:

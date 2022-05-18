@@ -38,8 +38,8 @@ export class UIManager {
   createMenus() {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
-    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.55, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.55, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
+    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.5, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -62,24 +62,23 @@ export class UIManager {
     const ControlsMenuWall = new MenuPaging(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 10, 2);
     let controls: Button[] = []
     controlConfig.ControlModels.forEach((model) => {
-      controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, ()=> this.onControlModelAdd(model)));
+      controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onControlModelAdd(model)));
     });
     ControlsMenuTable.addButtons(controls);
     ControlsMenuTable.buttons.forEach(b => ControlsMenuWall.addButton(b));
-    
+
     this.menusTable.push(ControlsMenuTable);
     this.menusWall.push(ControlsMenuWall);
 
 
     // orbat menu ============
-    // why is this 0.005 out? Is that the 10% padding on the button? 
-    const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.555, -1.0, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
-      orbatMenuTable.createButton(model.modelName,  model.buttonIcon, () => this.onOrbatModelAdd(model));
+      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
     });
-   
+
     orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
 
     this.menusTable.push(orbatMenuTable);
@@ -87,20 +86,39 @@ export class UIManager {
 
 
     // create the verb menu
-    const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.5, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 1, 10);
+    const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 2, 10);
     const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 1, 10);
     let verbControls: Button[] = [];
     verbsConfig.verbs.forEach((verb) => {
-      verbControls.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", ()=> this.onVerbAdd(verb)));
+      verbControls.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
     });
     VerbsMenuTable.addButtons(verbControls);
     VerbsMenuWall.buttons.forEach(b => VerbsMenuWall.addButton(b));
-    
+    VerbsMenuTable.show(false);
+    VerbsMenuWall.show(false);
+
     this.menusTable.push(VerbsMenuTable);
-   this.menusWall.push(VerbsMenuWall);
+    this.menusWall.push(VerbsMenuWall);
+
+    // show hide verbs menus
+    const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
+    showVerbsTable.createButton("TaskVerbs", "blank.xpl2", () => {
+      VerbsMenuTable.show(!VerbsMenuTable.isVisible);
+      showVerbsWall.show(!showVerbsWall.isVisible)
+    })
+    showVerbsTable.createButton("MissionVerbs", "blank.xpl2", () => {
+      VerbsMenuTable.show(!VerbsMenuTable.isVisible);
+      showVerbsWall.show(!showVerbsWall.isVisible)
+    })
+    this.menusTable.push(showVerbsTable);
+    this.menusWall.push(showVerbsWall);
   }
-  onVerbAdd(verb: { verbName: string; verbType: string; }): void {
-    throw new Error("Method not implemented.");
+
+  onVerbAdd(verb: { verbName: string; verbType: string; }, menus: MenuVerbs[]): void {
+    menus.forEach(m => m.show(false));
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.toggleLabel(verb.verbName);
   }
 
   drawTable() {
@@ -177,13 +195,13 @@ export class UIManager {
   }
 
   onControlModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; modelPath: string; }) {
-   console.log("Method not implemented.");
+    console.log("Method not implemented.");
   }
 
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
-    model.models.forEach((orbatModel, i) =>{
+    model.models.forEach((orbatModel, i) => {
       const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
@@ -194,8 +212,8 @@ export class UIManager {
     this.placeModelsCenterRoom(modelsToPlace)
   }
 
-  private placeModelsCenterRoom(models: ITerrainModel[]){
-    models.forEach((m, i) =>{
+  private placeModelsCenterRoom(models: ITerrainModel[]) {
+    models.forEach((m, i) => {
       const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6 - (i * 0.05), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       m.Position = roomPos;
