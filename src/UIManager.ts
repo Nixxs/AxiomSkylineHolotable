@@ -241,7 +241,7 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
-      // add the created model to the undolist
+      // add the created model to the undo list
       ProgramManager.getInstance().userModeManager?.modelIds.push(model.ID);
       // set the scale value based on the current zoom level
       var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
