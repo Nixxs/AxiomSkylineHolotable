@@ -194,7 +194,7 @@ export class UIManager {
   }
 
   private onButtonClick(name: string) {
-    console.log("onButtonClick")
+    console.log("onButtonClick " + name)
     const pm = ProgramManager.getInstance().userModeManager;
     if (pm === undefined) throw new Error("Could not find userModeManager");
     switch (name) {
@@ -273,7 +273,6 @@ export class UIManager {
 
   Update() {
     switch (GetDeviceType()) {
-
       case DeviceType.Desktop: // Desktop updates the table buttons
       case DeviceType.Table:
         this.menusTable.forEach(m => m.Update());

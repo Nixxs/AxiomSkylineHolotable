@@ -10,7 +10,7 @@ export class Button {
 
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
-    callback?: (id?: string) => void, hidden?: boolean) {
+    callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "") {
     const newButton = document.createElement("button");
     newButton.textContent = name;
     if (callback) {
@@ -27,7 +27,7 @@ export class Button {
       this.show(false);
     }
   }
-
+ 
   // buttonPressed is whether the button was down this frame but not last frame
   Update() {
     const button1Pressed = ProgramManager.getInstance().getButton1Pressed(1);
@@ -39,17 +39,19 @@ export class Button {
   }
 
   Draw() {
+  
+    if(this.initError) return;
     const pos = roomToWorldCoord(this.roomPosition);
     if(this.initError) return;
     if (this.ID === undefined) {
       try {
         const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+        obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
       } catch (error) {
         console.log(error + " :: " + this.modelPath)
         this.initError = true;
       }
-
     } else {
       // Move the button to be in the right spot
       const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
@@ -57,6 +59,7 @@ export class Button {
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
     }
   }
+
 
   setPosition(pos: IPosition) {
     this.roomPosition = pos;

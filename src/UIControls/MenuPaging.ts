@@ -59,8 +59,8 @@ export class MenuPaging extends Menu {
     // override and return the button as we need to add them all at once
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
-    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
-    return btn;
+    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback, false, name);
+    return btn; 
   }
 
 

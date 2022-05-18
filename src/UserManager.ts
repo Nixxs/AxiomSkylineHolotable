@@ -162,6 +162,46 @@ function highlightIntersected(laser: Laser) {
   }
 }
 
+let tooltipTimeout: number;
+let lastTooltip: string = "";
+let lastTooltipModelID: string = "";
+function showTooltipIntersected(laser: Laser) {
+  if (laser.collision != undefined && laser.collision.objectID) {
+    const model = getItemById(laser.collision.objectID);
+    if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
+      tooltipTimeout = setTimeout(()=>{
+        if(lastTooltip) sgWorld.Creator.DeleteObject(lastTooltip)
+        const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+       
+        // DW tried to check for overlaps but 
+        const modelPosition = model.Position
+        const modelInRoom = worldToRoomCoord(modelPosition);
+        const adj = 0.05;
+        let modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y + adj , modelInRoom.Altitude, modelInRoom.AltitudeType);
+        let modelInWorldAdj = roomToWorldCoord(modelInRoomAdj);
+        // this never works on the table, it returns 0, 0
+        // const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
+        // console.log("pixel " + pixel.X + " " + pixel.Y);
+        // let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
+        // console.log(col.ObjectID);
+        const tooltip = sgWorld.Creator.CreateTextLabel(roomToWorldCoord(modelInRoomAdj), model.Tooltip.Text, labelStyle,"" ,"tooltip"); 
+        lastTooltip = tooltip.ID;
+      }, 300)
+    }
+    if(model){
+      lastTooltipModelID = model.ID
+    }
+  }
+  else{
+    if(lastTooltip) {
+      sgWorld.Creator.DeleteObject(lastTooltip);
+      lastTooltip = "";
+      lastTooltipModelID = "";
+    }
+    clearTimeout(tooltipTimeout);
+  }
+}
+
 function highlightById(highlight: boolean, oid?: string): void {
   const model = getItemById(oid)
   if (model) {
@@ -180,6 +220,17 @@ function highlightById(highlight: boolean, oid?: string): void {
       }
     }
   }
+}
+
+function GetTerrainLabelById(oid?: string): ITerrainModel | null {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === ObjectType.OT_LABEL) {
+      const model: ITerrainModel = object as ITerrainModel;
+      return model;
+    }
+  }
+  return null;
 }
 
 /**
@@ -470,8 +521,8 @@ export class UserModeManager {
     switch (this.userMode) {
       case UserMode.Standard:
         setSelection(this.laser1!, button1pressed);
+        showTooltipIntersected(this.laser1!)
         highlightIntersected(this.laser1!);
-
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
