@@ -14,19 +14,21 @@ html {
   padding: 10px;
 }
 
-#buttons {
+#bottom {
   position: absolute;
   box-sizing: border-box;
-  border: 3px solid black;
-  top: 80%;
-  left: 0;
-  right: 0;
   bottom: 0;
+  top: calc(100% - 50px);
+  left: 0;
   margin: 10px;
 }
 
-#buttons>button {
-  padding: 0;
+#bottom>div {
+  box-sizing: border-box;
+  border: 3px solid black;
+  display: inline;
+  padding: 5px;
+  margin: 5px;
 }
 
 #consoleInput {
@@ -39,7 +41,7 @@ html {
 
 #consoleOutput {
   box-sizing: border-box;
-  height: calc(80% - 50px);
+  height: calc(100% - 100px);
   border: 3px solid red;
   white-space: pre-line;
   overflow-y: scroll;
