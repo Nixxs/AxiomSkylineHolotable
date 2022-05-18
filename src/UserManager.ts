@@ -219,7 +219,7 @@ export class UserModeManager {
 
   private drawLineID: string | null = null;
   private drawLineFirstPoint: IPosition | null = null;
-  private drawLineWidth = 5;
+  private drawLineWidth = -10;
   private drawLineColor: IColor;
   private drawButtonId: string | undefined;
 
@@ -611,8 +611,8 @@ export class UserModeManager {
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
           // Move the line end position to the cursor
-          const dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
-          const Geometry = dLine.Geometry as ILineString;
+          var dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+          var Geometry = dLine.Geometry as ILineString;
 
           const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
           if (teEndPos !== undefined) {
@@ -631,17 +631,6 @@ export class UserModeManager {
             Geometry.EndEdit();
           }
 
-          // if user is currently drawing a line and the trigger is pressed, change the colour of the line
-          if (ProgramManager.getInstance().getButton3Pressed(1)) {
-            if (dLine.LineStyle.Color.ToHTMLColor() === "#000000") {
-              console.log("Draw Line: swap colour to red");
-              dLine.LineStyle.Color.FromHTMLColor("#ff1000");
-            } else {
-              console.log("Draw Line: swap colour to black");
-              dLine.LineStyle.Color.FromHTMLColor("#000000");
-            }
-          }
-
           // Exit mode when button 2 is pressed
           if (ProgramManager.getInstance().getButton2Pressed(1)) {
             console.log("finished line");
@@ -649,7 +638,6 @@ export class UserModeManager {
             Geometry.StartEdit();
             Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
             Geometry.EndEdit();
-
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button2Pressed = false;
