@@ -22,8 +22,12 @@ export class UIManager {
 
   groupId: string = ""
   modelId: string = "";
+  
+  private orbatScaleFactor: number;
 
-  constructor() { }
+  constructor() { 
+    this.orbatScaleFactor = 8;
+  }
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
@@ -206,7 +210,9 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, "", orbatModel.modelName);
-      model.ScaleFactor = 0.0005;
+      // set the scale value based on the current zoom level
+      var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
+      model.ScaleFactor = scaleValue;
       modelsToPlace.push(model);
     });
     this.placeModelsCenterRoom(modelsToPlace)
@@ -214,7 +220,7 @@ export class UIManager {
 
   private placeModelsCenterRoom(models: ITerrainModel[]) {
     models.forEach((m, i) => {
-      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6 - (i * 0.05), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6 - (i * 0.075), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       m.Position = roomPos;
     })
