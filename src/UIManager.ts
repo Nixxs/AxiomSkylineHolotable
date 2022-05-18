@@ -225,7 +225,7 @@ export class UIManager {
     }
   }
 
-  onControlModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; modelPath: string; }) {
+  onControlModelAdd(model: { modelName: string; modelType: string; buttonIcon: string; modelPath: string; }) {
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.toggleModelMode(model.modelPath, model.modelName)
   }

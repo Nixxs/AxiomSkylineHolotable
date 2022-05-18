@@ -1,346 +1,364 @@
 export const controlConfig = {
     ControlModels: [
         {
-            modelName: "CM - Company Harbour",
-            modelType: "control",
-            missionType: "ControlModel1",
-            buttonIcon: "Button_Blank.xpl2",
-            modelPath: "CM_-_Company_Harbour.xpl2",
-            
+          "modelName": "Control Measure 1",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_1.obj",
+          "buttonIcon": "CM_-_1.obj"
         },
         {
-            modelName: "CM - AA",
-            modelType: "control",
-            missionType: "ControlModel2",
-            buttonIcon: "Button_Blank.xpl2",
-            modelPath: "CM_-_AA.xpl2"
+          "modelName": "Control Measure 2",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_2.obj",
+          "buttonIcon": "CM_-_2.obj"
         },
         {
-            modelName: "CM - AMA",
-            modelType: "control",
-            missionType: "ControlModel3",
-            modelPath: "ControlModel3.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
+          "modelName": "Control Measure 3",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_3.obj",
+          "buttonIcon": "CM_-_3.obj"
         },
         {
-            modelName: "CM - Ambush",
-            modelType: "control",
-            missionType: "ControlModel4",
-            modelPath: "Ambush.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            scale:1
+          "modelName": "CM AA",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_AA.obj",
+          "buttonIcon": "CM_-_AA.obj"
         },
         {
-            modelName: "ControlModel5",
-            modelType: "control",
-            missionType: "ControlModel5",
-            modelPath: "ControlModel5.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "All Round Defence",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_All_Round_Defence.obj",
+          "buttonIcon": "CM_-_All_Round_Defence.obj"
         },
         {
-            modelName: "ControlModel6",
-            modelType: "control",
-            missionType: "ControlModel6",
-            modelPath: "ControlModel6.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "AMA",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_AMA.obj",
+          "buttonIcon": "CM_-_AMA.obj"
         },
         {
-            modelName: "ControlModel7",
-            modelType: "control",
-            missionType: "ControlModel7",
-            modelPath: "ControlModel7.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Ambush",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Ambush.obj",
+          "buttonIcon": "CM_-_Ambush.obj"
         },
         {
-            modelName: "ControlModel8",
-            modelType: "control",
-            missionType: "ControlModel8",
-            modelPath: "ControlModel8.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Anchor OP",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Anchor_OP.obj",
+          "buttonIcon": "CM_-_Anchor_OP.obj"
         },
         {
-            modelName: "ControlModel9",
-            modelType: "controlMeasure",
-            missionType: "ControlModel9",
-            modelPath: "ControlModel9.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "ARA",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_ARA.obj",
+          "buttonIcon": "CM_-_ARA.obj"
         },
         {
-            modelName: "ControlModel10",
-            modelType: "controlMeasure",
-            missionType: "ControlModel10",
-            modelPath: "ControlModel10.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Attack Aviation",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_AttackAviation.obj",
+          "buttonIcon": "CM_-_AttackAviation.obj"
         },
         {
-            modelName: "ControlModel11",
-            modelType: "controlMeasure",
-            missionType: "ControlModel11",
-            modelPath: "ControlModel11.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Attack By Fire",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_AttackByFire.obj",
+          "buttonIcon": "CM_-_AttackByFire.obj"
         },
         {
-            modelName: "ControlModel12",
-            modelType: "controlMeasure",
-            missionType: "ControlModel12",
-            modelPath: "ControlModel12.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Attack Zone",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Attack_Zone.obj",
+          "buttonIcon": "CM_-_Attack_Zone.obj"
         },
         {
-            modelName: "ControlModel13",
-            modelType: "control",
-            missionType: "ControlModel13",
-            modelPath: "ControlModel13.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Aviation",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Aviation.obj",
+          "buttonIcon": "CM_-_Aviation.obj"
         },
         {
-            modelName: "ControlModel14",
-            modelType: "control",
-            missionType: "ControlModel14",
-            modelPath: "ControlModel14.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Box",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Box.obj",
+          "buttonIcon": "CM_-_Box.obj"
         },
         {
-            modelName: "ControlModel15",
-            modelType: "control",
-            missionType: "ControlModel15",
-            modelPath: "ControlModel15.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Boxes",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Boxes.obj",
+          "buttonIcon": "CM_-_Boxes.obj"
         },
         {
-            modelName: "ControlModel16",
-            modelType: "control",
-            missionType: "ControlModel16",
-            modelPath: "ControlModel16.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP1",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP1.obj",
+          "buttonIcon": "CM_-_BP1.obj"
         },
         {
-            modelName: "ControlModel17",
-            modelType: "control",
-            missionType: "ControlModel17",
-            modelPath: "ControlModel17.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP2",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP2.obj",
+          "buttonIcon": "CM_-_BP2.obj"
         },
         {
-            modelName: "ControlModel18",
-            modelType: "control",
-            missionType: "ControlModel18",
-            modelPath: "ControlModel18.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP3",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP3.obj",
+          "buttonIcon": "CM_-_BP3.obj"
         },
         {
-            modelName: "ControlModel19",
-            modelType: "control",
-            missionType: "ControlModel19",
-            modelPath: "ControlModel19.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
-        },{
-            modelName: "ControlModel10",
-            modelType: "controlMeasure",
-            missionType: "ControlModel10",
-            modelPath: "ControlModel10.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP4",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP4.obj",
+          "buttonIcon": "CM_-_BP4.obj"
         },
         {
-            modelName: "ControlModel11",
-            modelType: "controlMeasure",
-            missionType: "ControlModel11",
-            modelPath: "ControlModel11.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP5",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP5.obj",
+          "buttonIcon": "CM_-_BP5.obj"
         },
         {
-            modelName: "ControlModel12",
-            modelType: "controlMeasure",
-            missionType: "ControlModel12",
-            modelPath: "ControlModel12.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "BP6",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_BP6.obj",
+          "buttonIcon": "CM_-_BP6.obj"
         },
         {
-            modelName: "ControlModel23",
-            modelType: "control",
-            missionType: "ControlModel13",
-            modelPath: "ControlModel13.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Bridge",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Bridge.obj",
+          "buttonIcon": "CM_-_Bridge.obj"
         },
         {
-            modelName: "ControlModel24",
-            modelType: "control",
-            missionType: "ControlModel14",
-            modelPath: "ControlModel14.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Brigade Harbour",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Bridge_Harbour.obj",
+          "buttonIcon": "CM_-_Bridge_Harbour.obj"
         },
         {
-            modelName: "ControlModel25",
-            modelType: "control",
-            missionType: "ControlModel15",
-            modelPath: "ControlModel15.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Clear",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Clear.obj",
+          "buttonIcon": "CM_-_Clear.obj"
         },
         {
-            modelName: "ControlModel26",
-            modelType: "control",
-            missionType: "ControlModel16",
-            modelPath: "ControlModel16.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Company Harbour",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Company_Harbour.obj",
+          "buttonIcon": "CM_-_Company_Harbour.obj"
         },
         {
-            modelName: "ControlModel27",
-            modelType: "control",
-            missionType: "ControlModel17",
-            modelPath: "ControlModel17.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Crossing",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Crossing.obj",
+          "buttonIcon": "CM_-_Crossing.obj"
         },
         {
-            modelName: "ControlModel28",
-            modelType: "control",
-            missionType: "ControlModel18",
-            modelPath: "ControlModel18.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Delay",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Delay.obj",
+          "buttonIcon": "CM_-_Delay.obj"
         },
         {
-            modelName: "ControlModel29",
-            modelType: "control",
-            missionType: "ControlModel29",
-            modelPath: "ControlModel19.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Disruption Zone",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Disruption_Zone.obj",
+          "buttonIcon": "CM_-_Disruption_Zone.obj"
         },
         {
-            modelName: "ControlModel11",
-            modelType: "controlMeasure",
-            missionType: "ControlModel11",
-            modelPath: "ControlModel11.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "DP1",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_DP1.obj",
+          "buttonIcon": "CM_-_DP1.obj"
         },
         {
-            modelName: "ControlModel12",
-            modelType: "controlMeasure",
-            missionType: "ControlModel12",
-            modelPath: "ControlModel12.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "EA",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_EA.obj",
+          "buttonIcon": "CM_-_EA.obj"
         },
         {
-            modelName: "ControlModel23",
-            modelType: "control",
-            missionType: "ControlModel13",
-            modelPath: "ControlModel13.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "G",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_G.obj",
+          "buttonIcon": "CM_-_G.obj"
         },
         {
-            modelName: "ControlModel24",
-            modelType: "control",
-            missionType: "ControlModel14",
-            modelPath: "ControlModel14.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Ground Axis of Advance",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Ground_Axis_of_Advance.obj",
+          "buttonIcon": "CM_-_Ground_Axis_of_Advance.obj"
         },
         {
-            modelName: "ControlModel25",
-            modelType: "control",
-            missionType: "ControlModel15",
-            modelPath: "ControlModel15.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Ground Main Attack ",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Ground_Main_Attack.obj",
+          "buttonIcon": "CM_-_Ground_Main_Attack.obj"
         },
         {
-            modelName: "ControlModel26",
-            modelType: "control",
-            missionType: "ControlModel16",
-            modelPath: "ControlModel16.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "CM1",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_I.obj",
+          "buttonIcon": "CM_-_I.obj"
         },
         {
-            modelName: "ControlModel27",
-            modelType: "control",
-            missionType: "ControlModel17",
-            modelPath: "ControlModel17.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "CM2",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_II.obj",
+          "buttonIcon": "CM_-_II.obj"
         },
         {
-            modelName: "ControlModel28",
-            modelType: "control",
-            missionType: "ControlModel18",
-            modelPath: "ControlModel18.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Kill Zone",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Kill_Zone.obj",
+          "buttonIcon": "CM_-_Kill_Zone.obj"
         },
         {
-            modelName: "ControlModel29",
-            modelType: "control",
-            missionType: "ControlModel29",
-            modelPath: "ControlModel19.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Linkup Point 1",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Linkup_Point_1.obj",
+          "buttonIcon": "CM_-_Linkup_Point_1.obj"
         },
         {
-            modelName: "ControlModel11",
-            modelType: "controlMeasure",
-            missionType: "ControlModel11",
-            modelPath: "ControlModel11.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Linkup Point 2",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Linkup_Point_2.obj",
+          "buttonIcon": "CM_-_Linkup_Point_2.obj"
         },
         {
-            modelName: "ControlModel12",
-            modelType: "controlMeasure",
-            missionType: "ControlModel12",
-            modelPath: "ControlModel12.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "Linkup Point 3",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Linkup_Point_3.obj",
+          "buttonIcon": "CM_-_Linkup_Point_3.obj"
         },
         {
-            modelName: "ControlModel23",
-            modelType: "control",
-            missionType: "ControlModel13",
-            modelPath: "ControlModel13.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "NFA",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_NAI.obj",
+          "buttonIcon": "CM_-_NAI.obj"
         },
         {
-            modelName: "ControlModel24",
-            modelType: "control",
-            missionType: "ControlModel14",
-            modelPath: "ControlModel14.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "OP",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_NFA.obj",
+          "buttonIcon": "CM_-_NFA.obj"
         },
         {
-            modelName: "ControlModel25",
-            modelType: "control",
-            missionType: "ControlModel15",
-            modelPath: "ControlModel15.xpl2",
-            buttonIcon: "Button_Blank.xpl2",
-            
+          "modelName": "PEL",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_OBJ.obj",
+          "buttonIcon": "CM_-_OBJ.obj"
         },
-    
-    ]
+        {
+          "modelName": "Platoon Harbour",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_OP.obj",
+          "buttonIcon": "CM_-_OP.obj"
+        },
+        {
+          "modelName": "S",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_PEL.obj",
+          "buttonIcon": "CM_-_PEL.obj"
+        },
+        {
+          "modelName": "Small S",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_PL.obj",
+          "buttonIcon": "CM_-_PL.obj"
+        },
+        {
+          "modelName": "StartPoint",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_Platoon_Harbour.obj",
+          "buttonIcon": "CM_-_Platoon_Harbour.obj"
+        },
+        {
+          "modelName": "Support",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_RL.obj",
+          "buttonIcon": "CM_-_RL.obj"
+        },
+        {
+          "modelName": "Support By Fire",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_S.obj",
+          "buttonIcon": "CM_-_S.obj"
+        },
+        {
+          "modelName": "Support Zone",
+          "modelType": "controlMeasure",
+          "modelPath": "CM_-_small_S.obj",
+          "buttonIcon": "CM_-_small_S.obj"
+        },
+        {
+          "modelName": "Supporting Attack",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Start_Point.obj",
+          "buttonIcon": "CM_-_Start_Point.obj"
+        },
+        {
+          "modelName": "T",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Support.obj",
+          "buttonIcon": "CM_-_Support.obj"
+        },
+        {
+          "modelName": "Triton",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Supporting_Attack.obj",
+          "buttonIcon": "CM_-_Supporting_Attack.obj"
+        },
+        {
+          "modelName": "X Harbour",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Support_by_Fire.obj",
+          "buttonIcon": "CM_-_Support_by_Fire.obj"
+        },
+        {
+          "modelName": "CM_AA",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Support_Zone.obj",
+          "buttonIcon": "CM_-_Support_Zone.obj"
+        },
+        {
+          "modelName": "CM_AMA",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_T.obj",
+          "buttonIcon": "CM_-_T.obj"
+        },
+        {
+          "modelName": "CM_Ambush",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_TAI.obj",
+          "buttonIcon": "CM_-_TAI.obj"
+        },
+        {
+          "modelName": "CM_Company_Harbour_Blu",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_Triton.obj",
+          "buttonIcon": "CM_-_Triton.obj"
+        },
+        {
+          "modelName": "CM- WUP",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_WUP.obj",
+          "buttonIcon": "CM_-_WUP.obj"
+        },
+        {
+          "modelName": "X",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_X.obj",
+          "buttonIcon": "CM_-_X.obj"
+        },
+        {
+          "modelName": "X Harbour",
+          "modelType": "taskIndicator",
+          "modelPath": "CM_-_X_Harbour.obj",
+          "buttonIcon": "CM_-_X_Harbour.obj"
+        }
+       ]
 }
