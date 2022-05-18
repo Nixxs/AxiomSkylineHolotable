@@ -12,6 +12,7 @@ import { orbatConfig } from "./config/OrbatModels";
 import { Button } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
+import { UserModeManager } from "./UserManager";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -239,6 +240,8 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
+      // add the created model to the undolist
+      ProgramManager.getInstance().userModeManager?.modelIds.push(model.ID);
       // set the scale value based on the current zoom level
       var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
       model.ScaleFactor = scaleValue;
