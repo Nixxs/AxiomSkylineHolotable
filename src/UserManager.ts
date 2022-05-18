@@ -304,7 +304,7 @@ export class UserModeManager {
       var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0],blueRGBA[1],blueRGBA[2],blueRGBA[3]);
       model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
-      this.modelIds.push(this.currentlySelectedId)
+      this.modelIds.push(this.currentlySelectedId);
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the line objects array so it can be deleted via the undo button
