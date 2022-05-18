@@ -12,8 +12,8 @@ const enum ControlMode {
   Wall
 }
 
-const redHTML = "#B80E02";
-const blueHTML = "#041DBF";
+const redRGBA = [255, 0, 0, 128];
+const blueRGBA = [0, 0, 255, 128];
 
 const gControlMode: ControlMode = ControlMode.Table;
 
@@ -165,18 +165,18 @@ function highlightIntersected(laser: Laser) {
 function highlightById(highlight: boolean, oid?: string): void {
   const model = getItemById(oid)
   if (model) {
+    var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+    var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
     if (highlight) {
-        // if the model is already tinted red then do nothing otherwise tint yellow
-        // red = "#b80e02"
-        // blue = "#041dbf"
-        if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
-          // highlight adds a slight tint to the item. Currently this is yellow
-          model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50)
-        }
+      // if the model is already tinted red then do nothing otherwise tint yellow
+      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
+        // highlight adds a slight tint to the item. Currently this is yellow
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50);
+      }
     } else {
-      if (model.Terrain.Tint.ToHTMLColor() !== redHTML && model.Terrain.Tint.ToHTMLColor() !== blueHTML){
+      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
         // remove tint
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0)
+        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0);
       }
     }
   }
@@ -189,7 +189,7 @@ function highlightById(highlight: boolean, oid?: string): void {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
-function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel |  ITerrainLabel | null {
+function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | ITerrainLabel | null {
   if (oid !== undefined && oid != "") {
     const object = sgWorld.Creator.GetObject(oid);
     if (object && object.ObjectType === objectType) {
@@ -298,9 +298,9 @@ export class UserModeManager {
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       // get the current altitude
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
-
       model.ScaleFactor = 8 * roomPos.Altitude;
-      model.Terrain.Tint.FromHTMLColor(blueHTML);
+      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+      model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
@@ -560,10 +560,14 @@ export class UserModeManager {
           if (ProgramManager.getInstance().getButton2Pressed(1)) {
             const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
             console.log(modelObject.Terrain.Tint.ToHTMLColor());
-            if (modelObject.Terrain.Tint.ToHTMLColor() === redHTML){
-              modelObject.Terrain.Tint.FromHTMLColor(blueHTML);
+            console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+
+            var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+            var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+            if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
+              modelObject.Terrain.Tint = blueColor;
             } else {
-              modelObject.Terrain.Tint.FromHTMLColor(redHTML);
+              modelObject.Terrain.Tint = redColor;
             }
           }
         }
