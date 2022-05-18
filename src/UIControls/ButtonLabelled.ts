@@ -8,6 +8,7 @@ export class ButtonLabelled extends Button {
   labelId: string = "";
 
   Draw() {
+    super.Draw()
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
       const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
@@ -35,6 +36,12 @@ export class ButtonLabelled extends Button {
     obj.Visibility.Show = value;
   }
 
+
+  destroy() {
+    super.destroy();
+    if(!this.labelId) return;
+    sgWorld.Creator.DeleteObject(this.labelId);
+  }
  
 
 

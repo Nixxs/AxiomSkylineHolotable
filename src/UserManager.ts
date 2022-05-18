@@ -552,15 +552,8 @@ export class UserModeManager {
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
             const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
             if (intersectedItemId) {
-              console.log("BUTTON PRESSED AND INTERSECTING ITEM " + intersectedItemId + " label id " + this.currentlySelectedId);
               const model = getItemById(intersectedItemId) as ITerrainModel;
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
-              if (!model) {
-                console.log("model not found")
-              }
-              if (!label) {
-                console.log("label not found")
-              }
               model?.ScaleFactor
               if (model && label) {
                 // label.Style.MaxViewingHeight = 50;
