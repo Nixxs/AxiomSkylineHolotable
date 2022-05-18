@@ -12,7 +12,6 @@ import { orbatConfig } from "./config/OrbatModels";
 import { Button } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
-import { UserModeManager } from "./UserManager";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -45,7 +44,6 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-   // const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.5, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
     const toolsMenuWall = new Menu(0.3, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
@@ -241,8 +239,6 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
-      // add the created model to the undo list
-      ProgramManager.getInstance().userModeManager?.modelIds.push(model.ID);
       // set the scale value based on the current zoom level
       var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
       model.ScaleFactor = scaleValue;
@@ -262,13 +258,13 @@ export class UIManager {
 
   Draw() {
     switch (GetDeviceType()) {
-      // case DeviceType.Desktop:
-      //   this.drawTable()
+      case DeviceType.Desktop:
+        this.drawTable()
       // Fallthrough. Desktop renders the table button layout
       case DeviceType.Table:
         this.menusTable.forEach(m => m.Draw());
         break;
-        case DeviceType.Desktop:  // Fallthrough
+
       case DeviceType.Wall:
         this.menusWall.forEach(m => m.Draw());
         break;
@@ -277,11 +273,12 @@ export class UIManager {
 
   Update() {
     switch (GetDeviceType()) {
-      
+
+      case DeviceType.Desktop: // Desktop updates the table buttons
       case DeviceType.Table:
         this.menusTable.forEach(m => m.Update());
         break;
-        case DeviceType.Desktop: // Desktop updates the table buttons
+
       case DeviceType.Wall:
         this.menusWall.forEach(m => m.Update());
         break;
