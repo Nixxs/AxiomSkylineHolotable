@@ -12,8 +12,8 @@ const enum ControlMode {
   Wall
 }
 
-const redRGBA = [255, 0, 0, 128];
-const blueRGBA = [0, 0, 255, 128];
+const redRGBA = [255, 15, 15, 100];
+const blueRGBA = [15, 15, 255, 100];
 
 const gControlMode: ControlMode = ControlMode.Table;
 
