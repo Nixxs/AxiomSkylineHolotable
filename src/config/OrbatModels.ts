@@ -10,17 +10,17 @@ export const orbatConfig = {
                     modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
                     modelName: "ORBAT_ORBAT_HQ_Blu"
                 },{
-                    modelFile: "Ambush.xpl2",
-                    modelName: "OrbatModel2"
+                    modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
+                    modelName: "ORBAT_ORBAT_HQ_Blu"
                 },{
-                    modelFile: "Ambush.xpl2",
-                    modelName: "OrbatModel3"
+                    modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
+                    modelName: "ORBAT_ORBAT_HQ_Blu"
                 },{
-                    modelFile: "Ambush.xpl2",
-                    modelName: "OrbatModel4"
+                    modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
+                    modelName: "ORBAT_ORBAT_HQ_Blu"
                 },{
-                    modelFile: "Ambush.xpl2",
-                    modelName: "OrbatModel5"
+                    modelFile: "ORBAT_ORBAT_HQ_Blu.xpl2",
+                    modelName: "ORBAT_ORBAT_HQ_Blu"
                 }
             ]
         }, {
