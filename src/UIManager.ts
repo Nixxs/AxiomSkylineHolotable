@@ -22,16 +22,17 @@ export class UIManager {
 
   groupId: string = ""
   modelId: string = "";
-  
+
   private orbatScaleFactor: number;
 
-  constructor() { 
+  constructor() {
     this.orbatScaleFactor = 8;
   }
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
     ProgramManager.getInstance().deleteGroup("buttons");
+    ProgramManager.getInstance().deleteGroup("models");
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     this.groupId = groupId;
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
@@ -101,10 +102,10 @@ export class UIManager {
     const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
     showVerbsTable.createButton("TaskVerbs", "blank.xpl2", () => {
-       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
     showVerbsTable.createButton("MissionTaskVerbs", "blank.xpl2", () => {
-       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
     this.menusTable.push(showVerbsTable);
     this.menusWall.push(showVerbsWall);
@@ -116,35 +117,39 @@ export class UIManager {
     pm?.toggleLabel(verb.verbName);
   }
 
-  onVerbMenuShow(veryType: string,  menus: MenuVerbs[]){
-    let VerbsMenuTable = menus[0];
-    let VerbsMenuWall = menus[1];
-    if(VerbsMenuTable.isVisible){ // turn it off
-      console.log("turn it off")
-      VerbsMenuTable.show(false);
-      VerbsMenuWall.show(false);
-      return;
-    }
-    let verbControlsTable: Button[] = []; // we need two arrays as the buttons will get destroyed
-    let verbControlsWall: Button[] = [];
-    verbsConfig.verbs.forEach((verb) => {
-      if(verb.verbType ===  veryType){
-        verbControlsTable.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
-        verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb,[VerbsMenuTable, VerbsMenuWall] )));
+  onVerbMenuShow(veryType: string, menus: MenuVerbs[]) {
+    try {
+
+
+      let VerbsMenuTable = menus[0];
+      let VerbsMenuWall = menus[1];
+      if (VerbsMenuTable.isVisible) { // turn it off
+        console.log("turn it off")
+        VerbsMenuTable.show(false);
+        VerbsMenuWall.show(false);
+        return;
       }
-    });
-    switch (GetDeviceType()) {
-      case DeviceType.Desktop:
-      // Fallthrough. Desktop renders the table button layout
-      case DeviceType.Table:
-        VerbsMenuTable.addButtons(verbControlsTable);
-        break;
-      case DeviceType.Wall:
-        VerbsMenuWall.addButtons(verbControlsWall);
-        break;
+      let verbControlsTable: Button[] = []; // we need two arrays as the buttons will get destroyed
+      let verbControlsWall: Button[] = [];
+      verbsConfig.verbs.forEach((verb) => {
+        if (verb.verbType === veryType) {
+          verbControlsTable.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
+          verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
+        }
+      });
+      switch (GetDeviceType()) {
+        case DeviceType.Desktop:
+        // Fallthrough. Desktop renders the table button layout
+        case DeviceType.Table:
+          VerbsMenuTable.addButtons(verbControlsTable);
+          break;
+        case DeviceType.Wall:
+          VerbsMenuWall.addButtons(verbControlsWall);
+          break;
+      }
+    } catch (error) {
+      console.log(JSON.stringify(error));
     }
- 
-   
   }
 
   drawTable() {
@@ -228,11 +233,12 @@ export class UIManager {
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
+    const grp = ProgramManager.getInstance().getGroupID("models")
     model.models.forEach((orbatModel, i) => {
       const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
-      const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, "", orbatModel.modelName);
+      const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
       // set the scale value based on the current zoom level
       var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
       model.ScaleFactor = scaleValue;

@@ -294,7 +294,8 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, "", modelName);
+      const grp = ProgramManager.getInstance().getGroupID("models");
+      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       model.Terrain.Tint.FromHTMLColor(blueHTML);
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
@@ -314,18 +315,15 @@ export class UserModeManager {
       this.userMode = UserMode.Standard;
     } else {
 
+      const grp = ProgramManager.getInstance().getGroupID("models");
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
-      const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, "", "label-" + sLabel);
+      const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, grp, "label-" + sLabel);
       pos.Pitch = 0;
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
       this.currentlySelectedId = label.ID;
-      // this.modelIds.push(label.ID)
-      // ProgramManager.getInstance().currentlySelected = label.ID;
-
-      // // add the new model to the line objects array so it can be deleted via the undo button
-      // this.lineObjects.push(label.ID);
-      // console.log(this.lineObjects.toString());
+      // add the new label to the line objects array so it can be deleted via the undo button
+      this.lineObjects.push(label.ID);
       this.userMode = UserMode.PlaceLabel;
     }
   }
