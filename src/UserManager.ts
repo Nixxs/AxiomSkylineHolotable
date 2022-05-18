@@ -296,10 +296,12 @@ export class UserModeManager {
       console.log("creating model:: " + modelPath);
       const grp = ProgramManager.getInstance().getGroupID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
-      // get the current altitude
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 8 * roomPos.Altitude;
-      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+      // this will make the model not pickable which is what you want while moving it 
+      model.SetParam(200, 0x200);
+
+      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0],blueRGBA[1],blueRGBA[2],blueRGBA[3]);
       model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId)
