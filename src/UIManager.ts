@@ -231,7 +231,7 @@ export class UIManager {
     pm?.toggleModelMode(model.modelPath, model.modelName)
   }
 
-  onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
+  onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; forceType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
     const grp = ProgramManager.getInstance().getGroupID("models")
@@ -239,13 +239,24 @@ export class UIManager {
       const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
-      const model = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
+      const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
+      if (model.forceType === "enemy"){
+        var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
+        if (redRGBA !== undefined){
+          modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+        }
+      } else {
+        var blueRGBA = ProgramManager.getInstance().userModeManager?.blueRGBA;
+        if (blueRGBA !== undefined){
+          modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+        }
+      }
       // add the created model to the undolist
-      ProgramManager.getInstance().userModeManager?.modelIds.push(model.ID);
+      ProgramManager.getInstance().userModeManager?.modelIds.push(modelObject.ID);
       // set the scale value based on the current zoom level
       var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
-      model.ScaleFactor = scaleValue;
-      modelsToPlace.push(model);
+      modelObject.ScaleFactor = scaleValue;
+      modelsToPlace.push(modelObject);
     });
     this.placeModelsCenterRoom(modelsToPlace)
   }

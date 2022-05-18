@@ -227,6 +227,10 @@ export class UserModeManager {
   private laser1?: Laser;
   private laser2?: Laser;
 
+  // these colours need to be accessible from other classes
+  public redRGBA: Array<number> = redRGBA;
+  public blueRGBA: Array<number> = blueRGBA;
+
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
