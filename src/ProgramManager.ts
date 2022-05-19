@@ -1,4 +1,5 @@
 import { sgWorld } from "./Axiom";
+import { sessionManager } from "./Axiom";
 import { Button } from "./Button";
 import { ControllerReader } from "./ControllerReader";
 import { debug, debugHandleRefreshGesture } from "./Debug";

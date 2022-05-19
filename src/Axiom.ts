@@ -1,7 +1,9 @@
 import { ProgramManager } from "./ProgramManager";
 
 declare const SGWorld: ISGWorld;
+declare const SessionManager: ISessionManager;
 export const sgWorld = SGWorld;
+export const sessionManager = SessionManager;
 export const basePath = "\\\\Skyline_NAS/Data/C-ARMSAS/TableAPI/Axiom/";
 // export const basePath = "C:/dev/Github/AxiomSkylineHolotable/dist/Axiom/";
 

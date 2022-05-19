@@ -1,4 +1,4 @@
-import { basePath, sgWorld, } from "./Axiom";
+import { basePath, sgWorld, sessionManager} from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
@@ -298,7 +298,15 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const grp = ProgramManager.getInstance().getGroupID("models");
+      // find the collaboration session folder name
+      var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
+      console.log(collaborationSessionFolder);
+      var grp = ProgramManager.getInstance().getGroupID("models");
+      // if there is a collaboration session going then put the model in the collaboration session otherwise 
+      // just put it in the models group
+      if (collaborationSessionFolder.indexOf("Collaboration") !== -1){
+        grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
+      }
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 8 * roomPos.Altitude;

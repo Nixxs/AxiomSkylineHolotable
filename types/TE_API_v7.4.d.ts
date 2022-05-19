@@ -853,6 +853,10 @@ interface ISGWorld {
   SetParamEx(...a: any[]): unknown;
 }
 
+interface ISessionManager {
+  GetPropertyValue(property: string): string;
+}
+
 interface ITerrainPolygon extends ITerrainPolyline {
   ID: string;
   objectType: ObjectType;
