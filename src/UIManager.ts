@@ -45,7 +45,7 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-    const toolsMenuWall = new Menu(0.3, 0.2, new Vector<3>([-0.5, -1.15, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true);
+    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -61,39 +61,35 @@ export class UIManager {
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
-
     // control measures menu ============
     // create the Control measures menu. Doesn't need a width as we are centre aligning it
     const ControlsMenuTable = new MenuPaging(0, 0.1, new Vector<3>([0, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 2);
-    const ControlsMenuWall = new MenuPaging(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 10, 2);
+    const ControlsMenuWall = new MenuPaging(0, 0.1, new Vector<3>([0.6, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.1, 10, 2);
     let controls: Button[] = []
     controlConfig.ControlModels.forEach((model) => {
       controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onControlModelAdd(model)));
     });
     ControlsMenuTable.addButtons(controls);
-    ControlsMenuTable.buttons.forEach(b => ControlsMenuWall.addButton(b));
+    ControlsMenuWall.addButtons(controls);
 
     this.menusTable.push(ControlsMenuTable);
     this.menusWall.push(ControlsMenuWall);
 
-
     // orbat menu ============
     const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
+    const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
+      orbatMenuWall.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
     });
-
-    orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
 
     this.menusTable.push(orbatMenuTable);
     this.menusWall.push(orbatMenuWall);
 
-
     // create the verb menu
     const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 2, 10);
-    const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.05, 1, 10);
+    const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-0.5, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.1, 1, 10);
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
     this.menusTable.push(VerbsMenuTable);
@@ -101,11 +97,18 @@ export class UIManager {
 
     // show hide verbs menus
     const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.05);
+    const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-0.5, -0.1, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
+
     showVerbsTable.createButton("TaskVerbs", "blank.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
     showVerbsTable.createButton("MissionTaskVerbs", "blank.xpl2", () => {
+      this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
+    });
+    showVerbsWall.createButton("TaskVerbs", "blank.xpl2", () => {
+      this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
+    })
+    showVerbsWall.createButton("MissionTaskVerbs", "blank.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
     this.menusTable.push(showVerbsTable);
@@ -120,8 +123,6 @@ export class UIManager {
 
   onVerbMenuShow(veryType: string, menus: MenuVerbs[]) {
     try {
-
-
       let VerbsMenuTable = menus[0];
       let VerbsMenuWall = menus[1];
       if (VerbsMenuTable.isVisible) { // turn it off
