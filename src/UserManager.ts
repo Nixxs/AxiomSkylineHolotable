@@ -72,14 +72,22 @@ function dragMode() {
       const thresholdRange = thresholdUpper - thresholdLower;
       const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-      const power = forwardOrBack * scalingRatio * magDifference * 4;
-      const factor = Math.pow(scaleRatio, power);
+      const power = forwardOrBack * scalingRatio * magDifference * 2;
+      let powerStrength = 1;
+      if (GetDeviceType() == DeviceType.Wall)
+      {
+        let curAltitudeRatio = worldPos.Altitude + 250 / 2000; // scaling now works less as you go from 1000 down to 10 altitude
+        powerStrength = Math.min(Math.max(curAltitudeRatio, 0.1), 1);
+      }
+      const factor = Math.pow(scaleRatio, power * powerStrength);
       worldPos.Altitude *= factor;
-
       // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
 
-      if (worldPos.Altitude > 80000) {
-        worldPos.Altitude = 80000;
+      if (worldPos.Altitude > 100000) {
+        worldPos.Altitude = 100000;
+      }
+      if (worldPos.Altitude < 250) {
+        worldPos.Altitude = 250;
       }
     }
 
@@ -242,11 +250,15 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
  * @return {*}  {(ITerrainModel | null)}
  */
 function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | ITerrainLabel | null {
-  if (oid !== undefined && oid != "") {
-    const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === objectType) {
-      return object as any;
+  try {
+    if (oid !== undefined && oid != "") {
+      const object = sgWorld.Creator.GetObject(oid);
+      if (object && object.ObjectType === objectType) {
+        return object as any;
+      }
     }
+  } catch (error) {
+    return null;
   }
   return null;
 }
@@ -665,17 +677,29 @@ export class UserModeManager {
               }
             };
           } else {
+            if (ProgramManager.getInstance().getButton2Pressed(1)) {
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              if(!label){
+                sgWorld.Creator.DeleteObject(this.currentlySelectedId!);
+                this.currentlySelectedId = "";
+              }
+            }
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
             if (newModelPosition !== undefined) {
               newModelPosition.Pitch = 0;
               newModelPosition.Yaw = newModelPosition.Roll * 2;
               newModelPosition.Roll = 0;
-              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-              modelObject.Position = newModelPosition;
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              if(!label){
+                // it has been killed
+                this.userMode = UserMode.Standard;
+              }else{
+                label.Position = newModelPosition;
+              }
             }
           }
         } catch (error) {
-          console.log("error in place label" + error);
+          console.log("error in place label:: " + error);
         }
         break;
       case UserMode.DrawLine:

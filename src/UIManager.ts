@@ -50,10 +50,13 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
-    
-   // LR, FB, UD. Bottom left corner around -1.2, -0.5
-   const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.5, 0.6]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+
+    // LR, FB, UD. Bottom left corner around -1.2, -0.5
+   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+   const wallLhs = -1
+   const wallPos = -0.2; // distance out from wall
+   const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -71,8 +74,8 @@ export class UIManager {
 
     // control measures menu ============
     // create the Control measures menu. Doesn't need a width as we are centre aligning it
-    const ControlsMenuTable = new MenuPaging(0, 0.1, new Vector<3>([0, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 2);
-    const ControlsMenuWall = new MenuPaging(0, 0.1, new Vector<3>([0.6, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.1, 10, 2);
+    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.2, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 2, 10);
+    const ControlsMenuWall = new MenuPaging(0.04, 0.1, new Vector<3>([wallLhs + 0.4, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, 0.06, 2, 10);
     let controls: Button[] = []
     controlConfig.ControlModels.forEach((model) => {
       controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onControlModelAdd(model)));
@@ -84,29 +87,33 @@ export class UIManager {
     this.menusWall.push(ControlsMenuWall);
 
     // orbat menu ============
-    const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-     // LR, FB, UD. Bottom left corner around -1.2, -0.5, 0.8
-    const orbatMenuWall = new Menu(0, 1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false , 0.1);
+    const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05,);
+    // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
+   // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
+    const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true ,false, 0.06);
+    orbatMenuWall.rows = 4;
+    orbatMenuWall.cols = 1
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
-      orbatMenuWall.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
-    });
+    }); 
 
     this.menusTable.push(orbatMenuTable);
+    orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
     this.menusWall.push(orbatMenuWall);
 
     // create the verb menu
-    const VerbsMenuTable = new MenuVerbs(0, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 2, 10);
-    const VerbsMenuWall = new MenuVerbs(0, 0.1, new Vector<3>([-0.5, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.1, 1, 10);
+    const VerbsMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
+    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.15, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06, 8, 1);
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
     this.menusTable.push(VerbsMenuTable);
     this.menusWall.push(VerbsMenuWall);
 
     // show hide verbs menus
-    const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-0.5, -0.1, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
+    const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.06, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
     showVerbsTable.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
@@ -295,10 +302,13 @@ export class UIManager {
         break;
     }
   }
-  
-  GetDeviceTypeOverride(){
-   return GetDeviceType();
-  // return  DeviceType.Wall;
+
+  GetDeviceTypeOverride() {
+  //return GetDeviceType();
+    if (GetDeviceType() === DeviceType.Desktop) {
+      return DeviceType.Wall;
+    }
+    return GetDeviceType();
   }
 
   Update() {
