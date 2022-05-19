@@ -50,10 +50,11 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
-    
-   // LR, FB, UD. Bottom left corner around -1.2, -0.5
-   const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.5, 0.6]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+
+    // LR, FB, UD. Bottom left corner around -1.2, -0.5
+   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -85,8 +86,11 @@ export class UIManager {
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-     // LR, FB, UD. Bottom left corner around -1.2, -0.5, 0.8
-    const orbatMenuWall = new Menu(0, 1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false , 0.1);
+    // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
+   // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
+    const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
@@ -250,14 +254,14 @@ export class UIManager {
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
       const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
-      if (model.forceType === "enemy"){
+      if (model.forceType === "enemy") {
         var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
-        if (redRGBA !== undefined){
+        if (redRGBA !== undefined) {
           modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
         }
       } else {
         var blueRGBA = ProgramManager.getInstance().userModeManager?.blueRGBA;
-        if (blueRGBA !== undefined){
+        if (blueRGBA !== undefined) {
           modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
         }
       }
@@ -294,10 +298,13 @@ export class UIManager {
         break;
     }
   }
-  
-  GetDeviceTypeOverride(){
-   return GetDeviceType();
-  // return  DeviceType.Wall;
+
+  GetDeviceTypeOverride() {
+    // return GetDeviceType();\
+    if (GetDeviceType() === DeviceType.Desktop) {
+      return DeviceType.Wall;
+    }
+    return GetDeviceType();
   }
 
   Update() {

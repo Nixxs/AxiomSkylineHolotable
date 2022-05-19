@@ -72,14 +72,22 @@ function dragMode() {
       const thresholdRange = thresholdUpper - thresholdLower;
       const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-      const power = forwardOrBack * scalingRatio * magDifference * 4;
-      const factor = Math.pow(scaleRatio, power);
+      const power = forwardOrBack * scalingRatio * magDifference * 2;
+      let powerStrength = 1;
+      if (GetDeviceType() == DeviceType.Wall)
+      {
+        let curAltitudeRatio = worldPos.Altitude + 250 / 2000; // scaling now works less as you go from 1000 down to 10 altitude
+        powerStrength = Math.min(Math.max(curAltitudeRatio, 0.1), 1);
+      }
+      const factor = Math.pow(scaleRatio, power * powerStrength);
       worldPos.Altitude *= factor;
-
       // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
 
-      if (worldPos.Altitude > 1000000) {
-        worldPos.Altitude = 1000000;
+      if (worldPos.Altitude > 100000) {
+        worldPos.Altitude = 100000;
+      }
+      if (worldPos.Altitude < 250) {
+        worldPos.Altitude = 250;
       }
     }
 
