@@ -55,7 +55,7 @@ export class Button {
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
       } catch (error) {
-        console.log(error + " :: " + this.modelPath)
+        console.log("Button Error :: " + error + " " + this.modelPath)
         this.initError = true;
       }
     } else {

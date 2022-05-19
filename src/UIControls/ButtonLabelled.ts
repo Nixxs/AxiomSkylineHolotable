@@ -13,7 +13,7 @@ export class ButtonLabelled extends Button {
       const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
       this.ID = obj.ID;
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
-      labelStyle.BackgroundColor  = sgWorld.Creator.CreateColor(0, 0, 0, 255)
+      // labelStyle.BackgroundColor  = sgWorld.Creator.CreateColor(0, 0, 0, 255)
       const label = sgWorld.Creator.CreateTextLabel(pos, this.name, labelStyle, this.groupID, "label" + this.name);
       this.labelId = label.ID;
     } else {

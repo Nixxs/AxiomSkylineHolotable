@@ -18,17 +18,17 @@ export class MenuPaging extends Menu {
   constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number, public cols: number) {
     super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal);
 
-    // this needs to be more flexible. Add these into the constructor
-    if (rows > cols) {
-      // recalculate the anchor so that it is centred.
-      const newX = anchor.data[0] - ((this.cols * this.buttonSize) / 2);
-      anchor.data[0] = newX
-      this.cols = 10;
-      this.rows = 2;
-    } else {
-      this.cols = 1;
-      this.rows = 10;
-    }
+    // // this needs to be more flexible. Add these into the constructor
+    // if (rows > cols) {
+    //   // recalculate the anchor so that it is centred.
+    //   const newX = anchor.data[0] - ((this.cols * this.buttonSize) / 2);
+    //   anchor.data[0] = newX
+    //  // this.cols = 10;
+    //  // this.rows = 2;
+    // //  } else {
+    //  // this.cols = 1;
+    // //  this.rows = 10;
+    // }
 
 
     this.corner = anchor.Copy().Sub(orientation.Apply(new Vector([width * (anchorPosition[0] - (leftAligned ? 0 : 1)), 0, height * (anchorPosition[1] - (topAligned ? 1 : 0))])));

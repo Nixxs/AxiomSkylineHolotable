@@ -250,11 +250,15 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
  * @return {*}  {(ITerrainModel | null)}
  */
 function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | ITerrainLabel | null {
-  if (oid !== undefined && oid != "") {
-    const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === objectType) {
-      return object as any;
+  try {
+    if (oid !== undefined && oid != "") {
+      const object = sgWorld.Creator.GetObject(oid);
+      if (object && object.ObjectType === objectType) {
+        return object as any;
+      }
     }
+  } catch (error) {
+    return null;
   }
   return null;
 }
@@ -667,17 +671,29 @@ export class UserModeManager {
               }
             };
           } else {
+            if (ProgramManager.getInstance().getButton2Pressed(1)) {
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              if(!label){
+                sgWorld.Creator.DeleteObject(this.currentlySelectedId!);
+                this.currentlySelectedId = "";
+              }
+            }
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
             if (newModelPosition !== undefined) {
               newModelPosition.Pitch = 0;
               newModelPosition.Yaw = newModelPosition.Roll * 2;
               newModelPosition.Roll = 0;
-              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-              modelObject.Position = newModelPosition;
+              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              if(!label){
+                // it has been killed
+                this.userMode = UserMode.Standard;
+              }else{
+                label.Position = newModelPosition;
+              }
             }
           }
         } catch (error) {
-          console.log("error in place label" + error);
+          console.log("error in place label:: " + error);
         }
         break;
       case UserMode.DrawLine:
