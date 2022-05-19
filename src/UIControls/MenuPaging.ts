@@ -69,17 +69,17 @@ export class MenuPaging extends Menu {
     const ypr = this.orientation.GetYPR();
     let newPos = this.getButtonPosition(0 - 0.5, this.rows / 2);
     let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
-    var posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+    var posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
     const newPos2 = this.getButtonPosition(this.cols + 0.5, this.rows / 2);
-    let posR = sgWorld.Creator.CreatePosition(newPos2.data[0], newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+    let posR = sgWorld.Creator.CreatePosition(newPos2.data[0], newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
       newPos = this.getButtonPosition(0, this.rows + 0.5);
-      posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
       newPos = this.getButtonPosition(1, this.rows + 0.5);
-      posR = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posR = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
     const btnPL = new Button("ButtonPageLeft1", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
@@ -108,7 +108,7 @@ export class MenuPaging extends Menu {
     });
     this.btnPL.show(visibility);
     this.btnPR.show(visibility);
-    this.isVisible =visibility;
+    this.isVisible = visibility;
   }
 
   // paging controls
@@ -146,7 +146,7 @@ export class MenuPaging extends Menu {
         const newPosition = this.getNthButtonPosition(i - startAt);
         const ypr = this.orientation.GetYPR();
         // There is a 90 degree difference between wall and table
-        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), (GetDeviceType() === DeviceType.Wall ? 0 : 90) + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
+        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
         button.setScale(this.buttonSize * 0.9); // 10% used for borders
       }
       this.recomputeButtons = false;
