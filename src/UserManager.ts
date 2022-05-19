@@ -78,8 +78,8 @@ function dragMode() {
 
       // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
 
-      if (worldPos.Altitude > 1000000) {
-        worldPos.Altitude = 1000000;
+      if (worldPos.Altitude > 80000) {
+        worldPos.Altitude = 80000;
       }
     }
 
@@ -275,7 +275,7 @@ export class UserModeManager {
   private drawLineColor: IColor;
   private drawButtonId: string | undefined;
 
-  private lineObjects: Array<string> = [];
+  public lineObjects: Array<string> = [];
   private laser1?: Laser;
   private laser2?: Laser;
 
