@@ -353,7 +353,7 @@ export class UserModeManager {
       const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
-      model.ScaleFactor = 8 * roomPos.Altitude;
+      model.ScaleFactor = 5 * roomPos.Altitude;
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
