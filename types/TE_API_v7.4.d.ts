@@ -598,7 +598,7 @@ interface ILabelStyle {
   LineColor: Color;
   LineToGroundLength: number;
   LineToGroundType: number;
-  LockMode: number;
+  LockMode: LabelLockMode;
   MaxImageSize: number;
   MaxViewingHeight: number;
   MinViewingHeight: number;
@@ -611,6 +611,16 @@ interface ILabelStyle {
   TextColor: Color;
   TextOnImage: boolean;
   Underline: boolean;
+}
+
+declare const enum LabelLockMode
+{
+    LM_DECAL = 0,
+    LM_AXIS = 1,
+    LM_AXIS_TEXTUP = 2,
+    LM_AXIS_AUTOPITCH = 3,
+    LM_AXIS_AUTOPITCH_TEXTUP = 4,
+    LM_AXIS_AUTOYAW = 5
 }
 
 type CanvasPixelArray = unknown;
@@ -816,7 +826,7 @@ interface IWindow {
   GetPopups: unknown;
   GetSnapShot: unknown;
   HideMessageBarText: unknown;
-  PixelFromWorld: unknown;
+  PixelFromWorld(position: IPosition, mode: number): IScreenPointInfo;
   PixelToObjects: unknown;
   PixelToWorld(PixelX: number, PixelY: number, TypeFilterFlags: number): IWorldPointInfo;
   RemovePopup: unknown;
@@ -876,4 +886,16 @@ interface ITerrainPolygon extends ITerrainPolyline {
   spline: boolean;
   extendToGround: boolean;
   volumeClassification: unknown;
+}
+
+interface IScreenPointInfo {
+  // Gets the Boolean that determines whether the terrain coordinate falls in the 3D Window.
+  InsideScreenRect : boolean
+  // Gets the Boolean that determines whether the point is located behind the surface of the camera.
+  PointBehindCamera: boolean
+  // Gets the x-screen coordinate of the terrain coordinate.
+  X: number
+  // Gets the y-screen coordinate of the terrain coordinate.
+  Y: number
+
 }

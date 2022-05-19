@@ -162,6 +162,47 @@ function highlightIntersected(laser: Laser) {
   }
 }
 
+let tooltipTimeout: number;
+let lastTooltip: string = "";
+let lastTooltipModelID: string = "";
+function showTooltipIntersected(laser: Laser) {
+  if (laser.collision != undefined && laser.collision.objectID) {
+    const model = getItemById(laser.collision.objectID);
+    if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
+      tooltipTimeout = setTimeout(() => {
+        if (lastTooltip) sgWorld.Creator.DeleteObject(lastTooltip)
+        const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
+        labelStyle.LockMode = LabelLockMode.LM_AXIS_AUTOPITCH_TEXTUP
+        // DW tried to check for overlaps but 
+        const modelPosition = model.Position;
+        const modelInRoom = worldToRoomCoord(modelPosition);
+        const adj = 0.05;
+        let modelInRoomAdj = sgWorld.Creator.CreatePosition(modelInRoom.X, modelInRoom.Y + adj, modelInRoom.Altitude, modelInRoom.AltitudeType);
+        let modelInWorldAdj = roomToWorldCoord(modelInRoomAdj);
+        // this never works on the table, it returns 0, 0
+        // const pixel = sgWorld.Window.PixelFromWorld(model.Position, 0);
+        // console.log("pixel " + pixel.X + " " + pixel.Y);
+        // let col = sgWorld.Window.PixelToWorld(pixel.X, pixel.Y - 70, 1);
+        // console.log(col.ObjectID);
+        const groupId = ProgramManager.getInstance().getGroupID("buttons")
+        const tooltip = sgWorld.Creator.CreateTextLabel(roomToWorldCoord(modelInRoomAdj), model.Tooltip.Text, labelStyle, groupId, "tooltip");
+        lastTooltip = tooltip.ID;
+      }, 300)
+    }
+    if (model) {
+      lastTooltipModelID = model.ID
+    }
+  }
+  else {
+    if (lastTooltip) {
+      sgWorld.Creator.DeleteObject(lastTooltip);
+      lastTooltip = "";
+      lastTooltipModelID = "";
+    }
+    clearTimeout(tooltipTimeout);
+  }
+}
+
 function highlightById(highlight: boolean, oid?: string): void {
   const model = getItemById(oid)
   if (model) {
@@ -180,6 +221,17 @@ function highlightById(highlight: boolean, oid?: string): void {
       }
     }
   }
+}
+
+function GetTerrainLabelById(oid?: string): ITerrainModel | null {
+  if (oid !== undefined && oid != "") {
+    const object = sgWorld.Creator.GetObject(oid);
+    if (object && object.ObjectType === ObjectType.OT_LABEL) {
+      const model: ITerrainModel = object as ITerrainModel;
+      return model;
+    }
+  }
+  return null;
 }
 
 /**
@@ -305,7 +357,7 @@ export class UserModeManager {
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
-      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0],blueRGBA[1],blueRGBA[2],blueRGBA[3]);
+      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
       model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId);
@@ -330,6 +382,13 @@ export class UserModeManager {
       const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, grp, "label-" + sLabel);
       pos.Pitch = 0;
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
+      // check if the user was placing a label and changed their mind
+      if (this.userMode == UserMode.PlaceLabel){
+        const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+        if(label) {
+          sgWorld.Creator.DeleteObject(label.ID);
+        }
+      }
       this.currentlySelectedId = label.ID;
       // add the new label to the line objects array so it can be deleted via the undo button
       this.lineObjects.push(label.ID);
@@ -473,8 +532,8 @@ export class UserModeManager {
     switch (this.userMode) {
       case UserMode.Standard:
         setSelection(this.laser1!, button1pressed);
+        showTooltipIntersected(this.laser1!)
         highlightIntersected(this.laser1!);
-
         break;
       case UserMode.Measurement:
         if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
@@ -585,16 +644,18 @@ export class UserModeManager {
             if (intersectedItemId) {
               const model = getItemById(intersectedItemId) as ITerrainModel;
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
-              model?.ScaleFactor
               if (model && label) {
-                // label.Style.MaxViewingHeight = 50;
-                label.Attachment.AttachTo(model.ID, 0, 0, 0, 0, 0, 0);
+                label.Style.FontSize = 20;
+                setTimeout(()=>{
+                  label.Style.MaxViewingHeight = 100;
+                }, 1000)
+                const offsetX = 1 -(model.ScaleFactor / 3.3);
+                label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
                 console.log("LABEL ATTACHED TO MODEL");
                 this.setStandardMode();
                 // consume the button press
                 ProgramManager.getInstance().setButton1Pressed(1, false);
               }
-
             };
           } else {
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
@@ -607,7 +668,7 @@ export class UserModeManager {
             }
           }
         } catch (error) {
-          console.log(JSON.stringify(error));
+          console.log("error in place label");
         }
         break;
       case UserMode.DrawLine:

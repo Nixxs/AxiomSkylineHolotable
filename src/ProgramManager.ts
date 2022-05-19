@@ -88,6 +88,11 @@ export function worldToRoomCoord(position: IPosition) {
   return ret;
 }
 
+export function setFilmMode(filmMode: boolean) {
+  console.log(`Setting film mode to ${filmMode ? "ON" : "OFF"}`);
+  sgWorld.SetParam(-3, filmMode ? 1 : 0);
+}
+
 export const enum ProgramMode {
   Unknown,
   Desktop,

@@ -7,7 +7,6 @@ export const sessionManager = SessionManager;
 export const basePath = "\\\\Skyline_NAS/Data/C-ARMSAS/TableAPI/Axiom/";
 // export const basePath = "C:/dev/Github/AxiomSkylineHolotable/dist/Axiom/";
 
-
 if (document.readyState === 'complete')
   ProgramManager.getInstance().Init();
 else
