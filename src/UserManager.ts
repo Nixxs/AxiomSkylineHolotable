@@ -1,4 +1,4 @@
-import { basePath, sgWorld, sessionManager} from "./Axiom";
+import { basePath, sgWorld, sessionManager } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
@@ -74,8 +74,7 @@ function dragMode() {
 
       const power = forwardOrBack * scalingRatio * magDifference * 2;
       let powerStrength = 1;
-      if (GetDeviceType() == DeviceType.Wall)
-      {
+      if (GetDeviceType() == DeviceType.Wall) {
         let curAltitudeRatio = worldPos.Altitude + 250 / 2000; // scaling now works less as you go from 1000 down to 10 altitude
         powerStrength = Math.min(Math.max(curAltitudeRatio, 0.1), 1);
       }
@@ -398,9 +397,9 @@ export class UserModeManager {
       pos.Pitch = 0;
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
       // check if the user was placing a label and changed their mind
-      if (this.userMode == UserMode.PlaceLabel){
+      if (this.userMode == UserMode.PlaceLabel) {
         const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
-        if(label) {
+        if (label) {
           sgWorld.Creator.DeleteObject(label.ID);
         }
       }
@@ -621,35 +620,46 @@ export class UserModeManager {
         break;
       case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
       case UserMode.MoveModel:
-        if (ProgramManager.getInstance().getButton1Pressed(1)) {
-          const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-          // this is for making the model collide-able again
-          modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
-          ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
-          this.setStandardMode();
-          // consume the button press
-          ProgramManager.getInstance().setButton1Pressed(1, false);
+        const modelObject = getItemById(this.currentlySelectedId!);
+        if (!modelObject) {
+          // user most likely deleted it using delete button
+          this.userMode = UserMode.Standard;
+          break;
         } else {
-          const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-          if (newModelPosition !== undefined) {
-            newModelPosition.Pitch = 0;
-            newModelPosition.Yaw = newModelPosition.Roll * 2;
-            newModelPosition.Roll = 0;
-            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-            modelObject.Position = newModelPosition;
-          }
+          if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            // this is for making the model collide-able again
+            modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
+            ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
+            this.setStandardMode();
+            // consume the button press
+            ProgramManager.getInstance().setButton1Pressed(1, false);
+          } else {
+            const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (newModelPosition !== undefined) {
+              newModelPosition.Pitch = 0;
+              newModelPosition.Yaw = newModelPosition.Roll * 2;
+              newModelPosition.Roll = 0;
+              const modelObject = getItemById(this.currentlySelectedId!);
+              if (!modelObject) {
+                // user most likely deleted it
+              } else {
+                modelObject.Position = newModelPosition;
+              }
 
-          if (ProgramManager.getInstance().getButton2Pressed(1)) {
-            const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-            console.log(modelObject.Terrain.Tint.ToHTMLColor());
-            console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+            }
 
-            var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-            var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
-            if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
-              modelObject.Terrain.Tint = blueColor;
-            } else {
-              modelObject.Terrain.Tint = redColor;
+            if (ProgramManager.getInstance().getButton2Pressed(1)) {
+              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
+              console.log(modelObject.Terrain.Tint.ToHTMLColor());
+              console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+
+              var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+              var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+              if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
+                modelObject.Terrain.Tint = blueColor;
+              } else {
+                modelObject.Terrain.Tint = redColor;
+              }
             }
           }
         }
@@ -664,10 +674,10 @@ export class UserModeManager {
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
               if (model && label) {
                 label.Style.FontSize = 20;
-                setTimeout(()=>{
+                setTimeout(() => {
                   label.Style.MaxViewingHeight = 100;
                 }, 1000)
-                const offsetX = 1 -(model.ScaleFactor / 3.3);
+                const offsetX = 1 - (model.ScaleFactor / 3.3);
                 label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
                 console.log("LABEL ATTACHED TO MODEL");
                 ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
@@ -679,7 +689,7 @@ export class UserModeManager {
           } else {
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
-              if(!label){
+              if (!label) {
                 sgWorld.Creator.DeleteObject(this.currentlySelectedId!);
                 this.currentlySelectedId = "";
               }
@@ -690,10 +700,10 @@ export class UserModeManager {
               newModelPosition.Yaw = newModelPosition.Roll * 2;
               newModelPosition.Roll = 0;
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
-              if(!label){
+              if (!label) {
                 // it has been killed
                 this.userMode = UserMode.Standard;
-              }else{
+              } else {
                 label.Position = newModelPosition;
               }
             }
