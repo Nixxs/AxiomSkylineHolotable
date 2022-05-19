@@ -52,7 +52,6 @@ export class MenuPaging extends Menu {
     this.totalPages = Math.ceil(this.buttons.length / (this.cols * this.rows));
     this.recomputeButtons = true;
     this.show(true);
-    this.Draw();
   }
 
   createButton(name: string, icon: string, callback?: (id?: string) => void) {
