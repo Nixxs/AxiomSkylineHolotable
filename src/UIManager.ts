@@ -50,7 +50,7 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, 1, -0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -82,7 +82,8 @@ export class UIManager {
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
+    const orbatMenuWall = new Menu(0, 1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false , 0.1);
+//     const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
@@ -144,7 +145,7 @@ export class UIManager {
           verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
         }
       });
-      switch (GetDeviceType()) {
+      switch (this.GetDeviceTypeOverride()) {
         case DeviceType.Desktop:
         // Fallthrough. Desktop renders the table button layout
         case DeviceType.Table:
@@ -164,7 +165,7 @@ export class UIManager {
   }
 
   drawDevice(min: Vector<3>, max: Vector<3>) {
-    if (GetDeviceType() !== DeviceType.Desktop) {
+    if (this.GetDeviceTypeOverride() !== DeviceType.Desktop) {
       throw new Error("Attempted to draw device while not on desktop");
     }
     const minXY = sgWorld.Creator.CreatePosition(min.data[0], min.data[1], min.data[2], 3);
@@ -277,7 +278,7 @@ export class UIManager {
 
 
   Draw() {
-    switch (GetDeviceType()) {
+    switch (this.GetDeviceTypeOverride()) {
       case DeviceType.Desktop:
         this.drawTable()
       // Fallthrough. Desktop renders the table button layout
@@ -290,9 +291,14 @@ export class UIManager {
         break;
     }
   }
+  
+  GetDeviceTypeOverride(){
+    // return GetDeviceType();
+    return  DeviceType.Wall;
+  }
 
   Update() {
-    switch (GetDeviceType()) {
+    switch (this.GetDeviceTypeOverride()) {
       case DeviceType.Desktop: // Desktop updates the table buttons
       case DeviceType.Table:
         this.menusTable.forEach(m => m.Update());
