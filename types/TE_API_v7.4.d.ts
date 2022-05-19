@@ -598,7 +598,7 @@ interface ILabelStyle {
   LineColor: Color;
   LineToGroundLength: number;
   LineToGroundType: number;
-  LockMode: number;
+  LockMode: LabelLockMode;
   MaxImageSize: number;
   MaxViewingHeight: number;
   MinViewingHeight: number;
@@ -611,6 +611,16 @@ interface ILabelStyle {
   TextColor: Color;
   TextOnImage: boolean;
   Underline: boolean;
+}
+
+declare const enum LabelLockMode
+{
+    LM_DECAL = 0,
+    LM_AXIS = 1,
+    LM_AXIS_TEXTUP = 2,
+    LM_AXIS_AUTOPITCH = 3,
+    LM_AXIS_AUTOPITCH_TEXTUP = 4,
+    LM_AXIS_AUTOYAW = 5
 }
 
 type CanvasPixelArray = unknown;
