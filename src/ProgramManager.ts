@@ -174,6 +174,17 @@ export class ProgramManager {
     return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName);
   }
 
+  getCollaborationFolderID(groupName: string){
+    var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
+    var grp = ProgramManager.getInstance().getGroupID(groupName);
+    // if there is a collaboration session going then put the model in the collaboration session otherwise 
+    // just put it in the models group
+    if (collaborationSessionFolder.indexOf("Collaboration") !== -1){
+      grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
+    }
+    return grp;
+  }
+
   getButton1Pressed(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Device:

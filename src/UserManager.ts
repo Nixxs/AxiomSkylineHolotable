@@ -298,15 +298,7 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      // find the collaboration session folder name
-      var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
-      console.log(collaborationSessionFolder);
-      var grp = ProgramManager.getInstance().getGroupID("models");
-      // if there is a collaboration session going then put the model in the collaboration session otherwise 
-      // just put it in the models group
-      if (collaborationSessionFolder.indexOf("Collaboration") !== -1){
-        grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
-      }
+      const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 8 * roomPos.Altitude;
@@ -332,8 +324,7 @@ export class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-
-      const grp = ProgramManager.getInstance().getGroupID("models");
+      const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
       const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, grp, "label-" + sLabel);
@@ -528,11 +519,11 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const lineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, "", "__line");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, grp, "__line");
           mLine.LineStyle.Width = this.measurementLineWidth;
           this.measurementModeLineID = mLine.ID;
-
-          this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
+          this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, grp, "___label").ID;
 
           // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
           // if you add any other object types into the lineObjects array make sure you handle them in the undo function
@@ -667,7 +658,8 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const drawLineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, grp, "__line");
           dLine.LineStyle.Width = this.drawLineWidth;
           this.drawLineID = dLine.ID;
 

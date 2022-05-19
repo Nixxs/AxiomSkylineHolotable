@@ -1,4 +1,4 @@
-import { basePath, sgWorld } from "./Axiom";
+import { basePath, sgWorld, sessionManager } from "./Axiom";
 import { runConsole } from "./Debug";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
@@ -234,7 +234,7 @@ export class UIManager {
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; forceType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
-    const grp = ProgramManager.getInstance().getGroupID("models")
+    const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
     model.models.forEach((orbatModel, i) => {
       const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
