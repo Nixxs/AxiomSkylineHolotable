@@ -780,7 +780,7 @@ interface IProjectTree {
   RenameGroup: unknown; // Renames a group in the Project Tree.
   SaveAsFly: unknown; // Saves the specified group to a Fly file.
   SaveAsKml: unknown; // Saves the specified group to a KML file.
-  SelectItem: unknown; // Selects an item in the Project Tree.
+  SelectItem(ID: string, flags: number, reserved: number): string; // Selects an item in the Project Tree.
   SetActivationCode: unknown; // Determines the default activation action executed when clicking on the locked group symbol.
   SetClientData: unknown; // Stores a text string in the group global namespace.
   SetGroupEndTime: unknown; // Determines the date and time when the group should stop being visible
@@ -789,7 +789,7 @@ interface IProjectTree {
   SetGroupStartTime: unknown; // Determines the date and time when the group should start being visible
   SetParent: unknown; // Moves an item to a different group.
   SetRadioGroup: unknown; // Sets a Boolean that determines whether the Project Tree group is a radio group, whose items are mutually exclusive or a standard group.
-  SetVisibility: unknown; // Sets a ProjectTree item to be visible, or not visible, on the terrain.
+  SetVisibility(ID: string, visiblility: boolean): unknown; // Sets a ProjectTree item to be visible, or not visible, on the terrain.
   ShowSubTree: unknown; //Reserved
   SortGroup: unknown; // Sorts the items in the group according to specified
 }
@@ -861,6 +861,10 @@ interface ISGWorld {
   SetOptionParam(): unknown;
   SetParam(...a: any[]): unknown;
   SetParamEx(...a: any[]): unknown;
+}
+
+interface ISessionManager {
+  GetPropertyValue(property: string): string;
 }
 
 interface ITerrainPolygon extends ITerrainPolyline {

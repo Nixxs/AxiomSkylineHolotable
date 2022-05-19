@@ -1,4 +1,5 @@
 import { sgWorld } from "./Axiom";
+import { sessionManager } from "./Axiom";
 import { Button } from "./Button";
 import { ControllerReader } from "./ControllerReader";
 import { debug, debugHandleRefreshGesture } from "./Debug";
@@ -176,6 +177,22 @@ export class ProgramManager {
 
   getGroupID(groupName: string) {
     return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName);
+  }
+
+  getCollaborationFolderID(groupName: string){
+    var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
+    var grp = ProgramManager.getInstance().getGroupID(groupName);
+    // if there is a collaboration session going then put the model in the collaboration session otherwise 
+    // just put it in the models group
+    if (collaborationSessionFolder.indexOf("Collaboration") !== -1){
+      grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
+    }
+    return grp;
+  }
+
+  refreshCollaborationModeLayers(objectID: string){
+    sgWorld.ProjectTree.SetVisibility(objectID, false);
+    sgWorld.ProjectTree.SetVisibility(objectID, true);
   }
 
   getButton1Pressed(userIndex: number) {

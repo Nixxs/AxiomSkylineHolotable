@@ -1,4 +1,4 @@
-import { basePath, sgWorld } from "./Axiom";
+import { basePath, sgWorld, sessionManager } from "./Axiom";
 import { runConsole } from "./Debug";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
@@ -26,7 +26,7 @@ export class UIManager {
   private orbatScaleFactor: number;
 
   constructor() {
-    this.orbatScaleFactor = 8;
+    this.orbatScaleFactor = 1.2;
   }
 
   Init() {
@@ -251,41 +251,42 @@ export class UIManager {
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; forceType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
-    const grp = ProgramManager.getInstance().getGroupID("models")
+    const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
     model.models.forEach((orbatModel, i) => {
-      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      const x = Math.floor(i/6);
+      const y = i%6;
+      const spacing = 0.1;
+      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * spacing * 2), -0.4 - (y *spacing * 1.2), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
-      const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
-      if (model.forceType === "enemy") {
-        var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
-        if (redRGBA !== undefined) {
-          modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
-        }
-      } else {
-        var blueRGBA = ProgramManager.getInstance().userModeManager?.blueRGBA;
-        if (blueRGBA !== undefined) {
-          modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-        }
+
+      try {
+        const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
+        // add the created model to the undo list
+        ProgramManager.getInstance().userModeManager?.lineObjects.push(modelObject.ID);
+        // set the scale value based on the current zoom level
+        var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
+        modelObject.ScaleFactor = scaleValue;
+        modelsToPlace.push(modelObject);
+      } catch {
+        console.log("could not add model: " + modelPath);
       }
-      // add the created model to the undo list
-      ProgramManager.getInstance().userModeManager?.modelIds.push(modelObject.ID);
-      // set the scale value based on the current zoom level
-      var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
-      modelObject.ScaleFactor = scaleValue;
-      modelsToPlace.push(modelObject);
+      
+      // this is to tint models on the way in
+      // if (model.forceType === "enemy"){
+      //   var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
+      //   if (redRGBA !== undefined){
+      //     modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+      //   }
+      // } else {
+      //   var blueRGBA = ProgramManager.getInstance().userModeManager?.blueRGBA;
+      //   if (blueRGBA !== undefined){
+      //     modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+      //   }
+      // }
     });
-    this.placeModelsCenterRoom(modelsToPlace)
-  }
 
-  private placeModelsCenterRoom(models: ITerrainModel[]) {
-    models.forEach((m, i) => {
-      const pos = sgWorld.Creator.CreatePosition(-0.05, -0.6 - (i * 0.075), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
-      const roomPos = roomToWorldCoord(pos);
-      m.Position = roomPos;
-    })
   }
-
 
   Draw() {
     switch (this.GetDeviceTypeOverride()) {

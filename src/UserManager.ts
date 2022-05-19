@@ -1,4 +1,4 @@
-import { basePath, sgWorld, } from "./Axiom";
+import { basePath, sgWorld, sessionManager} from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
@@ -287,7 +287,7 @@ export class UserModeManager {
   private drawLineColor: IColor;
   private drawButtonId: string | undefined;
 
-  private lineObjects: Array<string> = [];
+  public lineObjects: Array<string> = [];
   private laser1?: Laser;
   private laser2?: Laser;
 
@@ -362,10 +362,13 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const grp = ProgramManager.getInstance().getGroupID("models");
+      const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+      // this is required to refresh the collaboration mode
+      console.log("setting visibility to true");
+      sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
-      model.ScaleFactor = 8 * roomPos.Altitude;
+      model.ScaleFactor = 5 * roomPos.Altitude;
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
@@ -388,8 +391,7 @@ export class UserModeManager {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
     } else {
-
-      const grp = ProgramManager.getInstance().getGroupID("models");
+      const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
       const label = sgWorld.Creator.CreateTextLabel(pos, sLabel, labelStyle, grp, "label-" + sLabel);
@@ -573,6 +575,8 @@ export class UserModeManager {
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
             console.log("finished line");
             highlightById(false, this.drawButtonId);
+
+            ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
@@ -591,11 +595,11 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const lineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, "", "__line");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, grp, "__line");
           mLine.LineStyle.Width = this.measurementLineWidth;
           this.measurementModeLineID = mLine.ID;
-
-          this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, "", "___label").ID;
+          this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, grp, "___label").ID;
 
           // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
           // if you add any other object types into the lineObjects array make sure you handle them in the undo function
@@ -621,6 +625,7 @@ export class UserModeManager {
           const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
           // this is for making the model collide-able again
           modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
+          ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
           this.setStandardMode();
           // consume the button press
           ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -665,6 +670,7 @@ export class UserModeManager {
                 const offsetX = 1 -(model.ScaleFactor / 3.3);
                 label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
                 console.log("LABEL ATTACHED TO MODEL");
+                ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
                 this.setStandardMode();
                 // consume the button press
                 ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -727,6 +733,8 @@ export class UserModeManager {
             Geometry.StartEdit();
             Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
             Geometry.EndEdit();
+
+            ProgramManager.getInstance().refreshCollaborationModeLayers(dLine.ID);
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button2Pressed = false;
@@ -744,7 +752,8 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const drawLineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, "", "__line");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, grp, "__line");
           dLine.LineStyle.Width = this.drawLineWidth;
           this.drawLineID = dLine.ID;
 
