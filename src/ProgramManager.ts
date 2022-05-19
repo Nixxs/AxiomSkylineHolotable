@@ -190,6 +190,11 @@ export class ProgramManager {
     return grp;
   }
 
+  refreshCollaborationModeLayers(objectID: string){
+    sgWorld.ProjectTree.SetVisibility(objectID, false);
+    sgWorld.ProjectTree.SetVisibility(objectID, true);
+  }
+
   getButton1Pressed(userIndex: number) {
     switch (this.mode) {
       case ProgramMode.Device:

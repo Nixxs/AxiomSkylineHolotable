@@ -352,6 +352,9 @@ export class UserModeManager {
       console.log("creating model:: " + modelPath);
       const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+      // this is required to refresh the collaboration mode
+      console.log("setting visibility to true");
+      sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
       // this will make the model not pickable which is what you want while moving it 
@@ -560,6 +563,8 @@ export class UserModeManager {
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
             console.log("finished line");
             highlightById(false, this.drawButtonId);
+
+            ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
@@ -608,6 +613,7 @@ export class UserModeManager {
           const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
           // this is for making the model collide-able again
           modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
+          ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
           this.setStandardMode();
           // consume the button press
           ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -652,6 +658,7 @@ export class UserModeManager {
                 const offsetX = 1 -(model.ScaleFactor / 3.3);
                 label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
                 console.log("LABEL ATTACHED TO MODEL");
+                ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
                 this.setStandardMode();
                 // consume the button press
                 ProgramManager.getInstance().setButton1Pressed(1, false);
@@ -702,6 +709,8 @@ export class UserModeManager {
             Geometry.StartEdit();
             Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
             Geometry.EndEdit();
+
+            ProgramManager.getInstance().refreshCollaborationModeLayers(dLine.ID);
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button2Pressed = false;
