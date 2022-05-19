@@ -668,7 +668,7 @@ export class UserModeManager {
             }
           }
         } catch (error) {
-          console.log("error in place label");
+          console.log("error in place label" + error);
         }
         break;
       case UserMode.DrawLine:

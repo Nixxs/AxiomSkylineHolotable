@@ -50,7 +50,10 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
+    
+   // LR, FB, UD. Bottom left corner around -1.2, -0.5
+   const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.5, 0.6]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -82,7 +85,8 @@ export class UIManager {
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0, 0.2, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const orbatMenuWall = new Menu(0, 0.2, new Vector<3>([-1, -0.1, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
+     // LR, FB, UD. Bottom left corner around -1.2, -0.5, 0.8
+    const orbatMenuWall = new Menu(0, 1, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false , 0.1);
     controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
@@ -104,16 +108,16 @@ export class UIManager {
     const showVerbsTable = new Menu(0, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0, 0.2, new Vector<3>([-0.5, -0.1, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.1);
 
-    showVerbsTable.createButton("TaskVerbs", "blank.xpl2", () => {
+    showVerbsTable.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsTable.createButton("MissionTaskVerbs", "blank.xpl2", () => {
+    showVerbsTable.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
-    showVerbsWall.createButton("TaskVerbs", "blank.xpl2", () => {
+    showVerbsWall.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsWall.createButton("MissionTaskVerbs", "blank.xpl2", () => {
+    showVerbsWall.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
     this.menusTable.push(showVerbsTable);
@@ -144,7 +148,7 @@ export class UIManager {
           verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
         }
       });
-      switch (GetDeviceType()) {
+      switch (this.GetDeviceTypeOverride()) {
         case DeviceType.Desktop:
         // Fallthrough. Desktop renders the table button layout
         case DeviceType.Table:
@@ -164,7 +168,7 @@ export class UIManager {
   }
 
   drawDevice(min: Vector<3>, max: Vector<3>) {
-    if (GetDeviceType() !== DeviceType.Desktop) {
+    if (this.GetDeviceTypeOverride() !== DeviceType.Desktop) {
       throw new Error("Attempted to draw device while not on desktop");
     }
     const minXY = sgWorld.Creator.CreatePosition(min.data[0], min.data[1], min.data[2], 3);
@@ -277,7 +281,7 @@ export class UIManager {
 
 
   Draw() {
-    switch (GetDeviceType()) {
+    switch (this.GetDeviceTypeOverride()) {
       case DeviceType.Desktop:
         this.drawTable()
       // Fallthrough. Desktop renders the table button layout
@@ -290,9 +294,14 @@ export class UIManager {
         break;
     }
   }
+  
+  GetDeviceTypeOverride(){
+   return GetDeviceType();
+  // return  DeviceType.Wall;
+  }
 
   Update() {
-    switch (GetDeviceType()) {
+    switch (this.GetDeviceTypeOverride()) {
       case DeviceType.Desktop: // Desktop updates the table buttons
       case DeviceType.Table:
         this.menusTable.forEach(m => m.Update());
