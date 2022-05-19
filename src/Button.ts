@@ -2,30 +2,36 @@ import { sgWorld } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
+let selectedButton: Button | null = null;
+export function SimulateSelectedButton() {
+  selectedButton?.Simulate();
+}
+
 export class Button {
   ID?: string;
   scale = 1;
-  callback: (id?: string) => void = () => { };
   initError: boolean = false;
+  callback: (id?: string) => void = () => { };
 
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
     callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "") {
-    const newButton = document.createElement("button");
+    const newButton = document.createElement("option");
     newButton.textContent = name;
-    if (callback) {
-      this.callback = callback;
-    }
-    newButton.addEventListener("click", () => {
-      console.log(`simulating click on ${name}`);
-      if (callback) {
-        ProgramManager.DoOneFrame(callback);
-      }
-    });
     document.getElementById("buttons")?.appendChild(newButton);
     if (hidden === true) {
       this.show(false);
     }
+    if (callback) {
+      this.callback = callback;
+    }
+    newButton.addEventListener("click", () => { selectedButton = this; })
+    selectedButton ??= this;
+  }
+
+  Simulate() {
+    console.log(`simulating click on ${this.name}`);
+    this.callback(this.ID);
   }
  
   // buttonPressed is whether the button was down this frame but not last frame
@@ -72,14 +78,14 @@ export class Button {
   }
 
   show(value: boolean) {
-    if (!this.ID) this.Draw();
-    if (!this.ID) return;
+    if (this.ID === undefined) this.Draw();
+    if (this.ID === undefined) return;
     let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
     obj.Visibility.Show = value;
   }
 
   destroy() {
-    if(!this.ID) return;
+    if (this.ID === undefined) return;
     sgWorld.Creator.DeleteObject(this.ID);
   }
 }

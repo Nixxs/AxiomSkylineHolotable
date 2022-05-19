@@ -4,12 +4,12 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
 import { orbatConfig } from "./config/OrbatModels";
-import { Button } from "./Button";
+import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
 
@@ -31,6 +31,12 @@ export class UIManager {
 
   Init() {
     document.getElementById("consoleRun")?.addEventListener("click", runConsole);
+    document.getElementById("filmMode")?.addEventListener("change", e => {
+      if (!(e.currentTarget instanceof HTMLInputElement))
+        throw new Error("Expected #filmMode to be a checkbox");
+      setFilmMode(e.currentTarget.checked);
+    });
+    document.getElementById("simulate")?.addEventListener("click", SimulateSelectedButton);
     ProgramManager.getInstance().deleteGroup("buttons");
     ProgramManager.getInstance().deleteGroup("models");
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
