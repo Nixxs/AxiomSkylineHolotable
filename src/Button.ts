@@ -15,7 +15,8 @@ export class Button {
 
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
     public groupID: string = "",
-    callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "") {
+    callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "", public color: any = null) {
+
     const newButton = document.createElement("option");
     newButton.textContent = name;
     document.getElementById("buttons")?.appendChild(newButton);
@@ -54,6 +55,10 @@ export class Button {
         const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
+        if(this.color){
+          // tint the model
+          obj.Terrain.Tint = this.color;
+        }
       } catch (error) {
         console.log("Button Error :: " + error + " " + this.modelPath)
         this.initError = true;

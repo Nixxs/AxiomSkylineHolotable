@@ -67,10 +67,10 @@ export class Menu {
     }
   }
 
-  createButton(name: string, icon: string, callback?: (id?: string) => void): Button {
+  createButton(name: string, icon: string, callback?: (id?: string) => void, tooltip: string = ""): Button {
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
-    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
+    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback, false, tooltip);
     this.addButton(btn);
     return btn;
   }

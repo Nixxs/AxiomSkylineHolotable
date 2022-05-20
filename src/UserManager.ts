@@ -12,8 +12,10 @@ const enum ControlMode {
   Wall
 }
 
-const redRGBA = [255, 15, 15, 100];
-const blueRGBA = [15, 15, 255, 100];
+const redRGBA = [255, 15, 15, 255];
+const blueRGBA = [15, 15, 255, 255];
+const greenRGBA = [15, 255, 15, 255];
+const blackRGBA = [0, 0, 0, 200];
 
 const gControlMode: ControlMode = ControlMode.Table;
 
@@ -174,6 +176,8 @@ function highlightIntersected(laser: Laser) {
 let tooltipTimeout: number;
 let lastTooltip: string = "";
 let lastTooltipModelID: string = "";
+let highlightedId = "";
+let previousCol: number[] = [];
 function showTooltipIntersected(laser: Laser) {
   if (laser.collision != undefined && laser.collision.objectID) {
     const model = getItemById(laser.collision.objectID);
@@ -214,22 +218,35 @@ function showTooltipIntersected(laser: Laser) {
 
 function highlightById(highlight: boolean, oid?: string): void {
   const model = getItemById(oid)
-  if (model) {
-    var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-    var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+  if (model && oid) {
+  
     if (highlight) {
-      // if the model is already tinted red then do nothing otherwise tint yellow
-      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
-        // highlight adds a slight tint to the item. Currently this is yellow
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(255, 255, 0, 50);
+      if(highlightedId!=oid){
+        let deltaA = -50; // make it slightly lighter
+        previousCol = colorToRGBA(model.Terrain.Tint);
+        if(previousCol[3] === 0){ // no tint we will add one to lighten it up
+          deltaA = 50
+        }
+        if(previousCol[3] + deltaA > 0){
+          model.Terrain.Tint = sgWorld.Creator.CreateColor(previousCol[0], previousCol[1], previousCol[2], previousCol[3]+deltaA);
+          highlightedId = oid;
+        }
       }
     } else {
-      if (model.Terrain.Tint.ToARGBColor() !== redColor.ToARGBColor() && model.Terrain.Tint.ToARGBColor() !== blueColor.ToARGBColor()) {
-        // remove tint
-        model.Terrain.Tint = sgWorld.Creator.CreateColor(0, 0, 0, 0);
-      }
+      // remove tint
+      model.Terrain.Tint = sgWorld.Creator.CreateColor(previousCol[0], previousCol[1], previousCol[2], previousCol[3]);
+      highlightedId = "";
     }
   }
+}
+
+function colorToRGBA(col: IColor): number[]{
+  const rgba = col.ToARGBColor();
+  const a = (rgba >> 24) & 0xFF;
+  const red = (rgba >> 16) & 0xFF;
+  const green = (rgba >> 8) & 0xFF;
+  const blue = rgba & 0xFF;
+  return [red, green, blue, a]
 }
 
 function GetTerrainLabelById(oid?: string): ITerrainModel | null {
@@ -354,7 +371,7 @@ export class UserModeManager {
     this.measurementModeFirstPoint = null;
   }
 
-  toggleModelMode(modelPath: string, modelName: string) {
+  toggleModelMode(modelPath: string, modelName: string, modelColor: string) {
     if (this.userMode == UserMode.PlaceModel) {
       console.log("end model mode");
       this.userMode = UserMode.Standard;
@@ -365,6 +382,9 @@ export class UserModeManager {
       console.log("creating model:: " + modelPath);
       const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+      let color = this.getColorFromString(modelColor);
+ 
+      model.Terrain.Tint = color;
       // this is required to refresh the collaboration mode
       console.log("setting visibility to true");
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
@@ -373,8 +393,6 @@ export class UserModeManager {
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
-      var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-      model.Terrain.Tint = blueColor;
       this.currentlySelectedId = model.ID;
       this.modelIds.push(this.currentlySelectedId);
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
@@ -385,6 +403,20 @@ export class UserModeManager {
 
       this.userMode = UserMode.PlaceModel;
     }
+  }
+
+  getColorFromString(modelColor: string, opacity: number = -1){
+    switch (modelColor) {
+      case "blue":
+        return  sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
+      case "red":
+        return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
+      case "green":
+        return sgWorld.Creator.CreateColor(greenRGBA[0], greenRGBA[1], greenRGBA[2], opacity > 0 ? opacity : greenRGBA[3]);
+      case "black":
+        return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
+    }
+    return  sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
   }
 
   toggleLabel(sLabel: string) {
@@ -676,12 +708,12 @@ export class UserModeManager {
               const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
               if (model && label) {
                 label.Style.FontSize = 20;
+                label.Style.TextAlignment = "Left";
                 setTimeout(() => {
-                  label.Style.MaxViewingHeight = 100;
+                  label.Style.MaxViewingHeight = 10000;
                 }, 1000)
                 const offsetX = 1 - (model.ScaleFactor / 3.3);
                 label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
-                console.log("LABEL ATTACHED TO MODEL");
                 ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
                 this.setStandardMode();
                 // consume the button press
