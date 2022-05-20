@@ -115,16 +115,16 @@ export class UIManager {
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.06, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
-    showVerbsTable.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
+    showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsTable.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
+    showVerbsTable.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
-    showVerbsWall.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
+    showVerbsWall.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsWall.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
+    showVerbsWall.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
     this.menusTable.push(showVerbsTable);

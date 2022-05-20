@@ -5,7 +5,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "Button_ORBAT_HQ.obj",
+            buttonIcon: "BUTTON_ORBAT_FRIENDLY_HQ.xpl2",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
@@ -47,7 +47,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "Button_ORBAT_CTA.obj",
+            buttonIcon: "BUTTON_ORBAT_FRIENDLY_CTA.xpl2",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
@@ -89,7 +89,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "Button_ORBAT_CTB.obj",
+            buttonIcon: "BUTTON_ORBAT_FRIENDLY_CTB.xpl2",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
@@ -131,7 +131,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "enemy",
-            buttonIcon: "BUTTON_ORBAT_ENEMY_HQ.obj",
+            buttonIcon: "BUTTON_ORBAT_ENEMY.xpl2",
             models: [
                 {
                     modelFile: "OrbatEnemy/ORBAT_Enemy_1_XW_X.obj",
