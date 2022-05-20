@@ -64,8 +64,8 @@ export class UIManager {
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"));
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"));
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"));
-    toolsMenuTable.createButton("PreviousBookmark", "Button_Prev.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
-    toolsMenuTable.createButton("NextBookmark", "Button_Next.xpl2", (id) => this.onButtonClick("NextBookmark"));
+    toolsMenuTable.createButton("PreviousBookmark", "BUTTON_Bookmark_Prev.xpl2", (id) => this.onButtonClick("PreviousBookmark"));
+    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("NextBookmark"));
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
@@ -101,16 +101,16 @@ export class UIManager {
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.06, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
-    showVerbsTable.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
+    showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsTable.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
+    showVerbsTable.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
-    showVerbsWall.createButton("TaskVerbs", "Button_Tasks.xpl2", () => {
+    showVerbsWall.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
     })
-    showVerbsWall.createButton("MissionTaskVerbs", "Button_Missions.xpl2", () => {
+    showVerbsWall.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
     });
     this.menusTable.push(showVerbsTable);
@@ -319,10 +319,15 @@ export class UIManager {
     const modelsToPlace: ITerrainModel[] = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
     model.models.forEach((orbatModel, i) => {
-      const x = Math.floor(i / 6);
-      const y = i % 6;
-      const spacing = 0.1;
-      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * spacing * 2), -0.4 - (y * spacing * 1.2), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      const x = Math.floor(i/6);
+      const y = i%6;
+      let xspacing = 0.2;
+      let yspacing = 0.12;
+      if (model.forceType === "enemy"){
+        xspacing = 0.1;
+        yspacing = 0.13;
+      }
+      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
 

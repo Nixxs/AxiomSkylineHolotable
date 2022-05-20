@@ -1,42 +1,55 @@
 export const bookmarksConfig: IBookmarkConfig = {
     bookmarks: [
         {
-            name: "Sydney",
+            name: "Bendigo",
             position: {
-                X: 151.2067675,
-                Y: -33.8667266, 
-                Altitude: 5000, 
-                AltitudeType: 3,
-                Yaw: 0, 
-                Pitch: -80, 
+                X: 144.28003,
+                Y: -36.761405, 
+                Altitude: 0, 
+                AltitudeType: 0,
+                Yaw: 0.00008726, 
+                Pitch: -50, 
                 Roll: 0, 
-                Distance: 5000
+                Distance: 2091.6079
             }
         },
         {
-            name: "Whyalla",
+            name: "Seymore",
             position: {
-                X: 137.5576346,
-                Y:-33.0357364,
-                Altitude: 5000, 
-                AltitudeType: 3,
-                Yaw: 0, 
-                Pitch: -80, 
+                X: 145.224651,
+                Y:-36.9625506,
+                Altitude: 0, 
+                AltitudeType: 0,
+                Yaw: 0.0000519837, 
+                Pitch: -50.007783, 
                 Roll: 0, 
-                Distance: 5000
+                Distance: 2179.73
             },
         },
         {
-            name: "Puckapunyal",
+            name: "Sydney",
             position: {
-                X: 145.0359724,
-                Y:  -37.0008314,
-                Altitude: 5000, 
-                AltitudeType: 3,
-                Yaw: 0, 
-                Pitch: -80, 
+                X: 151.203076,
+                Y:  -33.874267268,
+                Altitude: 0, 
+                AltitudeType: 0,
+                Yaw: 359.9865, 
+                Pitch: -50, 
                 Roll: 0, 
-                Distance: 5000
+                Distance: 3696.033954
+            },
+        },
+        {
+            name: "Strathbogiegoat",
+            position: {
+                X: 145.18114366,
+                Y:  -36.9646484,
+                Altitude: 0, 
+                AltitudeType: 0,
+                Yaw: 359.999804, 
+                Pitch: -50, 
+                Roll: 0, 
+                Distance: 1768.7141158
             },
         }
     ]
