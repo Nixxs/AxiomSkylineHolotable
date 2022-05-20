@@ -50,6 +50,7 @@ export class MenuPaging extends Menu {
     this.buttons = [];
     this.buttons.push(...buttons);
     this.totalPages = Math.ceil(this.buttons.length / (this.cols * this.rows));
+    console.log("totalPages"+this.totalPages)
     this.recomputeButtons = true;
     this.show(true);
   }
@@ -105,8 +106,9 @@ export class MenuPaging extends Menu {
         btn.show(visibility);
       }
     });
-    this.btnPL.show(visibility);
-    this.btnPR.show(visibility);
+    const showPaging = this.totalPages > 1 && visibility
+    this.btnPL.show(showPaging);
+    this.btnPR.show(showPaging);
     this.isVisible = visibility;
   }
 

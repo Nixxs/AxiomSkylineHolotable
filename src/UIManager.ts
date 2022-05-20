@@ -23,6 +23,9 @@ export class UIManager {
   groupId: string = ""
   modelId: string = "";
 
+  wallLs: number = -1; // left hand side for wall buttons
+  wallPos: number = -0.2; // distance out from wall
+
   private orbatScaleFactor: number;
 
   constructor() {
@@ -50,13 +53,10 @@ export class UIManager {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
-    // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1, -0.1, 0.25]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false);
-
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
-   // const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
-   const wallLhs = -1
-   const wallPos = -0.2; // distance out from wall
-   const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    const wallLhs = this.wallLs;
+    const wallPos = this.wallPos;; // distance out from wall
+    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"));
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"));
@@ -72,32 +72,18 @@ export class UIManager {
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
-    // control measures menu ============
-    // create the Control measures menu. Doesn't need a width as we are centre aligning it
-    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.2, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 2, 10);
-    const ControlsMenuWall = new MenuPaging(0.04, 0.1, new Vector<3>([wallLhs + 0.4, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, 0.06, 2, 10);
-    let controls: Button[] = []
-    controlConfig.ControlModels.forEach((model) => {
-      controls.push(ControlsMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onControlModelAdd(model)));
-    });
-    ControlsMenuTable.addButtons(controls);
-    ControlsMenuWall.addButtons(controls);
-
-    this.menusTable.push(ControlsMenuTable);
-    this.menusWall.push(ControlsMenuWall);
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05,);
     // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
-   // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
+    // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
     //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
-    const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true ,false, 0.06);
+    const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
     orbatMenuWall.rows = 4;
     orbatMenuWall.cols = 1
-    controls = []
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
-    }); 
+    });
 
     this.menusTable.push(orbatMenuTable);
     orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
@@ -129,6 +115,8 @@ export class UIManager {
     });
     this.menusTable.push(showVerbsTable);
     this.menusWall.push(showVerbsWall);
+
+    this.createControlMeasuresMenu();
   }
 
   onVerbAdd(verb: { verbName: string; verbType: string; }, menus: MenuVerbs[]): void {
@@ -137,7 +125,86 @@ export class UIManager {
     pm?.toggleLabel(verb.verbName);
   }
 
-  onVerbMenuShow(veryType: string, menus: MenuVerbs[]) {
+  private createControlMeasuresMenu() {
+
+    // 4 buttons. black for control measures, red, blue green task measures, 
+
+    // control measures menu ============
+    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 2, 10);
+    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.5, this.wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, 0.06, 2, 10);
+
+    ControlsMenuTable.show(false);
+    ControlsMenuWall.show(false);
+    this.menusTable.push(ControlsMenuTable);
+    this.menusWall.push(ControlsMenuWall);
+
+    const menus = [ControlsMenuTable, ControlsMenuWall];
+    // show hide verbs menus
+    const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05, 2, 2);
+    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.3, this.wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06, 2, 2);
+
+
+    showControlsTable.createButton("controlMeasures", "Button_CM_Green.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
+    showControlsTable.createButton("taskIndicatorsBlue", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) } , "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsRed", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsGreen", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators G");
+
+
+    showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));
+    this.menusTable.push(showControlsTable);
+    this.menusWall.push(showControlsWall);
+
+  }
+
+  onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
+    console.log(`show menu ${controlType} ${color}`)
+    if (menus[0].isVisible) { // turn it off
+      menus.forEach(m => m.show(false));
+      return;
+    }
+    const controls: Button[] = [];
+  
+    const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
+    const groupId = ProgramManager.getInstance().getGroupID("buttons");
+    controlConfig.ControlModels.forEach((model) => {
+      if (model.modelType === controlType) {
+        // let add = false;
+        // // some weird logic here... if its blue or red then add the black models too.
+        // // this definitely needs refactoring. TODO DW
+        // if(color === "green"){
+        //   add = model.Green === 1;
+        // }
+        // if(color === "red"){
+        //   add = model.Red === 1 || model.Black === 1;
+        // }
+        // if(color === "blue"){
+        //   add = model.Blue === 1 || model.Black === 1;
+        // }
+        // let buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+        // if(model.Black === 1 && color !== "green"){
+        //   buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
+        //   add = true;
+        // }
+        // const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, color), false, model.modelName)
+        const btn =  menus[0].createButton(model.modelName, "blank.xpl2");
+        controls.push(btn);
+        // if(add){
+        //   controls.push(btn);
+        // }
+      }
+    });
+    switch (this.GetDeviceTypeOverride()) {
+      case DeviceType.Desktop:
+      case DeviceType.Table:
+        menus[0].addButtons(controls);
+        break;
+      case DeviceType.Wall:
+        menus[1].addButtons(controls);
+        break;
+    }
+  }
+
+  onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
     try {
       let VerbsMenuTable = menus[0];
       let VerbsMenuWall = menus[1];
@@ -147,17 +214,16 @@ export class UIManager {
         VerbsMenuWall.show(false);
         return;
       }
-      let verbControlsTable: Button[] = []; // we need two arrays as the buttons will get destroyed
+      let verbControlsTable: Button[] = [];
       let verbControlsWall: Button[] = [];
       verbsConfig.verbs.forEach((verb) => {
-        if (verb.verbType === veryType) {
+        if (verb.verbType === verbType) {
           verbControlsTable.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
           verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
         }
       });
       switch (this.GetDeviceTypeOverride()) {
         case DeviceType.Desktop:
-        // Fallthrough. Desktop renders the table button layout
         case DeviceType.Table:
           VerbsMenuTable.addButtons(verbControlsTable);
           break;
@@ -243,9 +309,9 @@ export class UIManager {
     }
   }
 
-  onControlModelAdd(model: { modelName: string; modelType: string; buttonIcon: string; modelPath: string; }) {
+  onControlModelAdd(model: { modelName: string; modelType: string; buttonIcon: string; modelPath: string; }, color: string) {
     const pm = ProgramManager.getInstance().userModeManager;
-    pm?.toggleModelMode(model.modelPath, model.modelName)
+    pm?.toggleModelMode(model.modelPath, model.modelName, color)
   }
 
   onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; forceType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
@@ -276,7 +342,7 @@ export class UIManager {
       } catch {
         console.log("could not add model: " + modelPath);
       }
-      
+
       // this is to tint models on the way in
       // if (model.forceType === "enemy"){
       //   var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
@@ -309,11 +375,11 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-     return GetDeviceType();
-    // if (GetDeviceType() === DeviceType.Desktop) {
-    //   return DeviceType.Wall;
-    // }
     // return GetDeviceType();
+    if (GetDeviceType() === DeviceType.Desktop) {
+      return DeviceType.Wall;
+    }
+    return GetDeviceType();
   }
 
   Update() {
