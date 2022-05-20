@@ -13,9 +13,6 @@ import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
 
 export class Menu {
   // buttonSize is the roomspace width of one button
-
-  public rows: number = 0;
-  public cols: number = 0;
   public buttons: Button[] = [];
   public corner: Vector<3>;
   public xDirection: Vector<3>;
@@ -23,7 +20,7 @@ export class Menu {
   public recomputeButtons = true;
   public isVisible: boolean = true;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity) {
+  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number = 0, public cols: number = 0) {
     // anchorPosition is bottomLeft + [x * width, y * height]
 
     // let anchor = topLeft  + orientation.apply([width *  anchorPosition[0]     , 0, height * (anchorPosition[1] - 1)]);
@@ -70,11 +67,12 @@ export class Menu {
     }
   }
 
-  createButton(name: string, icon: string, callback?: (id?: string) => void) {
+  createButton(name: string, icon: string, callback?: (id?: string) => void): Button {
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
     const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback);
     this.addButton(btn);
+    return btn;
   }
 
   Update() {
