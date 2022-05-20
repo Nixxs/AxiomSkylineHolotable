@@ -168,27 +168,29 @@ export class UIManager {
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     controlConfig.ControlModels.forEach((model) => {
       if (model.modelType === controlType) {
-        let add = false;
-        // some weird logic here... if its blue or red then add the black models too.
-        // this definitely needs refactoring. TODO DW
-        if(color === "green"){
-          add = model.Green === 1;
-        }
-        if(color === "red"){
-          add = model.Red === 1 || model.Black === 1;
-        }
-        if(color === "blue"){
-          add = model.Blue === 1 || model.Black === 1;
-        }
-        let buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
-        if(model.Black === 1 && color !== "green"){
-          buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
-          add = true;
-        }
-        const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
-        if(add){
-          controls.push(btn);
-        }
+        // let add = false;
+        // // some weird logic here... if its blue or red then add the black models too.
+        // // this definitely needs refactoring. TODO DW
+        // if(color === "green"){
+        //   add = model.Green === 1;
+        // }
+        // if(color === "red"){
+        //   add = model.Red === 1 || model.Black === 1;
+        // }
+        // if(color === "blue"){
+        //   add = model.Blue === 1 || model.Black === 1;
+        // }
+        // let buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+        // if(model.Black === 1 && color !== "green"){
+        //   buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
+        //   add = true;
+        // }
+        // const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, color), false, model.modelName)
+        const btn =  menus[0].createButton(model.modelName, "blank.xpl2");
+        controls.push(btn);
+        // if(add){
+        //   controls.push(btn);
+        // }
       }
     });
     switch (this.GetDeviceTypeOverride()) {
@@ -368,7 +370,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+    // return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
