@@ -5,7 +5,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "BUTTON_ORBAT_FRIENDLY_HQ.xpl2",
+            buttonIcon: "Button_ORBAT_HQ.obj",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_-_1.obj",
@@ -47,7 +47,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "BUTTON_ORBAT_FRIENDLY_CTA.xpl2",
+            buttonIcon: "Button_ORBAT_CTA.obj",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_-_1.obj",
@@ -89,7 +89,7 @@ export const orbatConfig = {
             modelType: "orbat",
             missionType: "na",
             forceType: "friendly",
-            buttonIcon: "BUTTON_ORBAT_FRIENDLY_CTB.xpl2",
+            buttonIcon: "Button_ORBAT_CTB.obj",
             models: [
                 {
                     modelFile: "OrbatFriendly/ORBAT_-_1.obj",
