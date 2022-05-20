@@ -82,8 +82,10 @@ function dragMode() {
       worldPos.Altitude *= factor;
       // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
 
-      if (worldPos.Altitude > 100000) {
+      if (GetDeviceType() === DeviceType.Table && worldPos.Altitude > 100000) {
         worldPos.Altitude = 100000;
+      } else if (GetDeviceType() === DeviceType.Wall && worldPos.Altitude > 60000) {
+        worldPos.Altitude = 60000;
       }
       if (worldPos.Altitude < 250) {
         worldPos.Altitude = 250;
