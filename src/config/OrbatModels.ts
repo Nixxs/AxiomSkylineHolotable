@@ -8,38 +8,38 @@ export const orbatConfig = {
             buttonIcon: "Button_ORBAT_HQ.obj",
             models: [
                 {
-                    modelFile: "OrbatFriendly/ORBAT_-_1.obj",
-                    modelName: "ORBAT_-_1"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_I"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_2.obj",
-                    modelName: "ORBAT_-_2"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_3.obj",
-                    modelName: "ORBAT_-_3"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_4.obj",
-                    modelName: "ORBAT_-_4"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_6.obj",
-                    modelName: "ORBAT_-_6"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Cross_Eye.obj",
-                    modelName: "Cross_Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Engineer.obj",
-                    modelName: "Engineer"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Eye.obj",
-                    modelName: "Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_white_eye_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Dots.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Armoured_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Line.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_WhiteEye.obj",
-                    modelName: "WhiteEye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_Cross_Eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_Cross_Eye_o.dae"
                 }
             ]
         }, {
@@ -50,38 +50,38 @@ export const orbatConfig = {
             buttonIcon: "Button_ORBAT_CTA.obj",
             models: [
                 {
-                    modelFile: "OrbatFriendly/ORBAT_-_1.obj",
-                    modelName: "ORBAT_-_1"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_I"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_2.obj",
-                    modelName: "ORBAT_-_2"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_3.obj",
-                    modelName: "ORBAT_-_3"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_4.obj",
-                    modelName: "ORBAT_-_4"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_6.obj",
-                    modelName: "ORBAT_-_6"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Cross_Eye.obj",
-                    modelName: "Cross_Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Engineer.obj",
-                    modelName: "Engineer"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Eye.obj",
-                    modelName: "Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_white_eye_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Dots.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Armoured_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Line.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_WhiteEye.obj",
-                    modelName: "WhiteEye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_Cross_Eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_Cross_Eye_o.dae"
                 }
             ]
         }, {
@@ -92,38 +92,38 @@ export const orbatConfig = {
             buttonIcon: "Button_ORBAT_CTB.obj",
             models: [
                 {
-                    modelFile: "OrbatFriendly/ORBAT_-_1.obj",
-                    modelName: "ORBAT_-_1"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_I"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_2.obj",
-                    modelName: "ORBAT_-_2"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_3.obj",
-                    modelName: "ORBAT_-_3"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_4.obj",
-                    modelName: "ORBAT_-_4"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_MechInf_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_6.obj",
-                    modelName: "ORBAT_-_6"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Cross_Eye.obj",
-                    modelName: "Cross_Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Engineer.obj",
-                    modelName: "Engineer"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Engineering_o.dae",
+                    modelName: "ORBAT_FIRENDLY_Engineering_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Eye.obj",
-                    modelName: "Eye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_white_eye_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Dots.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FIRENDLY_Armoured_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_ooo"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_Mechanized_Infrantry_Line.obj",
-                    modelName: "Mechanized Infantry"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_white_eye_ooo.dae",
+                    modelName: "ORBAT_FIRENDLY_Armoured_o"
                 },{
-                    modelFile: "OrbatFriendly/ORBAT_-_WhiteEye.obj",
-                    modelName: "WhiteEye"
+                    modelFile: "OrbatFriendly/ORBAT_FRIENDLY_Cross_Eye_o.dae",
+                    modelName: "ORBAT_FRIENDLY_Cross_Eye_o.dae"
                 }
             ]
         }, {
