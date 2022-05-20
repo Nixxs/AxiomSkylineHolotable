@@ -255,8 +255,13 @@ export class UIManager {
     model.models.forEach((orbatModel, i) => {
       const x = Math.floor(i/6);
       const y = i%6;
-      const spacing = 0.1;
-      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * spacing * 2), -0.4 - (y *spacing * 1.2), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      let xspacing = 0.2;
+      let yspacing = 0.12;
+      if (model.forceType === "enemy"){
+        xspacing = 0.1;
+        yspacing = 0.13;
+      }
+      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
 

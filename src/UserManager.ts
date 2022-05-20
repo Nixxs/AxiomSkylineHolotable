@@ -82,10 +82,12 @@ function dragMode() {
       worldPos.Altitude *= factor;
       // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
 
-      if (GetDeviceType() === DeviceType.Table && worldPos.Altitude > 100000) {
-        worldPos.Altitude = 100000;
-      } else if (GetDeviceType() === DeviceType.Wall && worldPos.Altitude > 60000) {
-        worldPos.Altitude = 60000;
+      const maxTableAltitude = 500000;
+      const maxWallAltitude = 60000;
+      if (GetDeviceType() === DeviceType.Table && worldPos.Altitude > maxTableAltitude) {
+        worldPos.Altitude = maxTableAltitude;
+      } else if (GetDeviceType() === DeviceType.Wall && worldPos.Altitude > maxWallAltitude) {
+        worldPos.Altitude = maxWallAltitude;
       }
       if (worldPos.Altitude < 250) {
         worldPos.Altitude = 250;
@@ -650,7 +652,9 @@ export class UserModeManager {
 
             }
 
-            if (ProgramManager.getInstance().getButton2Pressed(1)) {
+            // disable/enable tinting of models, disabled for now as it is not currently required
+            const enableColourToggle = false;
+            if (ProgramManager.getInstance().getButton2Pressed(1) && enableColourToggle) {
               const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
               console.log(modelObject.Terrain.Tint.ToHTMLColor());
               console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
