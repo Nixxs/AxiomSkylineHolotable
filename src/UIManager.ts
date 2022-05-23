@@ -183,7 +183,7 @@ export class UIManager {
     controlConfig.ControlModels.forEach((model) => {
       if (model.modelType === controlType) {
         // some weird logic here... if its blue or red then add the black models too.
-        if (model.Black === 1) {
+        if (model.Black === 1 && color !== "green" ) {
           const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
           const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
           controls.push(btn);
@@ -196,20 +196,9 @@ export class UIManager {
       }
     });
 
-     controls.sort((a, b) => {
-      if ( a.tooltip < b.tooltip ){
-        return -1;
-      }
-      if ( a.tooltip > b.tooltip ){
-        return 1;
-      }
-      return 0;
-    });
+    controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0 );
 
-    controls.forEach(c => console.log(c.tooltip))
-
-    getMenu().addButtons(controls);
-
+    currentMenu.addButtons(controls);
   }
 
   onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
