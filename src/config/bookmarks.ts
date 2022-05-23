@@ -7,7 +7,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 Y: -36.761405, 
                 Altitude: 0, 
                 AltitudeType: 0,
-                Yaw: 0.00008726, 
+                Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
                 Distance: 2091.6079
@@ -20,7 +20,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 Y:-36.9625506,
                 Altitude: 0, 
                 AltitudeType: 0,
-                Yaw: 0.0000519837, 
+                Yaw: 0, 
                 Pitch: -50.007783, 
                 Roll: 0, 
                 Distance: 2179.73
@@ -33,7 +33,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 Y:  -33.874267268,
                 Altitude: 0, 
                 AltitudeType: 0,
-                Yaw: 359.9865, 
+                Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
                 Distance: 3696.033954
@@ -46,7 +46,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 Y:  -36.9646484,
                 Altitude: 0, 
                 AltitudeType: 0,
-                Yaw: 359.999804, 
+                Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
                 Distance: 1768.7141158
