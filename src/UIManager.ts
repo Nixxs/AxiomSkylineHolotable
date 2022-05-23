@@ -158,22 +158,35 @@ export class UIManager {
 
   onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
     console.log(`show menu ${controlType} ${color}`);
-    const [ControlsMenuTable, ControlsMenuWall] = menus;
-    if (menus[0].isVisible) { // turn it off
-      menus.forEach(m => m.show(false));
+
+    const getMenu = ()=> {
+      const [ControlsMenuTable, ControlsMenuWall] = menus;
+      switch (this.GetDeviceTypeOverride()) {
+        case DeviceType.Desktop:
+        case DeviceType.Table:
+          return ControlsMenuTable
+        case DeviceType.Wall:
+          return ControlsMenuWall;
+      }
+    }
+
+    const currentMenu = getMenu();
+    if(currentMenu.isVisible){
+      currentMenu.show(false);
       return;
     }
+
     const controls: Button[] = [];
-  
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
+
     controlConfig.ControlModels.forEach((model) => {
       if (model.modelType === controlType) {
         // some weird logic here... if its blue or red then add the black models too.
         if(model.Black === 1){
           const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
           const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
-          // const btn =  menus[0].createButton(model.modelName, "blank.xpl2", () => this.onControlModelAdd(model, color));
+          // const btn =  currentMenu.createButton(model.modelName, "blank.xpl2", () => this.onControlModelAdd(model, color));
           controls.push(btn);
         }
         if(color === "blue" &&  model.Blue ||  color === "red" && model.Red || color === "green" && model.Green){ 
@@ -181,20 +194,14 @@ export class UIManager {
           // @Ruben this doesn't work, no buttons
           const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
           // @ruben this works fine, buttons show on wall
-          //const btn =  menus[0].createButton(model.modelName, "blank.xpl2", () => this.onControlModelAdd(model, color));
+          //const btn =  currentMenu.createButton(model.modelName, "blank.xpl2", () => this.onControlModelAdd(model, color));
           controls.push(btn);
         }
       }
     });
-    switch (this.GetDeviceTypeOverride()) {
-      case DeviceType.Desktop:
-      case DeviceType.Table:
-        ControlsMenuTable.addButtons(controls);
-        break;
-      case DeviceType.Wall:
-        ControlsMenuWall.addButtons(controls);
-        break;
-    }
+
+    getMenu().addButtons(controls);
+
   }
 
   onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
