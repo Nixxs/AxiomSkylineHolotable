@@ -380,7 +380,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    // return GetDeviceType();
+    return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
