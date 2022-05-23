@@ -67,7 +67,7 @@ export class MenuPaging extends Menu {
   private addPagingButtons() {
     // add the paging buttons to the left and the right
     const ypr = this.orientation.GetYPR();
-    let newPos = this.getButtonPosition(0 - 0.5, this.rows / 2);
+    let newPos = this.getButtonPosition(0-0.5,  ((this.rows -1) / 2) + 0.5);
     let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
     var posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
