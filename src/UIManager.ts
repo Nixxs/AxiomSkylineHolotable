@@ -144,10 +144,10 @@ export class UIManager {
     const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.3, this.wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06, 2, 2);
 
 
-    showControlsTable.createButton("controlMeasures", "Button_CM_Green.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
-    showControlsTable.createButton("taskIndicatorsBlue", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
-    showControlsTable.createButton("taskIndicatorsRed", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
-    showControlsTable.createButton("taskIndicatorsGreen", "Button_TM.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsGreen", "TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsBlue", "TaskIndicatorsBlue.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
+    showControlsTable.createButton("controlMeasures", "controlMeasures.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
+    showControlsTable.createButton("taskIndicatorsRed", "TaskIndicatorsRed.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
 
 
     showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));
