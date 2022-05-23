@@ -153,8 +153,8 @@ export const controlConfig = {
     {
       "modelName": "PEL",
       "modelType": "controlMeasure",
-      "modelPath": "CM_-_xpl2.xpl2",
-      "buttonIcon": "CM_-_xpl2.xpl2",
+      "modelPath": "CM_-_PEL.xpl2",
+      "buttonIcon": "CM_-_PEL.xpl2",
       "Black": 1,
       "Blue": 0,
       "Red": 0,

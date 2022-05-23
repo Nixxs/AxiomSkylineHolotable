@@ -47,6 +47,14 @@ export class UIManager {
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
 
     this.createMenus();
+
+    // when we start the app ensure we are pointing true north (yaw = 0) and with a tilt
+    const currentPos = sgWorld.Navigate.GetPosition(AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+    const tilt = this.GetDeviceTypeOverride() === DeviceType.Desktop ? -37 : -50; // desktop needs a higher tilt to see the table
+    // todo DW test this is ok on the wall?
+    const pos = sgWorld.Creator.CreatePosition(currentPos.X, currentPos.Y, currentPos.Altitude, currentPos.AltitudeType, 0, tilt, 0, currentPos.Distance);
+    sgWorld.Navigate.JumpTo(pos);
+
   }
 
   createMenus() {
