@@ -82,14 +82,14 @@ export class MenuPaging extends Menu {
       posR = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
-    const btnPL = new Button("ButtonPageLeft1", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
+    const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
       this.pageLeft()
-    }, true)
+    }, true, "Previous")
 
 
     const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Button_Next.xpl2", groupIdPager, () => {
       this.pageRight();
-    }, true);
+    }, true, "Next");
 
     btnPL.setScale(this.buttonSize * 0.9); // 10% used for borders
     btnPR.setScale(this.buttonSize * 0.9); // 10% used for borders
