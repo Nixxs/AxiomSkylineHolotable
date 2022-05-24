@@ -241,7 +241,7 @@ interface I3DViewshed {
   HiddenAreaColor: Color;
   ID: string;
   Message: IMessageObject;
-  ObjectType: ObjectType;
+  ObjectType: ObjectTypeCode;
   Position: IPosition;
   Quality: number;
   RayColor: Color;
@@ -262,13 +262,13 @@ interface IAnalysis {
 interface ITerraExplorerObject {
   ClientData: FClientData;
   ID: string;
-  ObjectType: ObjectType;
+  ObjectType: ObjectTypeCode;
   SaveInFlyFile: boolean;
   GetParam: any;
   SetParam: any;
 }
 
-declare const enum ObjectType {
+declare const enum ObjectTypeCode {
   OT_UNDEFINED = 0,
   OT_POLYLINE = 1,
   OT_POLYGON = 2,
@@ -795,11 +795,77 @@ interface IProjectTree {
 }
 
 type IDateTime = unknown;
-type IDrawing = unknown;
 type IProject = unknown;
 type ISGServer = unknown;
 type ITerrain = unknown;
 type IVersion = unknown;
+
+interface IDrawing {
+  DrawPolyline(DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawPolygon(DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawTextLabel(Text: string, DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawImageLabel(ImagePath: string, DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawDynamicObject(Path: string, DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawModel(Path: string, DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+  DrawRectangle(DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): ITerrainRectangle;
+  DrawCircle(DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
+}
+
+/**
+ * An enum that determines an object's initial move mode, i.e., how it is moved in the 3D Window,
+ * and how the property sheet is displayed when the object is created. The DrawingMode enum is 
+ * divided into two subgroups. This parameter can use a combination of values from the two subgroups, 
+ * but no more than one value from each subgroup can be used.
+ *
+ * @enum {number}
+ */
+declare const enum DrawingMode {
+  /**
+   * Property Sheet Display Group – Use only one of the following values:
+   * Open the property sheet including the top toolbar to edit the object.
+   */
+  DRAW_MODE_SHOW_PROPERTY = 1,
+  /**
+   * Property Sheet Display Group – Use only one of the following values:
+   * Open only the property sheet toolbar to edit the item.
+   */
+  DRAW_MODE_SHOW_PROPERTY_TOOLBAR = 2,
+
+  /**
+   * Move Mode Group – Use only one of the following values
+   * Sets the edit mode to move the object based on where the mouse is pointing in the 3D Window. 
+   * This makes it easier to move an object or node on a vertical plane or above a 3DML layer or other terrain object.
+   */
+  DRAW_MODE_MAGNET = 4,
+  /**
+   * Move Mode Group – Use only one of the following values
+   * Set the edit mode to move the object in the XY plane
+   */
+  DRAW_MODE_XY = 8
+}
+
+interface ITerrainRectangle extends ITerraExplorerObject {
+  ID : string;
+  ObjectType : ObjectTypeCode;
+  SaveInFlyFile : boolean;
+  TreeItem : ITreeItem;
+  Message : IMessageObject;
+  Action : IAction;
+  Position : IPosition;
+  Terrain : ITerrainObject;
+  Tooltip : ITooltip;
+  Attachment : IAttachment;
+  Visibility : IVisibility;
+  TimeSpan : ITimeSpan;
+  LineStyle : ILineStyle;
+  FillStyle : IFillStyle;
+  Top : number;
+  Left : number;
+  Right : number;
+  Bottom : number;
+  Width : number;
+  Depth : number;
+}
 
 interface IWorldPointInfo {
   ObjectID: string;
@@ -869,7 +935,7 @@ interface ISessionManager {
 
 interface ITerrainPolygon extends ITerrainPolyline {
   ID: string;
-  objectType: ObjectType;
+  objectType: ObjectTypeCode;
   saveInFlyFile: boolean;
   treeItem: unknown;
   message: IMessageObject;

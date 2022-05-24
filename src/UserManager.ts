@@ -254,7 +254,7 @@ function colorToRGBA(col: IColor): number[]{
 function GetTerrainLabelById(oid?: string): ITerrainModel | null {
   if (oid !== undefined && oid != "") {
     const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === ObjectType.OT_LABEL) {
+    if (object && object.ObjectType === ObjectTypeCode.OT_LABEL) {
       const model: ITerrainModel = object as ITerrainModel;
       return model;
     }
@@ -269,7 +269,7 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
-function getItemById(oid?: string, objectType = ObjectType.OT_MODEL): ITerrainModel | ITerrainLabel | null {
+function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel | null {
   try {
     if (oid !== undefined && oid != "") {
       const object = sgWorld.Creator.GetObject(oid);
@@ -307,7 +307,7 @@ export class UserModeManager {
   private drawLineColor: IColor;
   private drawButtonId: string | undefined;
 
-  public lineObjects: Array<string> = [];
+  public undoObjectIds: Array<string> = []; // list of ids that will be removed on undo
   private laser1?: Laser;
   private laser2?: Laser;
 
@@ -400,8 +400,8 @@ export class UserModeManager {
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the line objects array so it can be deleted via the undo button
-      this.lineObjects.push(this.currentlySelectedId);
-      console.log(this.lineObjects.toString());
+      this.undoObjectIds.push(this.currentlySelectedId);
+      console.log(this.undoObjectIds.toString());
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -434,14 +434,14 @@ export class UserModeManager {
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
       // check if the user was placing a label and changed their mind
       if (this.userMode == UserMode.PlaceLabel) {
-        const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+        const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
         if (label) {
           sgWorld.Creator.DeleteObject(label.ID);
         }
       }
       this.currentlySelectedId = label.ID;
       // add the new label to the line objects array so it can be deleted via the undo button
-      this.lineObjects.push(label.ID);
+      this.undoObjectIds.push(label.ID);
       this.userMode = UserMode.PlaceLabel;
     }
   }
@@ -528,15 +528,15 @@ export class UserModeManager {
     sgWorld.Creator.DeleteObject(this.currentlySelectedId)
 
     // delete the model from the lineObjects array so it doesn't cause issues with the delete button
-    const indexOfDeleteObject = this.lineObjects.indexOf(this.currentlySelectedId);
-    this.lineObjects.splice(indexOfDeleteObject, 1);
+    const indexOfDeleteObject = this.undoObjectIds.indexOf(this.currentlySelectedId);
+    this.undoObjectIds.splice(indexOfDeleteObject, 1);
   }
 
   // deletes the most recent item that was added to the lineObjects array
   // if there is nothing in the array doesn't do anything
   undo(): void {
     console.log("undo")
-    const objectToDelete = this.lineObjects.pop();
+    const objectToDelete = this.undoObjectIds.pop();
     if (objectToDelete != undefined) {
       console.log("deleting: " + objectToDelete);
       sgWorld.Creator.DeleteObject(objectToDelete);
@@ -557,6 +557,23 @@ export class UserModeManager {
     this.drawLineFirstPoint = null;
     this.drawButtonId = buttonId;
     highlightById(true, this.drawButtonId);
+  }
+
+  toggleDrawRectangle(): void {
+
+    const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+    const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
+
+    const onDraw =(geometry: any)=>{
+      console.log(rect.ID)
+      this.undoObjectIds.push(rect.ID);
+      rect.LineStyle.Color = this.getColorFromString("green")
+      console.log("drawn");
+      sgWorld.DetachEvent("OnDrawingFinished", onDraw);
+    }
+    
+    sgWorld.AttachEvent("OnDrawingFinished", onDraw);
+
   }
 
   Update() {
@@ -630,7 +647,7 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const lineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
           const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, grp, "__line");
           mLine.LineStyle.Width = this.measurementLineWidth;
           this.measurementModeLineID = mLine.ID;
@@ -638,9 +655,9 @@ export class UserModeManager {
 
           // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
           // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-          this.lineObjects.push(this.measurementModeLineID);
-          this.lineObjects.push(this.measurementTextLabelID);
-          console.log(this.lineObjects.toString());
+          this.undoObjectIds.push(this.measurementModeLineID);
+          this.undoObjectIds.push(this.measurementTextLabelID);
+          console.log(this.undoObjectIds.toString());
 
           // consume the button press
           ControllerReader.controllerInfos[1].button1Pressed = false;
@@ -709,7 +726,7 @@ export class UserModeManager {
             const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
             if (intersectedItemId) {
               const model = getItemById(intersectedItemId) as ITerrainModel;
-              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (model && label) {
                 label.Style.FontSize = 20;
                 label.Style.TextAlignment = "Left";
@@ -726,7 +743,7 @@ export class UserModeManager {
             };
           } else {
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
-              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (!label) {
                 sgWorld.Creator.DeleteObject(this.currentlySelectedId!);
                 this.currentlySelectedId = "";
@@ -737,7 +754,7 @@ export class UserModeManager {
               newModelPosition.Pitch = 0;
               newModelPosition.Yaw = newModelPosition.Roll * 2;
               newModelPosition.Roll = 0;
-              const label = getItemById(this.currentlySelectedId, ObjectType.OT_LABEL) as ITerrainLabel;
+              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (!label) {
                 // it has been killed
                 this.userMode = UserMode.Standard;
@@ -800,15 +817,15 @@ export class UserModeManager {
 
           const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
           const drawLineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const grp = ProgramManager.getInstance().getCollaborationFolderID("lines");
+          const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
           const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, grp, "__line");
           dLine.LineStyle.Width = this.drawLineWidth;
           this.drawLineID = dLine.ID;
 
           // add the new item to the array so it can be deleted in sequence via the undo button
           // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-          this.lineObjects.push(this.drawLineID);
-          console.log(this.lineObjects.toString());
+          this.undoObjectIds.push(this.drawLineID);
+          console.log(this.undoObjectIds.toString());
 
           // consume the button press
           ControllerReader.controllerInfos[1].button1Pressed = false;

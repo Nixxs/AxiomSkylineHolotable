@@ -42,6 +42,7 @@ export class UIManager {
     document.getElementById("simulate")?.addEventListener("click", SimulateSelectedButton);
     ProgramManager.getInstance().deleteGroup("buttons");
     ProgramManager.getInstance().deleteGroup("models");
+    ProgramManager.getInstance().deleteGroup("drawings");
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     this.groupId = groupId;
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
@@ -66,12 +67,12 @@ export class UIManager {
     const wallPos = this.wallPos;; // distance out from wall
     const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
 
-    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw"), "Draw Line");
+    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
-    toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"),  "Scale down model");
+    toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
     toolsMenuTable.createButton("PreviousBookmark", "BUTTON_Bookmark_Prev.xpl2", (id) => this.onButtonClick("PreviousBookmark"), "Next location");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("NextBookmark"), "Previous location");
 
@@ -191,7 +192,7 @@ export class UIManager {
     controlConfig.ControlModels.forEach((model) => {
       if (model.modelType === controlType) {
         // some weird logic here... if its blue or red then add the black models too.
-        if (model.Black === 1 && color !== "green" ) {
+        if (model.Black === 1 && color !== "green") {
           const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
           const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
           controls.push(btn);
@@ -204,7 +205,14 @@ export class UIManager {
       }
     });
 
-    controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0 );
+    // for green we need a specific button which allows a rectangle to be drawn
+    if (color === "green") {
+      const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+      const btn = new Button("Draw Box", pos,  basePath + "ui/blank.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Draw box", buttonRGBA)
+      controls.push(btn);
+    }
+
+    controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0);
 
     currentMenu.addButtons(controls);
   }
@@ -293,8 +301,11 @@ export class UIManager {
       case "PreviousBookmark":
         this.bookmarkManager.ZoomPrevious();
         break;
-      case "Draw":
+      case "Draw:Line":
         pm.toggleDrawLine()
+        break;
+      case "Draw:Rectangle":
+        pm.toggleDrawRectangle()
         break;
       case "Measure":
         pm.toggleMeasurementMode();
@@ -311,6 +322,8 @@ export class UIManager {
       case "ScaleModelDown":
         pm.scaleModel(-1);
         break;
+      default:
+        console.log("onButtonClick:: action not found" + name)
     }
   }
 
@@ -339,7 +352,7 @@ export class UIManager {
       try {
         const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
         // add the created model to the undo list
-        ProgramManager.getInstance().userModeManager?.lineObjects.push(modelObject.ID);
+        ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
         var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
         modelObject.ScaleFactor = scaleValue;
