@@ -8,7 +8,7 @@ import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoo
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
-import { orbatConfig } from "./config/OrbatModels";
+import { IOrbatMenuItem, IOrbatModel, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
 import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
@@ -90,8 +90,14 @@ export class UIManager {
     const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
     orbatMenuWall.rows = 4;
     orbatMenuWall.cols = 1
+
+    // Sub menus
+    const subMenuOrbatTable = new Menu(0.04, 0.2, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const subMenuOrbatWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.06, this.wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    this.menusTable.push(subMenuOrbatTable);
+    this.menusWall.push(subMenuOrbatWall);
     orbatConfig.OrbatModels.forEach((model, i) => {
-      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatModelAdd(model));
+      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]), model.modelName);
     });
 
     this.menusTable.push(orbatMenuTable);
@@ -126,6 +132,29 @@ export class UIManager {
     this.menusWall.push(showVerbsWall);
 
     this.createControlMeasuresMenu();
+  }
+
+
+
+  onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: Menu[]): void {
+    console.log("onOrbatShowMenu  ===========================")
+    const [subMenuOrbatTable, subMenuOrbatWall] = menus;
+    menus.forEach(m => m.removeAllButtons())
+
+    if (menuItems.buttons.length === 1) {
+      /// no sub menu items just show the models
+      this.onOrbatModelAdd(menuItems.buttons[0])
+    } else {
+      // create a menu which has the sub menu items
+      menuItems.buttons.forEach(btn => {
+        console.log("adding new button ===========================")
+        subMenuOrbatTable.createButton(btn.modelName, btn.buttonIcon, () => {
+          menus.forEach(m => m.show(false))
+          this.onOrbatModelAdd(btn)
+        }, btn.modelName)
+      })
+      subMenuOrbatTable.buttons.forEach(b => subMenuOrbatWall.addButton(b))
+    }
   }
 
   onVerbAdd(verb: { verbName: string; verbType: string; }, menus: MenuVerbs[]): void {
@@ -208,7 +237,7 @@ export class UIManager {
     // for green we need a specific button which allows a rectangle to be drawn
     if (color === "green") {
       const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
-      const btn = new Button("Draw Box", pos,  basePath + "ui/blank.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Draw box", buttonRGBA)
+      const btn = new Button("Draw Box", pos, basePath + "ui/blank.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Draw box", buttonRGBA)
       controls.push(btn);
     }
 
@@ -332,7 +361,8 @@ export class UIManager {
     pm?.toggleModelMode(model.modelPath, model.modelName, color)
   }
 
-  onOrbatModelAdd(model: { modelName: string; modelType: string; missionType: string; forceType: string; buttonIcon: string; models: { modelFile: string, modelName: string; }[]; }): void {
+
+  onOrbatModelAdd(model: IOrbatSubMenuItem): void {
     // add the orbat model to world space in the centre of the screen
     const modelsToPlace: ITerrainModel[] = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");

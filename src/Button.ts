@@ -34,7 +34,7 @@ export class Button {
     console.log(`simulating click on ${this.name}`);
     this.callback(this.ID);
   }
- 
+
   // buttonPressed is whether the button was down this frame but not last frame
   Update() {
     const button1Pressed = ProgramManager.getInstance().getButton1Pressed(1);
@@ -46,16 +46,16 @@ export class Button {
   }
 
   Draw() {
-  
-    if(this.initError) return;
+
+    if (this.initError) return;
     const pos = roomToWorldCoord(this.roomPosition);
-    if(this.initError) return;
+    if (this.initError) return;
     if (this.ID === undefined) {
       try {
         const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
-        if(this.color){
+        if (this.color) {
           // tint the model
           obj.Terrain.Tint = this.color;
         }
@@ -91,6 +91,10 @@ export class Button {
 
   destroy() {
     if (this.ID === undefined) return;
-    sgWorld.Creator.DeleteObject(this.ID);
+    try {
+      sgWorld.Creator.DeleteObject(this.ID);
+    } catch (error) {
+      // its already been destroyed don't worry
+    }
   }
 }

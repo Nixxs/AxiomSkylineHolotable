@@ -120,6 +120,16 @@ export class Menu {
     }
   }
 
+  removeAllButtons() {
+    this.recomputeButtons = false; // stop recompute while we destroy the old ones
+    this.buttons.forEach(b => b.destroy());
+    this.buttons = [];
+    this.rows = 0;
+    this.cols = 0;
+    this.recomputeButtons = true;
+  }
+  
+
   show(visibility: boolean) {
     for (let button of this.buttons)
       button.show(visibility);
