@@ -93,7 +93,7 @@ export class UIManager {
 
     // Sub menus
     const subMenuOrbatTable = new Menu(0.04, 0.2, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const subMenuOrbatWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.06, this.wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    const subMenuOrbatWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.12, this.wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
     orbatConfig.OrbatModels.forEach((model, i) => {
@@ -423,7 +423,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+    //return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
