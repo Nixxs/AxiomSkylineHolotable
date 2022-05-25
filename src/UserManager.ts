@@ -730,6 +730,8 @@ export class UserModeManager {
               if (model && label) {
                 label.Style.FontSize = 20;
                 label.Style.TextAlignment = "Left";
+                label.Style.Bold = true;
+                label.Style.BackgroundColor = sgWorld.Creator.CreateColor(255,255,255,0);
                 // setTimeout(() => {
                 //   label.Style.MaxViewingHeight = 10000;
                 // }, 1000)
