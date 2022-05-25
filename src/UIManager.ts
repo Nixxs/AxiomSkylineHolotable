@@ -237,7 +237,7 @@ export class UIManager {
     // for green we need a specific button which allows a rectangle to be drawn
     if (color === "green") {
       const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
-      const btn = new Button("Obstacle Group", pos, basePath + "ui/blank.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Obstacle Group", buttonRGBA)
+      const btn = new Button("Obstacle Group", pos, basePath + "ui/CM_-_ObstacleGroup.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Obstacle Group", buttonRGBA)
       controls.push(btn);
     }
 
