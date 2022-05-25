@@ -741,6 +741,35 @@ export const orbatConfig: IOrbatConfig = {
                     ]
                 }
             ]
+        }, {
+            modelName: "Models",
+            modelType: "orbat",
+            missionType: "na",
+            forceType: "friendly",
+            buttonIcon: "BUTTON_ORBAT_SCALE_MODEL.xpl2",
+            buttons: [
+                {
+                    modelName: "Models",
+                    modelType: "orbat",
+                    missionType: "na",
+                    forceType: "friendly",
+                    buttonIcon: "BUTTON_ORBAT_SCALE_MODEL.xpl2",
+                    models: [
+                        {
+                            modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
+                            modelName: "M1A1 Abrahms"
+                        },
+                        {
+                            modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
+                            modelName: "M1A1 Abrahms"
+                        },
+                        {
+                            modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
+                            modelName: "M1A1 Abrahms"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }
