@@ -15,6 +15,17 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_CTD.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTD.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTD"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
+                            modelName: "ORBAT_FIRENDLY_MechInf_I"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -57,6 +68,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_CTC.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTC.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTC"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
@@ -101,6 +119,13 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_CTB.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTB.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTB"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -143,6 +168,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_CTA.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTA.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_BG_JACKA_CTA"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
@@ -195,6 +227,13 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_CTD.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_CTD.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_CTD"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -237,6 +276,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_CTC.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_CTC.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_CTC"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
@@ -281,6 +327,13 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_CTB.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_CTB.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_CTB"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -323,6 +376,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_CTA.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_CTA.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_5_CTA"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
@@ -375,6 +435,13 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_CTD.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_CTD.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_CTD"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -417,6 +484,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_CTC.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_CTC.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_CTC"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
@@ -461,6 +535,13 @@ export const orbatConfig: IOrbatConfig = {
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_CTB.xpl2",
                     models: [
                         {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_CTB.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_CTB"
+                        },
+                        {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"
                         }, {
@@ -503,6 +584,13 @@ export const orbatConfig: IOrbatConfig = {
                     forceType: "friendly",
                     buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_CTA.xpl2",
                     models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_HQ"
+                        },{
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_CTA.xpl2",
+                            modelName: "ORBAT_ORBAT_FRIENDLY_7_CTA"
+                        },
                         {
                             modelFile: "OrbatFriendly/ORBAT_FIRENDLY_MechInf_I.dae",
                             modelName: "ORBAT_FIRENDLY_MechInf_I"

@@ -1,6 +1,46 @@
 export const controlConfig = {
   ControlModels: [
     {
+      "modelName": "CM_AttackAviationDotted",
+      "modelType": "taskIndicator",
+      "modelPath": "CM_AttackAviationDotted.obj",
+      "buttonIcon": "CM_-_AMA.xpl2",
+      "Black": 0,
+      "Blue": 1,
+      "Red": 1,
+      "Green": 0
+    },
+    {
+      "modelName": "CM_CrossingNotDotted",
+      "modelType": "taskIndicator",
+      "modelPath": "CM_CrossingNotDotted.obj",
+      "buttonIcon": "CM_-_AMA.xpl2",
+      "Black": 0,
+      "Blue": 1,
+      "Red": 1,
+      "Green": 0
+    },
+    {
+      "modelName": "CM_GroundAxisOfAdvanceDotted",
+      "modelType": "taskIndicator",
+      "modelPath": "CM_GroundAxisOfAdvanceDotted.obj",
+      "buttonIcon": "CM_-_AMA.xpl2",
+      "Black": 0,
+      "Blue": 1,
+      "Red": 1,
+      "Green": 0
+    },
+    {
+      "modelName": "CM_GroundMainAttackDotted",
+      "modelType": "taskIndicator",
+      "modelPath": "CM_GroundMainAttackDotted.obj",
+      "buttonIcon": "CM_-_AMA.xpl2",
+      "Black": 0,
+      "Blue": 1,
+      "Red": 1,
+      "Green": 0
+    },
+    {
       "modelName": "AMA",
       "modelType": "controlMeasure",
       "modelPath": "CM_-_AMA.xpl2",
