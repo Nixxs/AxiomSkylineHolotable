@@ -730,9 +730,9 @@ export class UserModeManager {
               if (model && label) {
                 label.Style.FontSize = 20;
                 label.Style.TextAlignment = "Left";
-                setTimeout(() => {
-                  label.Style.MaxViewingHeight = 10000;
-                }, 1000)
+                // setTimeout(() => {
+                //   label.Style.MaxViewingHeight = 10000;
+                // }, 1000)
                 const offsetX = 1 - (model.ScaleFactor / 3.3);
                 label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
                 ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
