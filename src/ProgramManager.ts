@@ -340,7 +340,7 @@ export class ProgramManager {
       const afterFirst = () => {
         console.log("do afterFirst")
         setComClientForcedInputMode();
-        colourItemsOnStartup(); // color the items in the tree
+        setTimeout(()=> colourItemsOnStartup(), 500); // color the items in the tree
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -516,6 +516,7 @@ export function MaxZoom() {
 
 function colourItemsOnStartup() {
   try {
+    console.log("colourItemsOnStartup")
     var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
     id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
     traverseTree(id);
@@ -529,11 +530,12 @@ function traverseTree(current: string) {
 
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
-
+    console.log(currentName + "is group?" + sgWorld.ProjectTree.IsGroup(current))
     if (sgWorld.ProjectTree.IsGroup(current)) {
       if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1 
       || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
         const colName = currentName.split("_")[currentName.split("_").length - 1]
+        console.log( currentName + colName)
         colorItems(current, colName);
       }
       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
@@ -551,10 +553,11 @@ function colorItems(parentId: string, color: string) {
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
       const name = sgWorld.ProjectTree.GetItemName(id);
+      console.log("colorItems" + name + color)
       const obj = sgWorld.ProjectTree.GetObject(id);
       if (obj.ObjectType === ObjectTypeCode.OT_MODEL) {
         const model = obj as ITerrainModel;
-        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color);
+        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
         if (col) {
           model.Terrain.Tint = col;
         }
