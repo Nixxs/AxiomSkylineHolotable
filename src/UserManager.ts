@@ -4,7 +4,7 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, getItemById, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -262,26 +262,6 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
   return null;
 }
 
-/**
- * Returns models by their ID
- * Optionally supply a model type for other items such as labels
- * @param {string} [oid]
- * @param {*} [objectType=ObjectType.OT_MODEL]
- * @return {*}  {(ITerrainModel | null)}
- */
-function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
-  try {
-    if (oid !== undefined && oid != "") {
-      const object = sgWorld.Creator.GetObject(oid);
-      if (object && object.ObjectType === objectType) {
-        return object as any;
-      }
-    }
-  } catch (error) {
-    return null;
-  }
-  return null;
-}
 
 const wallMode = wandMode;
 
@@ -708,7 +688,7 @@ export class UserModeManager {
               // adam asked for models to always be north facing so yaw is 0 on every update now
               var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
               modelName = modelName.toLocaleLowerCase();
-              // if its an orbat, it is not rotateable otherwise it will be
+              // if its an orbat, it is not rotatable otherwise it will be
               if (modelName.indexOf('orbat') !== -1){
                 newModelPosition.Yaw = 0;
               } else {

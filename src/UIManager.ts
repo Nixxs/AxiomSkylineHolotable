@@ -13,6 +13,7 @@ import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
 import { UserMode } from "./UserManager";
+import { ButtonModel } from "./UIControls/ButtonModel";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -224,12 +225,12 @@ export class UIManager {
         // some weird logic here... if its blue or red then add the black models too.
         if (model.Black === 1 && color !== "green") {
           const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
-          const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
+          const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
           controls.push(btn);
         }
         if (color === "blue" && model.Blue || color === "red" && model.Red || color === "green" && model.Green) {
           const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
-          const btn = new Button(model.modelName, pos, basePath + "ui/" + model.buttonIcon, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
+          const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
           controls.push(btn);
         }
       }

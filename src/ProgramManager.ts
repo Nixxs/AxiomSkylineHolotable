@@ -125,6 +125,7 @@ export function GetDeviceType() {
  * Handles running the script in any program mode
  */
 export class ProgramManager {
+  
   static OnFrame() { }
   static OneFrame = function () { }
   static DoOneFrame(f: () => void) { ProgramManager.OneFrame = f; }
@@ -132,6 +133,7 @@ export class ProgramManager {
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
   public currentlySelected?= "";
+  private colorItemsTimeout: number = 0;
 
   getMode() { return this.mode; }
   setMode(newMode: ProgramMode) {
@@ -370,7 +372,12 @@ export class ProgramManager {
         });
         sgWorld.AttachEvent("OnProjectTreeAction", (CommandID: string, parameters: any) => {
           // if in collab mode make sure the models are coloured on the other machine
-          colourItemsOnStartup()
+          if(this.colorItemsTimeout){
+            clearTimeout(this.colorItemsTimeout);
+          }
+          this.colorItemsTimeout = setTimeout(() => {
+            ()=> colourItemsOnStartup()
+          }, 300);
         });
       };
       const firstTableFrame = (eventID: number, _eventParam: unknown) => {
@@ -486,6 +493,27 @@ export function MaxZoom() {
   return 99999999999;
 }
 
+/**
+ * Returns models by their ID
+ * Optionally supply a model type for other items such as labels
+ * @param {string} [oid]
+ * @param {*} [objectType=ObjectType.OT_MODEL]
+ * @return {*}  {(ITerrainModel | null)}
+ */
+ export function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
+  try {
+    if (oid !== undefined && oid != "") {
+      const object = sgWorld.Creator.GetObject(oid);
+      if (object && object.ObjectType === objectType) {
+        return object as any;
+      }
+    }
+  } catch (error) {
+    return null;
+  }
+  return null;
+}
+
 function colourItemsOnStartup() {
   try {
     var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
@@ -519,12 +547,10 @@ function traverseTree(current: string) {
 
 function colorItems(parentId: string, color: string) {
   try {
-    console.log("colorItems")
     // get the next item as this will be a parent
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
       const name = sgWorld.ProjectTree.GetItemName(id);
-      console.log(`color model ${name} ${color}`)
       const obj = sgWorld.ProjectTree.GetObject(id);
       if (obj.ObjectType === ObjectTypeCode.OT_MODEL) {
         const model = obj as ITerrainModel;
