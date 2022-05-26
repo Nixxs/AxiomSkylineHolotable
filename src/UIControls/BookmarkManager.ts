@@ -46,7 +46,7 @@ export class BookmarkManager {
         var cTextLabel = sgWorld.Creator.CreateTextLabel(pos, text, labelStyle, "", "TextLabel");
         // clear the item after 4.5 seconds
         setTimeout(() => {
-            sgWorld.Creator.DeleteObject(cTextLabel.ID)
+            ProgramManager.getInstance().deleteItemSafe(cTextLabel.ID)
         }, (4500));
       
     }

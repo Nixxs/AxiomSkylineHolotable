@@ -9,6 +9,10 @@ export const verbsConfig = {
             verbType: "TaskVerb"
         },
         {
+            verbName: "C-ATK",
+            verbType: "TaskVerb"
+        },
+        {
             verbName: "clear",
             verbType: "TaskVerb"
         },
