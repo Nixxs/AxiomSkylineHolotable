@@ -765,7 +765,7 @@ interface IProjectTree {
   GetGroupLocation: unknown; // Returns the location of the specified group.
   GetGroupMessageID: unknown; // Returns the message set for a specific group or layer in the Project Tree using its ID.
   GetGroupStartTime: unknown; // Returns the specified group’s start date and time.
-  GetItemName: unknown; // Returns the name of a specific item using its ID.
+  GetItemName(ID: string): string; // Returns the name of a specific item using its ID.
   GetLayer: unknown; // Returns an interface to the IFeatureLayer73 object based on the specified group ID.
   GetNextItem: unknown; // Retrieves the Project Tree item that has the specified relationship, indicated by the Code parameter, to another item whose ID is specified.
   // Returns an ITerraExplorerObject interface to an object based on its ID.

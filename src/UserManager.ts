@@ -695,9 +695,17 @@ export class UserModeManager {
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
             if (newModelPosition !== undefined) {
               newModelPosition.Pitch = 0;
+
               // adam asked for models to always be north facing so yaw is 0 on every update now
-              //newModelPosition.Yaw = newModelPosition.Roll * 2;
-              newModelPosition.Yaw = 0;
+              var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
+              modelName = modelName.toLocaleLowerCase();
+              // if its an orbat, it is not rotateable otherwise it will be
+              if (modelName.indexOf('orbat') !== -1){
+                newModelPosition.Yaw = 0;
+              } else {
+                newModelPosition.Yaw = newModelPosition.Roll * 2;
+              }
+
               newModelPosition.Roll = 0;
               const modelObject = getItemById(this.currentlySelectedId!);
               if (!modelObject) {
