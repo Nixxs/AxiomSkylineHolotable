@@ -92,7 +92,7 @@ export class Button {
   destroy() {
     if (this.ID === undefined) return;
     try {
-      sgWorld.Creator.DeleteObject(this.ID);
+      ProgramManager.getInstance().deleteItemSafe(this.ID!)
     } catch (error) {
       // its already been destroyed don't worry
     }

@@ -41,7 +41,7 @@ export class ButtonLabelled extends Button {
   destroy(): void {
     super.destroy();
     if (!this.labelId) return;
-    sgWorld.Creator.DeleteObject(this.labelId);
+    ProgramManager.getInstance().deleteItemSafe(this.labelId)
   }
 
  

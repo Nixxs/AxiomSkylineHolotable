@@ -165,6 +165,22 @@ export class ProgramManager {
     console.log("ProgramManager:: constructor");
   }
 
+  /**
+ * stops errors if the object doesn't exist
+ *
+ * @param {*} id
+ */
+  deleteItemSafe(id: string) {
+    try {
+      const object = sgWorld.Creator.GetObject(id);
+      if (object) {
+        sgWorld.Creator.DeleteObject(id);
+      }
+    } catch (error) {
+      // fine
+    }
+  }
+
   deleteGroup(groupName: string) {
     const groupId = sgWorld.ProjectTree.FindItem(groupName);
     if (groupId) {
@@ -175,22 +191,41 @@ export class ProgramManager {
     return false;
   }
 
-  getGroupID(groupName: string) {
-    return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName);
+  getGroupID(groupName: string, parentGroup?: string) {
+    return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName, parentGroup);
   }
 
-  getCollaborationFolderID(groupName: string){
+  getCollaborationFolderID(groupName: string) {
     var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
-    var grp = ProgramManager.getInstance().getGroupID(groupName);
+    var grp = "";
     // if there is a collaboration session going then put the model in the collaboration session otherwise 
     // just put it in the models group
-    if (collaborationSessionFolder.indexOf("Collaboration") !== -1){
+    if (collaborationSessionFolder.indexOf("Collaboration") !== -1) {
       grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
+      // sub group
+      try {
+        let id = sgWorld.ProjectTree.GetNextItem(grp, ItemCode.CHILD);
+
+        while (id) {
+          console.log(sgWorld.ProjectTree.GetItemName(id))
+          if (sgWorld.ProjectTree.GetItemName(id) === groupName) {
+            return id;
+          }
+          id = sgWorld.ProjectTree.GetNextItem(grp, ItemCode.NEXT);
+        }
+      } catch (error) {
+        console.log("error no children")
+      }
+      console.log("create new group under collab tree");
+      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);; 
+      return grp
+    } else {
+      grp = ProgramManager.getInstance().getGroupID(groupName);
     }
     return grp;
   }
 
-  refreshCollaborationModeLayers(objectID: string){
+  refreshCollaborationModeLayers(objectID: string) {
     sgWorld.ProjectTree.SetVisibility(objectID, false);
     sgWorld.ProjectTree.SetVisibility(objectID, true);
   }
@@ -301,7 +336,9 @@ export class ProgramManager {
       console.log("init:: " + new Date(Date.now()).toISOString());
       // Wait for managers to initialise on first frame
       const afterFirst = () => {
+        console.log("do afterFirst")
         setComClientForcedInputMode();
+        colourItemsOnStartup(); // color the items in the tree
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -330,6 +367,10 @@ export class ProgramManager {
         });
         sgWorld.AttachEvent("OnCommandExecuted", (CommandID: string, parameters: any) => {
           console.log(CommandID + " " + JSON.stringify(parameters))
+        });
+        sgWorld.AttachEvent("OnProjectTreeAction", (CommandID: string, parameters: any) => {
+          // if in collab mode make sure the models are coloured on the other machine
+          colourItemsOnStartup()
         });
       };
       const firstTableFrame = (eventID: number, _eventParam: unknown) => {
@@ -444,3 +485,62 @@ export function MaxZoom() {
   // arbitrary limit to max zoom
   return 99999999999;
 }
+
+function colourItemsOnStartup() {
+  try {
+    var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
+    id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
+    traverseTree(id);
+  } catch (error) {
+    console.error("colourItemsOnStartup error")
+    console.error(JSON.stringify(error))
+  }
+}
+
+function traverseTree(current: string) {
+
+  while (current) {
+    var currentName = sgWorld.ProjectTree.GetItemName(current);
+
+    if (sgWorld.ProjectTree.IsGroup(current)) {
+      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1 
+      || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
+        const colName = currentName.split("_")[currentName.split("_").length - 1]
+        colorItems(current, colName);
+      }
+      var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
+      traverseTree(child);
+    }
+    current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
+
+  }
+
+}
+
+function colorItems(parentId: string, color: string) {
+  try {
+    console.log("colorItems")
+    // get the next item as this will be a parent
+    let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
+    while (id) {
+      const name = sgWorld.ProjectTree.GetItemName(id);
+      console.log(`color model ${name} ${color}`)
+      const obj = sgWorld.ProjectTree.GetObject(id);
+      if (obj.ObjectType === ObjectTypeCode.OT_MODEL) {
+        const model = obj as ITerrainModel;
+        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color);
+        if (col) {
+          model.Terrain.Tint = col;
+        }
+      }
+      id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
+    }
+  } catch (error) {
+    console.error("colorItems error")
+    console.error(JSON.stringify(error))
+    // swallow it. There doesn't appear to be a way to tell if there is another 
+    // item so it fails eventually when you do get next item
+  }
+}
+
+

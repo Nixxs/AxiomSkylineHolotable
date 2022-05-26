@@ -182,10 +182,10 @@ let highlightedId = "";
 let previousCol: number[] = [];
 function showTooltipIntersected(laser: Laser) {
   if (laser.collision != undefined && laser.collision.objectID) {
-    const model = getItemById(laser.collision.objectID);
+    const model = getItemById(laser.collision.objectID) as ITerrainModel;
     if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
       tooltipTimeout = setTimeout(() => {
-        if (lastTooltip) sgWorld.Creator.DeleteObject(lastTooltip)
+        if (lastTooltip) ProgramManager.getInstance().deleteItemSafe(lastTooltip)
         const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
         labelStyle.LockMode = LabelLockMode.LM_AXIS_AUTOPITCH_TEXTUP
         // DW tried to check for overlaps but 
@@ -210,7 +210,7 @@ function showTooltipIntersected(laser: Laser) {
   }
   else {
     if (lastTooltip) {
-      sgWorld.Creator.DeleteObject(lastTooltip);
+      ProgramManager.getInstance().deleteItemSafe(lastTooltip)
       lastTooltip = "";
       lastTooltipModelID = "";
     }
@@ -269,7 +269,7 @@ function GetTerrainLabelById(oid?: string): ITerrainModel | null {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
-function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel | null {
+function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
   try {
     if (oid !== undefined && oid != "") {
       const object = sgWorld.Creator.GetObject(oid);
@@ -361,8 +361,8 @@ export class UserModeManager {
     if (this.userMode == UserMode.Measurement) {
       highlightById(true, buttonId);
       if (this.measurementModeLineID !== null) {
-        sgWorld.Creator.DeleteObject(this.measurementModeLineID);
-        sgWorld.Creator.DeleteObject(this.measurementTextLabelID!);
+        ProgramManager.getInstance().deleteItemSafe(this.measurementModeLineID);
+        ProgramManager.getInstance().deleteItemSafe(this.measurementTextLabelID!);
       }
       this.userMode = UserMode.Standard;
     } else {
@@ -382,7 +382,7 @@ export class UserModeManager {
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
       pos.Pitch = 0;
       console.log("creating model:: " + modelPath);
-      const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
+      const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       let color = this.getColorFromString(modelColor);
  
@@ -436,7 +436,7 @@ export class UserModeManager {
       if (this.userMode == UserMode.PlaceLabel) {
         const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
         if (label) {
-          sgWorld.Creator.DeleteObject(label.ID);
+          ProgramManager.getInstance().deleteItemSafe(label.ID)
         }
       }
       this.currentlySelectedId = label.ID;
@@ -523,10 +523,10 @@ export class UserModeManager {
       console.log("Nothing selected to delete");
       return;
     }
-
-    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
-    sgWorld.Creator.DeleteObject(this.currentlySelectedId)
-
+    const model = getItemById(this.currentlySelectedId);
+    if(model){
+      ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
+    }
     // delete the model from the lineObjects array so it doesn't cause issues with the delete button
     const indexOfDeleteObject = this.undoObjectIds.indexOf(this.currentlySelectedId);
     this.undoObjectIds.splice(indexOfDeleteObject, 1);
@@ -539,7 +539,7 @@ export class UserModeManager {
     const objectToDelete = this.undoObjectIds.pop();
     if (objectToDelete != undefined) {
       console.log("deleting: " + objectToDelete);
-      sgWorld.Creator.DeleteObject(objectToDelete);
+      ProgramManager.getInstance().deleteItemSafe(objectToDelete)
 
       // if the user selects a model then hits the undo button to delete the model then 
       // we have to update the currently selected value to none so it doesn't cause errors
@@ -698,7 +698,6 @@ export class UserModeManager {
               } else {
                 modelObject.Position = newModelPosition;
               }
-
             }
 
             // disable/enable tinting of models, disabled for now as it is not currently required
@@ -747,7 +746,7 @@ export class UserModeManager {
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
               const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (!label) {
-                sgWorld.Creator.DeleteObject(this.currentlySelectedId!);
+                ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
                 this.currentlySelectedId = "";
               }
             }
@@ -773,7 +772,12 @@ export class UserModeManager {
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
           // Move the line end position to the cursor
-          var dLine = sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+          var dLine = getItemById(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline // sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
+          if(!dLine) {
+            // fail
+            this.userMode = UserMode.Standard;
+            return;
+          };
           var Geometry = dLine.Geometry as ILineString;
 
           const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();

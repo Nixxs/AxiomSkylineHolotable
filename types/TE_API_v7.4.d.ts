@@ -613,14 +613,13 @@ interface ILabelStyle {
   Underline: boolean;
 }
 
-declare const enum LabelLockMode
-{
-    LM_DECAL = 0,
-    LM_AXIS = 1,
-    LM_AXIS_TEXTUP = 2,
-    LM_AXIS_AUTOPITCH = 3,
-    LM_AXIS_AUTOPITCH_TEXTUP = 4,
-    LM_AXIS_AUTOYAW = 5
+declare const enum LabelLockMode {
+  LM_DECAL = 0,
+  LM_AXIS = 1,
+  LM_AXIS_TEXTUP = 2,
+  LM_AXIS_AUTOPITCH = 3,
+  LM_AXIS_AUTOPITCH_TEXTUP = 4,
+  LM_AXIS_AUTOYAW = 5
 }
 
 type CanvasPixelArray = unknown;
@@ -688,7 +687,7 @@ interface ICreator {
   CreateModel(Position: IPosition, FileName: string, Scale: number, ModelType: 0 | 1 | 2, GroupID: string, Description: string): ITerrainModel; //Imports from a file an ITerrainModel73, representing a model object.
   CreateNewFeatureLayer: unknown; //Creates directly from TerraExplorer an IFeatureLayer73, representing a new feature layer.
   CreatePointCloudModel: unknown; //Imports an ITerrainPointCloudModel73 object from a file.
-  CreatePolygon(geometry: IGeometry, LineColor?: number, FillColor?: number, AltitudeTypeCode?: AltitudeTypeCode, GroupID?: string,  Description?: string): ITerrainPolygon; //Creates an ITerrainPolygon73 in the 3D Window.
+  CreatePolygon(geometry: IGeometry, LineColor?: number, FillColor?: number, AltitudeTypeCode?: AltitudeTypeCode, GroupID?: string, Description?: string): ITerrainPolygon; //Creates an ITerrainPolygon73 in the 3D Window.
   CreatePolygonFromArray: unknown; //Creates an ITerrainPolygon73 representing the polygon by connecting the points in an array of points.
   CreatePolyline(Geometry: IGeometry, LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, in the 3D Window.
   CreatePolylineFromArray(verticesArray: [number, number, number][], LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, by connecting the points in an array of points.
@@ -765,12 +764,34 @@ interface IProjectTree {
   GetGroupLocation: unknown; // Returns the location of the specified group.
   GetGroupMessageID: unknown; // Returns the message set for a specific group or layer in the Project Tree using its ID.
   GetGroupStartTime: unknown; // Returns the specified group’s start date and time.
-  GetItemName: unknown; // Returns the name of a specific item using its ID.
+ /**
+  * Returns the name of a specific item using its ID.
+  *
+  * @param {string} id
+  * @return {*}  {string}
+  * @memberof IProjectTree
+  */
+ GetItemName(id: string): string; 
   GetLayer: unknown; // Returns an interface to the IFeatureLayer73 object based on the specified group ID.
-  GetNextItem: unknown; // Retrieves the Project Tree item that has the specified relationship, indicated by the Code parameter, to another item whose ID is specified.
+  /**
+   * Retrieves the Project Tree item that has the specified relationship, indicated by the Code parameter, to another item whose ID is specified.
+   * returns the ID of the item
+   * @param {string} id
+   * @param {ItemCode} code
+   * @return {*}  {string}
+   * @memberof IProjectTree
+   */
+  GetNextItem(id: string, code: ItemCode): string; 
   // Returns an ITerraExplorerObject interface to an object based on its ID.
+  GetObject(id: string) : ITerraExplorerObject
   GetVisibility: unknown; // Returns the visibility status of a Project Tree item on the terrain.
-  IsGroup: unknown; // Determines whether or not a ProjectTree item is a group.
+  /**
+   * Determines whether or not a ProjectTree item is a group.
+   *
+   * @type {boolean}
+   * @memberof IProjectTree
+   */
+  IsGroup(id: string): boolean;
   IsLayer: unknown; //Obsolete.To determine whether a Project Tree element is a feature layer, use IProjectTree73.GetObject to return an interface to the element and then ITerraExplorerObject73.ObjectType to get the element type.
   IsLocked: unknown; // Determines whether or not a group is locked.
   IsRadioGroup: unknown; // Determines whether or not a group is a radio group.
@@ -799,6 +820,18 @@ type IProject = unknown;
 type ISGServer = unknown;
 type ITerrain = unknown;
 type IVersion = unknown;
+
+declare const enum ItemCode {
+  SELECTED = 10,
+  CHILD = 11,
+  FIRSTVISIBLE = 12,
+  NEXT = 13,
+  NEXTVISIBLE = 14,
+  PARENT = 15,
+  PREVIOUS = 16,
+  PREVIOUSVISIBLE = 17,
+  ROOT = 18
+}
 
 interface IDrawing {
   DrawPolyline(DrawingMode: DrawingMode, GroupID?: string, Left?: number, Top?: number): unknown;
@@ -845,26 +878,26 @@ declare const enum DrawingMode {
 }
 
 interface ITerrainRectangle extends ITerraExplorerObject {
-  ID : string;
-  ObjectType : ObjectTypeCode;
-  SaveInFlyFile : boolean;
-  TreeItem : ITreeItem;
-  Message : IMessageObject;
-  Action : IAction;
-  Position : IPosition;
-  Terrain : ITerrainObject;
-  Tooltip : ITooltip;
-  Attachment : IAttachment;
-  Visibility : IVisibility;
-  TimeSpan : ITimeSpan;
-  LineStyle : ILineStyle;
-  FillStyle : IFillStyle;
-  Top : number;
-  Left : number;
-  Right : number;
-  Bottom : number;
-  Width : number;
-  Depth : number;
+  ID: string;
+  ObjectType: ObjectTypeCode;
+  SaveInFlyFile: boolean;
+  TreeItem: ITreeItem;
+  Message: IMessageObject;
+  Action: IAction;
+  Position: IPosition;
+  Terrain: ITerrainObject;
+  Tooltip: ITooltip;
+  Attachment: IAttachment;
+  Visibility: IVisibility;
+  TimeSpan: ITimeSpan;
+  LineStyle: ILineStyle;
+  FillStyle: IFillStyle;
+  Top: number;
+  Left: number;
+  Right: number;
+  Bottom: number;
+  Width: number;
+  Depth: number;
 }
 
 interface IWorldPointInfo {
@@ -956,7 +989,7 @@ interface ITerrainPolygon extends ITerrainPolyline {
 
 interface IScreenPointInfo {
   // Gets the Boolean that determines whether the terrain coordinate falls in the 3D Window.
-  InsideScreenRect : boolean
+  InsideScreenRect: boolean
   // Gets the Boolean that determines whether the point is located behind the surface of the camera.
   PointBehindCamera: boolean
   // Gets the x-screen coordinate of the terrain coordinate.
