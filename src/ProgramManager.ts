@@ -340,7 +340,7 @@ export class ProgramManager {
       const afterFirst = () => {
         console.log("do afterFirst")
         setComClientForcedInputMode();
-        colourItemsOnStartup(); // color the items in the tree
+        setTimeout(()=> colourItemsOnStartup(), 500); // color the items in the tree
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -529,7 +529,6 @@ function traverseTree(current: string) {
 
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
-
     if (sgWorld.ProjectTree.IsGroup(current)) {
       if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1 
       || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
@@ -554,7 +553,7 @@ function colorItems(parentId: string, color: string) {
       const obj = sgWorld.ProjectTree.GetObject(id);
       if (obj.ObjectType === ObjectTypeCode.OT_MODEL) {
         const model = obj as ITerrainModel;
-        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color);
+        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
         if (col) {
           model.Terrain.Tint = col;
         }

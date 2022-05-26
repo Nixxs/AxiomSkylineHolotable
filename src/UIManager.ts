@@ -27,6 +27,7 @@ export class UIManager {
 
   wallLs: number = -1; // left hand side for wall buttons
   wallPos: number = -0.2; // distance out from wall
+  buttonSizeWAll = 0.1;
 
   private orbatScaleFactor: number;
 
@@ -67,7 +68,7 @@ export class UIManager {
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
     const wallLhs = this.wallLs;
     const wallPos = this.wallPos;; // distance out from wall
-    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
@@ -89,13 +90,13 @@ export class UIManager {
     // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
     // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
     //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
-    const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
-    orbatMenuWall.rows = 4;
+    const orbatMenuWall = new Menu(0.4, 0.6, new Vector<3>([wallLhs, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    orbatMenuWall.rows = 5;
     orbatMenuWall.cols = 1
 
     // Sub menus
     const subMenuOrbatTable = new Menu(0.04, 0.2, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const subMenuOrbatWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.12, this.wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
     orbatConfig.OrbatModels.forEach((model, i) => {
@@ -108,7 +109,7 @@ export class UIManager {
 
     // create the verb menu
     const VerbsMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
-    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.15, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06, 8, 1);
+    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
     this.menusTable.push(VerbsMenuTable);
@@ -116,7 +117,7 @@ export class UIManager {
 
     // show hide verbs menus
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.06, wallPos, 1]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06);
+    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false,this.buttonSizeWAll);
 
     showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
@@ -171,7 +172,7 @@ export class UIManager {
 
     // control measures menu ============
     const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, false, 0.05, 2, 10);
-    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.5, this.wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, 0.06, 2, 10);
+    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.8, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10);
 
     ControlsMenuTable.show(false);
     ControlsMenuWall.show(false);
@@ -181,7 +182,7 @@ export class UIManager {
     const menus = [ControlsMenuTable, ControlsMenuWall];
     // show hide verbs menus
     const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05, 2, 2);
-    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.3, this.wallPos, 0.8]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, 0.06, 2, 2);
+    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.4, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
 
 
     showControlsTable.createButton("taskIndicatorsGreen", "TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
