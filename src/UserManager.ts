@@ -550,13 +550,18 @@ export class UserModeManager {
     const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
 
     const onDraw =(geometry: any)=>{
-      console.log(rect.ID)
-      this.undoObjectIds.push(rect.ID);
-      rect.LineStyle.Color = this.getColorFromString("green")
-      console.log("drawn");
-      sgWorld.DetachEvent("OnDrawingFinished", onDraw);
+     
+      try {
+        if(!rect || rect.ID) return;
+        this.undoObjectIds.push(rect.ID);
+        rect.LineStyle.Color = this.getColorFromString("green")
+        console.log("drawn");
+        sgWorld.DetachEvent("OnDrawingFinished", onDraw);
+      } catch (error) {
+        // don't worry
+      }
+     
     }
-    
     sgWorld.AttachEvent("OnDrawingFinished", onDraw);
 
   }

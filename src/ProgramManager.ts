@@ -17,8 +17,13 @@ export function unsetComClientForcedInputMode() {
   sgWorld.SetParam(8166, 0); // UNForce COM input mode (Meaning your code here is NOT in control)
 }
 export function getVRControllersInfo() {
-  const VRCstr = sgWorld.GetParam(8600) as string; // get the VR controls status
-  return JSON.parse(VRCstr);
+  try {
+    const VRCstr = sgWorld.GetParam(8600) as string; // get the VR controls status
+    return JSON.parse(VRCstr);
+  } catch (error) {
+    console.log("error with getVRControllersInfo" + error)
+  }
+
 }
 export function getRoomExtent() {
   const extent = sgWorld.SetParamEx(9015) as string; // get the VR controls status
@@ -96,7 +101,7 @@ export function setFilmMode(filmMode: boolean) {
 export const enum ProgramMode {
   Unknown,
   Desktop,
-  Device
+  Device 
 }
 
 export const enum DeviceType {
