@@ -12,6 +12,7 @@ import { IOrbatMenuItem, IOrbatModel, IOrbatSubMenuItem, orbatConfig } from "./c
 import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
+import { UserMode } from "./UserManager";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -321,35 +322,39 @@ export class UIManager {
 
   private onButtonClick(name: string) {
     console.log("onButtonClick " + name)
-    const pm = ProgramManager.getInstance().userModeManager;
-    if (pm === undefined) throw new Error("Could not find userModeManager");
+    const um = ProgramManager.getInstance().userModeManager;
+    if (um === undefined) throw new Error("Could not find userModeManager");
     switch (name) {
       case "NextBookmark":
-        this.bookmarkManager.ZoomNext();
+        if(um.userMode == UserMode.Standard){
+          this.bookmarkManager.ZoomNext();
+        }
         break;
       case "PreviousBookmark":
-        this.bookmarkManager.ZoomPrevious();
+        if(um.userMode == UserMode.Standard){
+          this.bookmarkManager.ZoomPrevious();
+        }
         break;
       case "Draw:Line":
-        pm.toggleDrawLine()
+        um.toggleDrawLine()
         break;
       case "Draw:Rectangle":
-        pm.toggleDrawRectangle()
+        um.toggleDrawRectangle()
         break;
       case "Measure":
-        pm.toggleMeasurementMode();
+        um.toggleMeasurementMode();
         break;
       case "Undo":
-        pm.undo();
+        um.undo();
         break;
       case "Delete":
-        pm.deleteModel();
+        um.deleteModel();
         break;
       case "ScaleModelUp":
-        pm.scaleModel(+1);
+        um.scaleModel(+1);
         break;
       case "ScaleModelDown":
-        pm.scaleModel(-1);
+        um.scaleModel(-1);
         break;
       default:
         console.log("onButtonClick:: action not found" + name)
