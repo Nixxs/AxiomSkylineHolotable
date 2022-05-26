@@ -1,7 +1,7 @@
 export const controlConfig = {
   ControlModels: [
     {
-      "modelName": "CM_AttackAviationDotted",
+      "modelName": "Future Attack Aviation",
       "modelType": "taskIndicator",
       "modelPath": "CM_AttackAviationDotted.obj",
       "buttonIcon": "CM_-_AMA.xpl2",
@@ -11,7 +11,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "CM_CrossingNotDotted",
+      "modelName": "Destroy",
       "modelType": "taskIndicator",
       "modelPath": "CM_CrossingNotDotted.obj",
       "buttonIcon": "CM_-_AMA.xpl2",
@@ -21,7 +21,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "CM_GroundAxisOfAdvanceDotted",
+      "modelName": "Future Ground Axis Of Advance",
       "modelType": "taskIndicator",
       "modelPath": "CM_GroundAxisOfAdvanceDotted.obj",
       "buttonIcon": "CM_-_AMA.xpl2",
@@ -31,7 +31,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "CM_GroundMainAttackDotted",
+      "modelName": "Future Ground Main Attack",
       "modelType": "taskIndicator",
       "modelPath": "CM_GroundMainAttackDotted.obj",
       "buttonIcon": "CM_-_AMA.xpl2",
@@ -201,7 +201,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "Platoon Harbour",
+      "modelName": "Section Harbour",
       "modelType": "controlMeasure",
       "modelPath": "CM_-_Platoon_Harbour.xpl2",
       "buttonIcon": "CM_-_Platoon_Harbour.xpl2",
@@ -221,7 +221,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "All Round Defence",
+      "modelName": "Seizure",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_All_Round_Defence.xpl2",
       "buttonIcon": "CM_-_All_Round_Defence.xpl2",
@@ -291,7 +291,7 @@ export const controlConfig = {
       "Green": 1
     },
     {
-      "modelName": "Brigade Harbour",
+      "modelName": "Company Harbour",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_Bridge_Harbour.xpl2",
       "buttonIcon": "CM_-_Bridge_Harbour.xpl2",
@@ -331,7 +331,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "Artillery Mobile Area",
+      "modelName": "Block",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_T.xpl2",
       "buttonIcon": "CM_-_T.xpl2",
@@ -341,7 +341,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "Ambush",
+      "modelName": "TAI",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_TAI.xpl2",
       "buttonIcon": "CM_-_TAI.xpl2",
@@ -351,7 +351,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "Company Harbour",
+      "modelName": "Disrupt",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_Triton.xpl2",
       "buttonIcon": "CM_-_Triton.xpl2",
@@ -391,7 +391,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "Company Harbour",
+      "modelName": "Platoon Harbour",
       "modelType": "taskIndicator",
       "modelPath": "CM_-_Company_Harbour.xpl2",
       "buttonIcon": "CM_-_Company_Harbour.xpl2",
