@@ -373,7 +373,7 @@ export class UserModeManager {
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
-      // adam wanted the original models less tall so multiply scale z by a factor
+      // addam wanted the original models less tall so multiply scale z by a factor
       model.ScaleZ *= this.ModelZScaleFactor;
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);

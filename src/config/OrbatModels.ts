@@ -766,6 +766,10 @@ export const orbatConfig: IOrbatConfig = {
                         {
                             modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
                             modelName: "M1A1 Abrahms"
+                        },
+                        {
+                            modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
+                            modelName: "M1A1 Abrahms"
                         }
                     ]
                 }

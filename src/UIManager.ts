@@ -391,6 +391,17 @@ export class UIManager {
         ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
         var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
+        
+        // if the model is a scale model then start it with a smaller scale
+        var modelName = sgWorld.ProjectTree.GetItemName(modelObject.ID);
+        modelName = modelName.toLocaleLowerCase();
+        console.log(modelName);
+        // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
+        if (modelName.indexOf('abrahms') !== -1){
+          console.log("scaling tank...");
+          scaleValue *= 0.2;
+        }
+
         modelObject.ScaleFactor = scaleValue;
         modelsToPlace.push(modelObject);
       } catch {
