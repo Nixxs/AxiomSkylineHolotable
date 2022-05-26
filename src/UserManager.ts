@@ -373,15 +373,6 @@ export class UserModeManager {
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
-
-      // if the model is a scale model then start it with a smaller scale
-      var modelName = sgWorld.ProjectTree.GetItemName(model.ID);
-      modelName = modelName.toLocaleLowerCase();
-      // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
-      if (modelName.indexOf('auscam') !== -1){
-        model.ScaleFactor *= 0.1
-      }
-
       // addam wanted the original models less tall so multiply scale z by a factor
       model.ScaleZ *= this.ModelZScaleFactor;
       // this will make the model not pickable which is what you want while moving it 
