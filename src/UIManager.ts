@@ -398,8 +398,8 @@ export class UIManager {
         console.log(modelName);
         // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
         if (modelName.indexOf('abrahms') !== -1){
-          console.log("scaling it...");
-          scaleValue *= 0.1;
+          console.log("scaling tank...");
+          scaleValue *= 0.2;
         }
 
         modelObject.ScaleFactor = scaleValue;
