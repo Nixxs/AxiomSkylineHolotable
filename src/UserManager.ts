@@ -315,6 +315,7 @@ export class UserModeManager {
   public redRGBA: Array<number> = redRGBA;
   public blueRGBA: Array<number> = blueRGBA;
 
+  private ModelZScaleFactor: number = 0.25;
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -392,6 +393,8 @@ export class UserModeManager {
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
+      // addam wanted the original models less tall so multiply scale z by a factor
+      model.ScaleZ *= this.ModelZScaleFactor;
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
@@ -516,6 +519,8 @@ export class UserModeManager {
     }
     const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
     model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
+    // adam wanted all the models to be shorter
+    model.ScaleZ *= this.ModelZScaleFactor;
   }
 
   deleteModel(): void {
@@ -690,7 +695,9 @@ export class UserModeManager {
             const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
             if (newModelPosition !== undefined) {
               newModelPosition.Pitch = 0;
-              newModelPosition.Yaw = newModelPosition.Roll * 2;
+              // adam asked for models to always be north facing so yaw is 0 on every update now
+              //newModelPosition.Yaw = newModelPosition.Roll * 2;
+              newModelPosition.Yaw = 0;
               newModelPosition.Roll = 0;
               const modelObject = getItemById(this.currentlySelectedId!);
               if (!modelObject) {
