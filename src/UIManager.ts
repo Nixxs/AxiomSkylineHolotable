@@ -381,7 +381,16 @@ export class UIManager {
         xspacing = 0.1;
         yspacing = 0.13;
       }
-      const pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+
+      var deviceType = GetDeviceType();
+      var pos;
+      if (deviceType === DeviceType.Wall){
+        pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
+        
+      } else {
+        pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+      }
+      
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
 
@@ -392,13 +401,16 @@ export class UIManager {
         // set the scale value based on the current zoom level
         var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
         
+        // scale of models need to be set differently
+        if (deviceType === DeviceType.Wall){
+          scaleValue *= 0.5;
+        }
+
         // if the model is a scale model then start it with a smaller scale
         var modelName = sgWorld.ProjectTree.GetItemName(modelObject.ID);
         modelName = modelName.toLocaleLowerCase();
-        console.log(modelName);
         // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
         if (modelName.indexOf('abrahms') !== -1){
-          console.log("scaling tank...");
           scaleValue *= 0.2;
         }
 
