@@ -66,7 +66,7 @@ function dragMode() {
     if (magDifference > 0 && magDifference < 1) {
       let forwardOrBack = wandPosDiff.Dot(dragMode.startInfo.prevWandRoomDir);
       forwardOrBack = forwardOrBack >= 0 ? 1 : -1;
-      const scaleRatio = 5;
+      let scaleRatio = 5;
 
       const degs = radsToDegs(Math.acos(Math.abs(wandPosDiff.Copy().Normalise().Dot(dragMode.startInfo.prevWandRoomDir.Copy().Normalise()))));
       const thresholdLower = 25;
@@ -74,11 +74,12 @@ function dragMode() {
       const thresholdRange = thresholdUpper - thresholdLower;
       const scalingRatio = 1 - Math.min(Math.max(degs, thresholdLower) - thresholdLower, thresholdRange) / thresholdRange;
 
-      const power = forwardOrBack * scalingRatio * magDifference * 2;
+      let power = forwardOrBack * scalingRatio * magDifference * 2;
       let powerStrength = 1;
       if (GetDeviceType() == DeviceType.Wall) {
-        let curAltitudeRatio = worldPos.Altitude + 250 / 2000; // scaling now works less as you go from 1000 down to 10 altitude
-        powerStrength = Math.min(Math.max(curAltitudeRatio, 0.1), 1);
+        let curAltitudeRatio = worldPos.Altitude / 2000; // scaling now works less as you go from 1000 down to 10 altitude
+        console.log("worldPos.Altitude " + worldPos.Altitude )
+        powerStrength = Math.min(Math.max(curAltitudeRatio, 0.25), 1);
       }
       const factor = Math.pow(scaleRatio, power * powerStrength);
       worldPos.Altitude *= factor;
@@ -361,10 +362,15 @@ export class UserModeManager {
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
+      
+      if(GetDeviceType() === DeviceType.Wall){
+        const pos = sgWorld.Navigate.GetPosition(3);
+        model.ScaleFactor =  pos.Altitude /2;
+      }
+
+
       // adam wanted the original models less tall so multiply scale z by a factor
       model.ScaleZ *= this.ModelZScaleFactor;
-
-
 
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
@@ -698,10 +704,7 @@ export class UserModeManager {
             }
 
             if (GetDeviceType() === DeviceType.Wall) {
-              // make it a bit higher as we move
-              if (newModelPosition?.Altitude) {
-                newModelPosition.Altitude = newModelPosition.Altitude + 50;
-              }
+               
 
             }
 
