@@ -1,7 +1,7 @@
 import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
 import { ControllerReader } from "../ControllerReader";
-import { getItemById, ProgramManager, roomToWorldCoord } from "../ProgramManager";
+import { GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
 
 export class ButtonModel extends Button {
 
@@ -24,13 +24,13 @@ export class ButtonModel extends Button {
 
       } else {
         // Move the button to be in the right spot
-        const obj: ITerrainModel = getItemById(this.ID) as ITerrainModel;
+        const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
         if (!obj) return;
         obj.Position = pos;
         obj.Position.Altitude = obj.Position.Altitude
         obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
 
-        const model: ITerrainModel = getItemById(this.modelId) as ITerrainModel;
+        const model: ITerrainModel = GetObject(this.modelId) as ITerrainModel;
         if (!model) return;
         model.Position = pos;
         model.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
@@ -48,8 +48,11 @@ export class ButtonModel extends Button {
   show(value: boolean) {
     super.show(value);
     if (!this.modelId) return;
-    let obj: ITerrainModel = sgWorld.Creator.GetObject(this.modelId) as ITerrainModel;
-    obj.Visibility.Show = value;
+    let obj: ITerrainModel = GetObject(this.modelId) as ITerrainModel;
+    if(obj){
+      obj.Visibility.Show = value;
+    }
+
   }
 
   destroy(): void {

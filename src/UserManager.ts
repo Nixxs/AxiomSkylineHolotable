@@ -4,7 +4,7 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, getItemById, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { DeviceType, GetDeviceType, GetObject, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -182,7 +182,7 @@ let highlightedId = "";
 let previousCol: number[] = [];
 function showTooltipIntersected(laser: Laser) {
   if (laser.collision != undefined && laser.collision.objectID) {
-    const model = getItemById(laser.collision.objectID) as ITerrainModel;
+    const model = GetObject(laser.collision.objectID) as ITerrainModel;
     if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
       tooltipTimeout = setTimeout(() => {
         if (lastTooltip) ProgramManager.getInstance().deleteItemSafe(lastTooltip)
@@ -219,18 +219,18 @@ function showTooltipIntersected(laser: Laser) {
 }
 
 function highlightById(highlight: boolean, oid?: string): void {
-  const model = getItemById(oid)
+  const model = GetObject(oid)
   if (model && oid) {
-  
+
     if (highlight) {
-      if(highlightedId!=oid){
+      if (highlightedId != oid) {
         let deltaA = -50; // make it slightly lighter
         previousCol = colorToRGBA(model.Terrain.Tint);
-        if(previousCol[3] === 0){ // no tint we will add one to lighten it up
+        if (previousCol[3] === 0) { // no tint we will add one to lighten it up
           deltaA = 50
         }
-        if(previousCol[3] + deltaA > 0){
-          model.Terrain.Tint = sgWorld.Creator.CreateColor(previousCol[0], previousCol[1], previousCol[2], previousCol[3]+deltaA);
+        if (previousCol[3] + deltaA > 0) {
+          model.Terrain.Tint = sgWorld.Creator.CreateColor(previousCol[0], previousCol[1], previousCol[2], previousCol[3] + deltaA);
           highlightedId = oid;
         }
       }
@@ -242,7 +242,7 @@ function highlightById(highlight: boolean, oid?: string): void {
   }
 }
 
-function colorToRGBA(col: IColor): number[]{
+function colorToRGBA(col: IColor): number[] {
   const rgba = col.ToARGBColor();
   const a = (rgba >> 24) & 0xFF;
   const red = (rgba >> 16) & 0xFF;
@@ -250,18 +250,6 @@ function colorToRGBA(col: IColor): number[]{
   const blue = rgba & 0xFF;
   return [red, green, blue, a]
 }
-
-function GetTerrainLabelById(oid?: string): ITerrainModel | null {
-  if (oid !== undefined && oid != "") {
-    const object = sgWorld.Creator.GetObject(oid);
-    if (object && object.ObjectType === ObjectTypeCode.OT_LABEL) {
-      const model: ITerrainModel = object as ITerrainModel;
-      return model;
-    }
-  }
-  return null;
-}
-
 
 const wallMode = wandMode;
 
@@ -366,7 +354,7 @@ export class UserModeManager {
       const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
       const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
       let color = this.getColorFromString(modelColor);
- 
+
       model.Terrain.Tint = color;
       // this is required to refresh the collaboration mode
       console.log("setting visibility to true");
@@ -393,10 +381,10 @@ export class UserModeManager {
     }
   }
 
-  getColorFromString(modelColor: string, opacity: number = -1){
+  getColorFromString(modelColor: string, opacity: number = -1) {
     switch (modelColor) {
       case "blue":
-        return  sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
+        return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
       case "red":
         return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
       case "green":
@@ -404,7 +392,7 @@ export class UserModeManager {
       case "black":
         return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
     }
-    return  sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+    return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
   }
 
   toggleLabel(sLabel: string) {
@@ -420,12 +408,12 @@ export class UserModeManager {
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
       // check if the user was placing a label and changed their mind
       if (this.userMode == UserMode.PlaceLabel) {
-        const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+        const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
         if (label) {
           ProgramManager.getInstance().deleteItemSafe(label.ID)
         }
       }
-  
+
       this.currentlySelectedId = label.ID;
       // add the new label to the line objects array so it can be deleted via the undo button
       this.undoObjectIds.push(label.ID);
@@ -442,10 +430,12 @@ export class UserModeManager {
       // We have just selected the model
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
-        const modelObject = sgWorld.Creator.GetObject(modelID) as ITerrainModel;
-        // this will make the model not pickable which is what you want while moving it 
-        modelObject.SetParam(200, 0x200);
-        console.log("made it uncollidebale");
+        const modelObject = GetObject(modelID) as ITerrainModel;
+        if (modelObject) {
+          // this will make the model not pickable which is what you want while moving it 
+          modelObject.SetParam(200, 0x200);
+          console.log("made it uncollidebale");
+        }
         this.userMode = UserMode.MoveModel;
       } else {
         this.userMode = UserMode.Standard;
@@ -501,10 +491,12 @@ export class UserModeManager {
       console.log("Nothing selected to scale");
       return;
     }
-    const model = sgWorld.Creator.GetObject(this.currentlySelectedId) as ITerrainModel;
-    model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
-    // adam wanted all the models to be shorter
-    model.ScaleZ *= this.ModelZScaleFactor;
+    const model = GetObject(this.currentlySelectedId)  as ITerrainModel;
+    if(model){
+      model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
+      // adam wanted all the models to be shorter
+      model.ScaleZ *= this.ModelZScaleFactor;
+    }
   }
 
   deleteModel(): void {
@@ -512,8 +504,8 @@ export class UserModeManager {
       console.log("Nothing selected to delete");
       return;
     }
-    const model = getItemById(this.currentlySelectedId);
-    if(model){
+    const model = GetObject(this.currentlySelectedId);
+    if (model) {
       ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
     }
     // delete the model from the lineObjects array so it doesn't cause issues with the delete button
@@ -553,10 +545,10 @@ export class UserModeManager {
     const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
     const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
 
-    const onDraw =(geometry: any)=>{
-     
+    const onDraw = (geometry: any) => {
+
       try {
-        if(!rect || rect.ID) return;
+        if (!rect || rect.ID) return;
         this.undoObjectIds.push(rect.ID);
         rect.LineStyle.Color = this.getColorFromString("green")
         console.log("drawn");
@@ -564,7 +556,7 @@ export class UserModeManager {
       } catch (error) {
         // don't worry
       }
-     
+
     }
     sgWorld.AttachEvent("OnDrawingFinished", onDraw);
 
@@ -601,7 +593,8 @@ export class UserModeManager {
           // Move the line end position to the cursor
           const teEndPos = this.laser1!.collision!.hitPoint.Copy();
           const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
-          const mLine = sgWorld.Creator.GetObject(this.measurementModeLineID) as ITerrainPolyline;
+          const mLine = GetObject(this.measurementModeLineID) as ITerrainPolyline;
+          if(!mLine) return;
           const Geometry = mLine.Geometry as ILineString;
           Geometry.StartEdit();
           Geometry.Points.Item(1).X = teEndPos.X;
@@ -613,7 +606,7 @@ export class UserModeManager {
           const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
           const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
           const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-          const mLabel = sgWorld.Creator.GetObject(this.measurementTextLabelID) as ITerrainLabel;
+          const mLabel =GetObject(this.measurementTextLabelID) as ITerrainLabel;
           mLabel.Text = strLabelText;
           mLabel.Position = teHalfPos;
 
@@ -667,7 +660,7 @@ export class UserModeManager {
         break;
       case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
       case UserMode.MoveModel:
-        const modelObject = getItemById(this.currentlySelectedId!);
+        const modelObject = GetObject(this.currentlySelectedId!);
         if (!modelObject) {
           // user most likely deleted it using delete button
           this.userMode = UserMode.Standard;
@@ -688,15 +681,15 @@ export class UserModeManager {
               // adam asked for models to always be north facing so yaw is 0 on every update now
               var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
               modelName = modelName.toLocaleLowerCase();
-              // if its an orbat, it is not rotatable otherwise it will be
-              if (modelName.indexOf('orbat') !== -1){
+              // if its an orbat, it is not rotatable. Also if on wall stop rotation
+              if (modelName.indexOf('orbat') !== -1 || GetDeviceType() === DeviceType.Wall) {
                 newModelPosition.Yaw = 0;
               } else {
                 newModelPosition.Yaw = newModelPosition.Roll * 2;
               }
 
               newModelPosition.Roll = 0;
-              const modelObject = getItemById(this.currentlySelectedId!);
+              const modelObject = GetObject(this.currentlySelectedId!);
               if (!modelObject) {
                 // user most likely deleted it
               } else {
@@ -704,27 +697,29 @@ export class UserModeManager {
               }
             }
 
-            if(GetDeviceType() === DeviceType.Wall){
+            if (GetDeviceType() === DeviceType.Wall) {
               // make it a bit higher as we move
-              if(newModelPosition?.Altitude){
+              if (newModelPosition?.Altitude) {
                 newModelPosition.Altitude = newModelPosition.Altitude + 50;
               }
-              
+
             }
 
             // disable/enable tinting of models, disabled for now as it is not currently required
             const enableColourToggle = false;
             if (ProgramManager.getInstance().getButton2Pressed(1) && enableColourToggle) {
-              const modelObject = sgWorld.Creator.GetObject(this.currentlySelectedId!) as ITerrainModel;
-              console.log(modelObject.Terrain.Tint.ToHTMLColor());
-              console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
-
-              var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-              var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
-              if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
-                modelObject.Terrain.Tint = blueColor;
-              } else {
-                modelObject.Terrain.Tint = redColor;
+              const modelObject = GetObject(this.currentlySelectedId!) as ITerrainModel;
+              if(modelObject){
+                console.log(modelObject.Terrain.Tint.ToHTMLColor());
+                console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+  
+                var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+                var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+                if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
+                  modelObject.Terrain.Tint = blueColor;
+                } else {
+                  modelObject.Terrain.Tint = redColor;
+                }
               }
             }
           }
@@ -736,13 +731,13 @@ export class UserModeManager {
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
             const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
             if (intersectedItemId) {
-              const model = getItemById(intersectedItemId) as ITerrainModel;
-              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+              const model = GetObject(intersectedItemId) as ITerrainModel;
+              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (model && label) {
                 label.Style.FontSize = 20;
                 label.Style.TextAlignment = "Left";
                 label.Style.Bold = true;
-                label.Style.BackgroundColor = sgWorld.Creator.CreateColor(255,255,255,0);
+                label.Style.BackgroundColor = sgWorld.Creator.CreateColor(255, 255, 255, 0);
                 // setTimeout(() => {
                 //   label.Style.MaxViewingHeight = 10000;
                 // }, 1000)
@@ -756,7 +751,7 @@ export class UserModeManager {
             };
           } else {
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
-              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (!label) {
                 ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
                 this.currentlySelectedId = "";
@@ -767,7 +762,7 @@ export class UserModeManager {
               newModelPosition.Pitch = 0;
               newModelPosition.Yaw = newModelPosition.Roll * 2;
               newModelPosition.Roll = 0;
-              const label = getItemById(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
               if (!label) {
                 // it has been killed
                 this.userMode = UserMode.Standard;
@@ -784,8 +779,8 @@ export class UserModeManager {
         if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
           // Move the line end position to the cursor
-          var dLine = getItemById(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline // sgWorld.Creator.GetObject(this.drawLineID) as ITerrainPolyline;
-          if(!dLine) {
+          var dLine = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
+          if (!dLine) {
             // fail
             this.userMode = UserMode.Standard;
             return;

@@ -508,7 +508,7 @@ export function MaxZoom() {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
- export function getItemById(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
+ export function GetObject(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
   try {
     if (oid !== undefined && oid != "") {
       const object = sgWorld.Creator.GetObject(oid);
@@ -558,9 +558,8 @@ function colorItems(parentId: string, color: string) {
     // get the next item as this will be a parent
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
-      const name = sgWorld.ProjectTree.GetItemName(id);
-      const obj = sgWorld.ProjectTree.GetObject(id);
-      if (obj.ObjectType === ObjectTypeCode.OT_MODEL) {
+      const obj = GetObject(id); // sgWorld.ProjectTree.GetObject(id);
+      if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
         const model = obj as ITerrainModel;
         const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
         if (col) {
