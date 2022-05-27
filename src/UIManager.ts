@@ -85,10 +85,7 @@ export class UIManager {
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
-    toolsMenuTable.createButton("GetLocation", "BUTTON_Bookmark_Prev.xpl2", (id) => {
-      const loc = sgWorld.Navigate.GetPosition(3);
-      console.log("X:" + loc.X + "Y:" + loc.Y + "Distance" + loc.Distance)
-    }, "Show bookmarks");
+    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => {this.changeBasemap()}, "Show basemap");
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
@@ -329,6 +326,33 @@ export class UIManager {
       }))
     })
     getMenu().addButtons(bookmarks);
+  }
+
+  changeBasemap(){
+    // const traverseTree = (current: string) => {
+
+    //   while (current) {
+    //     var currentName = sgWorld.ProjectTree.GetItemName(current);
+    //     console.log(currentName)
+    //     if (sgWorld.ProjectTree.IsGroup(current)) {
+    //       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
+    //       traverseTree(child);
+    //     }
+    //     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
+    //   }
+    // }
+
+    // var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
+    // id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
+    // traverseTree(id);
+
+    // why won't terra find the layer?! had to hard code ID
+    const ImageryLayer = sgWorld.Creator.GetObject("0_28095807") as ITerrainModel;
+    const TerrainLayer = sgWorld.Creator.GetObject("0_264") as ITerrainModel;
+    const val =  ImageryLayer.Visibility.Show;
+    console.log(val);
+    ImageryLayer.Visibility.Show = !val
+    TerrainLayer.Visibility.Show = val
   }
 
   drawTable() {

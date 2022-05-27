@@ -71,7 +71,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 X: 145.57263976,
                 Y:  -36.7322975,
                 Altitude: 3, 
-                AltitudeType: 11308.023,
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
