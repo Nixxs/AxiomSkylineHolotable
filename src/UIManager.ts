@@ -68,8 +68,9 @@ export class UIManager {
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
     const wallLhs = this.wallLs;
     const wallPos = this.wallPos;; // distance out from wall
-    const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
-
+    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    toolsMenuWall.rows = 2;
+    toolsMenuWall.cols = 5
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
@@ -80,6 +81,11 @@ export class UIManager {
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("NextBookmark"), "Previous location");
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
+
+    // wall has two extra buttons
+    // north m
+    toolsMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
+    toolsMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
@@ -117,7 +123,7 @@ export class UIManager {
 
     // show hide verbs menus
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false,this.buttonSizeWAll);
+    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
     showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
@@ -172,7 +178,7 @@ export class UIManager {
 
     // control measures menu ============
     const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, false, 0.05, 2, 10);
-    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.8, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10);
+    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10);
 
     ControlsMenuTable.show(false);
     ControlsMenuWall.show(false);
@@ -182,7 +188,7 @@ export class UIManager {
     const menus = [ControlsMenuTable, ControlsMenuWall];
     // show hide verbs menus
     const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05, 2, 2);
-    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.4, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
+    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.5, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
 
 
     showControlsTable.createButton("taskIndicatorsGreen", "TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
@@ -328,12 +334,12 @@ export class UIManager {
     if (um === undefined) throw new Error("Could not find userModeManager");
     switch (name) {
       case "NextBookmark":
-        if(um.userMode == UserMode.Standard){
+        if (um.userMode == UserMode.Standard) {
           this.bookmarkManager.ZoomNext();
         }
         break;
       case "PreviousBookmark":
-        if(um.userMode == UserMode.Standard){
+        if (um.userMode == UserMode.Standard) {
           this.bookmarkManager.ZoomPrevious();
         }
         break;
@@ -357,6 +363,16 @@ export class UIManager {
         break;
       case "ScaleModelDown":
         um.scaleModel(-1);
+        break;
+      case "ViewAbove":
+        const pos1 = sgWorld.Navigate.GetPosition(3);
+        pos1.Pitch = -90;
+        sgWorld.Navigate.JumpTo(pos1)
+        break;
+      case "ViewOblique":
+        const pos2 = sgWorld.Navigate.GetPosition(3);
+        pos2.Pitch = -50;
+        sgWorld.Navigate.JumpTo(pos2)
         break;
       default:
         console.log("onButtonClick:: action not found" + name)
@@ -385,13 +401,13 @@ export class UIManager {
 
       var deviceType = GetDeviceType();
       var pos;
-      if (deviceType === DeviceType.Wall){
+      if (deviceType === DeviceType.Wall) {
         pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
-        
+
       } else {
         pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       }
-      
+
       const roomPos = roomToWorldCoord(pos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
 
@@ -401,9 +417,9 @@ export class UIManager {
         ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
         var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
-        
+
         // scale of models need to be set differently
-        if (deviceType === DeviceType.Wall){
+        if (deviceType === DeviceType.Wall) {
           scaleValue *= 0.5;
         }
 
@@ -411,7 +427,7 @@ export class UIManager {
         var modelName = sgWorld.ProjectTree.GetItemName(modelObject.ID);
         modelName = modelName.toLocaleLowerCase();
         // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
-        if (modelName.indexOf('abrahms') !== -1){
+        if (modelName.indexOf('abrahms') !== -1) {
           scaleValue *= 0.2;
         }
 
@@ -453,7 +469,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+   //  return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }

@@ -345,7 +345,9 @@ export class ProgramManager {
       const afterFirst = () => {
         console.log("do afterFirst")
         setComClientForcedInputMode();
-        setTimeout(()=> colourItemsOnStartup(), 500); // color the items in the tree
+        colourItemsOnStartup(); // color the items in the tree
+        // was not working in collab mode so just doing every 5 seconds
+        setInterval(()=> colourItemsOnStartup(), 5000); 
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -375,15 +377,16 @@ export class ProgramManager {
         sgWorld.AttachEvent("OnCommandExecuted", (CommandID: string, parameters: any) => {
           console.log(CommandID + " " + JSON.stringify(parameters))
         });
-        sgWorld.AttachEvent("OnProjectTreeAction", (CommandID: string, parameters: any) => {
-          // if in collab mode make sure the models are coloured on the other machine
-          if(this.colorItemsTimeout){
-            clearTimeout(this.colorItemsTimeout);
-          }
-          this.colorItemsTimeout = setTimeout(() => {
-            ()=> colourItemsOnStartup()
-          }, 300);
-        });
+        // TODO this was not working in collab mode. Needs more testing. May not work?
+        // sgWorld.AttachEvent("OnProjectTreeAction", (CommandID: string, parameters: any) => {
+        //   // if in collab mode make sure the models are coloured on the other machine
+        //   if(this.colorItemsTimeout){
+        //     clearTimeout(this.colorItemsTimeout);
+        //   }
+        //   this.colorItemsTimeout = setTimeout(() => {
+        //     ()=> colourItemsOnStartup()
+        //   }, 300);
+        // });
       };
       const firstTableFrame = (eventID: number, _eventParam: unknown) => {
         if (eventID == 14) {
@@ -521,6 +524,7 @@ export function MaxZoom() {
 
 function colourItemsOnStartup() {
   try {
+    console.log("color items")
     var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
     id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
     traverseTree(id);
