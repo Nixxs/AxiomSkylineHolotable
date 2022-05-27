@@ -375,6 +375,9 @@ export class UserModeManager {
       model.ScaleFactor = 5 * roomPos.Altitude;
       // adam wanted the original models less tall so multiply scale z by a factor
       model.ScaleZ *= this.ModelZScaleFactor;
+
+
+
       // this will make the model not pickable which is what you want while moving it 
       model.SetParam(200, 0x200);
 
@@ -422,6 +425,7 @@ export class UserModeManager {
           ProgramManager.getInstance().deleteItemSafe(label.ID)
         }
       }
+  
       this.currentlySelectedId = label.ID;
       // add the new label to the line objects array so it can be deleted via the undo button
       this.undoObjectIds.push(label.ID);
@@ -698,6 +702,14 @@ export class UserModeManager {
               } else {
                 modelObject.Position = newModelPosition;
               }
+            }
+
+            if(GetDeviceType() === DeviceType.Wall){
+              // make it a bit higher as we move
+              if(newModelPosition?.Altitude){
+                newModelPosition.Altitude = newModelPosition.Altitude + 50;
+              }
+              
             }
 
             // disable/enable tinting of models, disabled for now as it is not currently required

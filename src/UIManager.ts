@@ -84,8 +84,8 @@ export class UIManager {
 
     // wall has two extra buttons
     // north m
-    toolsMenuWall.createButton("ViewAbove", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("ViewAbove"), "View from above");
-    toolsMenuWall.createButton("ViewOblique", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
+    toolsMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
+    toolsMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
@@ -366,13 +366,13 @@ export class UIManager {
         break;
       case "ViewAbove":
         const pos1 = sgWorld.Navigate.GetPosition(3);
-        pos1.Pitch = -50;
-        sgWorld.Navigate.FlyTo(pos1)
+        pos1.Pitch = -90;
+        sgWorld.Navigate.JumpTo(pos1)
         break;
       case "ViewOblique":
         const pos2 = sgWorld.Navigate.GetPosition(3);
         pos2.Pitch = -50;
-        sgWorld.Navigate.FlyTo(pos2)
+        sgWorld.Navigate.JumpTo(pos2)
         break;
       default:
         console.log("onButtonClick:: action not found" + name)
