@@ -87,7 +87,6 @@ export class UIManager {
     toolsMenuTable.createButton("GetLocation", "BUTTON_Bookmark_Prev.xpl2", (id) => {
       const loc = sgWorld.Navigate.GetPosition(3);
       console.log("X:" + loc.X + "Y:" + loc.Y + "Distance" + loc.Distance)
-      alert("X: " + loc.X + "Y: " + loc.Y + "Altitude: " + loc.Altitude)
     }, "Show bookmarks");
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");

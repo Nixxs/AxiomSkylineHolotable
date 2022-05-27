@@ -3,27 +3,27 @@ export const bookmarksConfig: IBookmarkConfig = {
         {
             name: "OBJ AARDVARK",
             position: {
-                X: 145.00724027499797,
-                Y: -37.4071058274123, 
-                Altitude: 14370.705656319745, 
+                X: 145.02864152,
+                Y: -37.39348623, 
+                Altitude: 20450.909, 
                 AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 16597.164
+                Distance: 20450.909
             }
         },
         {
             name: "OBJ BADGER",
             position: {
-                X: 145.05863716,
-                Y:-37.20148837,
-                Altitude: 0, 
+                X: 145.04932964,
+                Y:-37.19835798,
+                Altitude: 2363.2701, 
                 AltitudeType: 0,
                 Yaw: 0, 
                 Pitch: -50.007783, 
                 Roll: 0, 
-                Distance: 10873.818
+                Distance: 2363.2701
             },
         },
         {
