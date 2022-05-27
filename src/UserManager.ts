@@ -681,8 +681,8 @@ export class UserModeManager {
               // adam asked for models to always be north facing so yaw is 0 on every update now
               var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
               modelName = modelName.toLocaleLowerCase();
-              // if its an orbat, it is not rotatable otherwise it will be
-              if (modelName.indexOf('orbat') !== -1) {
+              // if its an orbat, it is not rotatable. Also if on wall stop rotation
+              if (modelName.indexOf('orbat') !== -1 || GetDeviceType() === DeviceType.Wall) {
                 newModelPosition.Yaw = 0;
               } else {
                 newModelPosition.Yaw = newModelPosition.Roll * 2;
