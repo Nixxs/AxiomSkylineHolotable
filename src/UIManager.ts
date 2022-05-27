@@ -4,7 +4,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode, GetObject } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
@@ -316,8 +316,10 @@ export class UIManager {
     // D2. Create polygon
 
     if (this.polygonId) {
-      const poly: ITerrainPolygon = sgWorld.Creator.GetObject(this.polygonId) as ITerrainPolygon;
-      poly.geometry = cPolygonGeometry;
+      const poly: ITerrainPolygon = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON) as ITerrainPolygon;
+      if(poly){
+        poly.geometry = cPolygonGeometry;
+      }
     } else {
       const polygon = sgWorld.Creator.CreatePolygon(cPolygonGeometry, nLineColor, nFillColor, eAltitudeTypeCode, this.groupId, "Table");
       this.polygonId = polygon.ID;
@@ -469,7 +471,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-   //  return GetDeviceType();
+    return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }

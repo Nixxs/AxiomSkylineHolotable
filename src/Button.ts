@@ -1,6 +1,6 @@
 import { sgWorld } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
-import { getItemById, ProgramManager, roomToWorldCoord } from "./ProgramManager";
+import { GetObject, ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
 let selectedButton: Button | null = null;
 export function SimulateSelectedButton() {
@@ -65,7 +65,7 @@ export class Button {
       }
     } else {
       // Move the button to be in the right spot
-      const obj: ITerrainModel = getItemById(this.ID) as ITerrainModel;
+      const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
       if(!obj) return;
       obj.Position = pos;
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
@@ -86,7 +86,7 @@ export class Button {
   show(value: boolean) {
     if (this.ID === undefined) this.Draw();
     if (this.ID === undefined) return;
-    let obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
+    const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
     obj.Visibility.Show = value;
   }
 

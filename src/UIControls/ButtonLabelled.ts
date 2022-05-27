@@ -1,7 +1,7 @@
 import { sgWorld } from "../Axiom";
 import { Button } from "../Button";
 import { ControllerReader } from "../ControllerReader";
-import { ProgramManager, roomToWorldCoord } from "../ProgramManager";
+import { GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
 
 export class ButtonLabelled extends Button {
 
@@ -20,13 +20,17 @@ export class ButtonLabelled extends Button {
       this.labelId = label.ID;
     } else {
       // Move the button to be in the right spot
-      const obj: ITerrainModel = sgWorld.Creator.GetObject(this.ID) as ITerrainModel;
-      obj.Position = pos;
-      obj.Position.Altitude =   obj.Position.Altitude
-      obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
-      obj.ScaleX =  obj.ScaleFactor * 2
-      const objLbl: ITerrainLabel = sgWorld.Creator.GetObject(this.labelId) as ITerrainLabel;
-      objLbl.Position = pos;
+      const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
+      if(obj) {
+        obj.Position = pos;
+        obj.Position.Altitude =   obj.Position.Altitude
+        obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
+        obj.ScaleX =  obj.ScaleFactor * 2
+      }
+      const objLbl: ITerrainLabel = GetObject(this.labelId) as ITerrainLabel;
+      if(objLbl){
+        objLbl.Position = pos;
+      }
       // objLbl.Position.Pitch = 90
     }
   }
@@ -34,8 +38,10 @@ export class ButtonLabelled extends Button {
   show(value: boolean) {
     super.show(value);
     if (!this.labelId) return;
-    let obj: ITerrainLabel = sgWorld.Creator.GetObject(this.labelId) as ITerrainLabel;
-    obj.Visibility.Show = value;
+    let obj: ITerrainLabel = GetObject(this.labelId) as ITerrainLabel;
+    if(obj){
+      obj.Visibility.Show = value;
+    }
   }
 
   destroy(): void {
