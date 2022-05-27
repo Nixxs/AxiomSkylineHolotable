@@ -14,6 +14,7 @@ import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
 import { UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
+import { bookmarksConfig } from "./config/bookmarks";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -68,17 +69,30 @@ export class UIManager {
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
     const wallLhs = this.wallLs;
     const wallPos = this.wallPos;; // distance out from wall
+
+    // create a sub menu for the bookmarks.
+    const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
+    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
+    this.menusTable.push(BookmarksMenuTable);
+    this.menusWall.push(BookmarksMenuWall);
+
     const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     toolsMenuWall.rows = 2;
     toolsMenuWall.cols = 5
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
-    toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
+    toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
+    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
+    toolsMenuTable.createButton("GetLocation", "BUTTON_Bookmark_Prev.xpl2", (id) => {
+      const loc = sgWorld.Navigate.GetPosition(3);
+      console.log("X:" + loc.X + "Y:" + loc.Y + "Distance" + loc.Distance)
+      alert("X: " + loc.X + "Y: " + loc.Y + "Altitude: " + loc.Altitude)
+    }, "Show bookmarks");
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
-    toolsMenuTable.createButton("PreviousBookmark", "BUTTON_Bookmark_Prev.xpl2", (id) => this.onButtonClick("PreviousBookmark"), "Next location");
-    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onButtonClick("NextBookmark"), "Previous location");
+
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
@@ -141,6 +155,7 @@ export class UIManager {
     this.menusWall.push(showVerbsWall);
 
     this.createControlMeasuresMenu();
+
   }
 
 
@@ -287,6 +302,34 @@ export class UIManager {
     }
   }
 
+  onBookmarkShow(menus: MenuVerbs[]) {
+
+
+    const getMenu = () => {
+      let [bookmarksMenuTable, bookmarksMenuWall] = menus;
+      switch (this.GetDeviceTypeOverride()) {
+        case DeviceType.Desktop:
+        case DeviceType.Table:
+          return bookmarksMenuTable
+        case DeviceType.Wall:
+          return bookmarksMenuWall;
+      }
+    }
+
+    if(getMenu().isVisible){
+      getMenu().show(false);
+      return;
+    }
+
+    const bookmarks: Button[] = [];
+    bookmarksConfig.bookmarks.forEach(b => {
+      bookmarks.push(getMenu().createButton(b.name, "blank.xpl2", () => {
+        this.bookmarkManager.ZoomTo(b.name)
+      }))
+    })
+    getMenu().addButtons(bookmarks);
+  }
+
   drawTable() {
     this.drawDevice(new Vector<3>([-0.6, 0, 0.625]), new Vector<3>([0.6, -1.2, 0.625]));
   }
@@ -317,7 +360,7 @@ export class UIManager {
 
     if (this.polygonId) {
       const poly: ITerrainPolygon = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON) as ITerrainPolygon;
-      if(poly){
+      if (poly) {
         poly.geometry = cPolygonGeometry;
       }
     } else {

@@ -524,7 +524,6 @@ export function MaxZoom() {
 
 function colourItemsOnStartup() {
   try {
-    console.log("color items")
     var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
     id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
     traverseTree(id);
