@@ -40,7 +40,7 @@ export class BookmarkManager {
 
     private static doZoom(b: IBookmark) {
         const p = b.position;
-        const pos = sgWorld.Creator.CreatePosition(p.X, p.Y, p.Altitude, p.AltitudeType, p.Yaw, p.Pitch, p.Roll, p.Distance);
+        const pos = sgWorld.Creator.CreatePosition(p.X, p.Y, 0, p.AltitudeType, p.Yaw, p.Pitch, p.Roll, p.Distance);
         sgWorld.Navigate.JumpTo(pos);
         ProgramManager.getInstance().userModeManager!.userMode = UserMode.Standard;
         BookmarkManager.createTextLabel(b.name, p);

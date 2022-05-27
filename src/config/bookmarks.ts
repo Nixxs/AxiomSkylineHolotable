@@ -19,7 +19,7 @@ export const bookmarksConfig: IBookmarkConfig = {
                 X: 145.04932964,
                 Y:-37.19835798,
                 Altitude: 2363.2701, 
-                AltitudeType: 0,
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50.007783, 
                 Roll: 0, 
@@ -29,86 +29,86 @@ export const bookmarksConfig: IBookmarkConfig = {
         {
             name: "OBJ CASSOWAY",
             position: {
-                X: 145.17657047,
-                Y:  -37.0306832,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.14034012,
+                Y: -36.99948321,
+                Altitude: 1241.1836, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 18665.206
+                Distance: 15076.839
             },
         },
         {
             name: "OBJ DUCK",
             position: {
-                X: 145.24676513,
-                Y:  -36.90352823,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.21911343,
+                Y:  -36.89400933,
+                Altitude: 1241.1836, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 18325.42
+                Distance: 1241.1836
             },
         },
         {
             name: "OBJ ALBATROSS",
             position: {
-                X: 145.4289109,
-                Y:  -36.38929339,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.40501385,
+                Y:  -36.34393385,
+                Altitude: 24303.997, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 31878.276
+                Distance: 24303.997
             },
         },
         {
             name: "OBJ EMU",
             position: {
-                X: 145.59395914,
-                Y:  -36.75615997,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.57263976,
+                Y:  -36.7322975,
+                Altitude: 3, 
+                AltitudeType: 11308.023,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 10624.777
+                Distance: 11308.023
             },
         },
         {
             name: "OBJ FALCON",
             position: {
-                X: 145.7270155,
-                Y:  -36.63879829,
-                Altitude: 0, 
-                AltitudeType: 0,
-                Yaw: 0, 
-                Pitch: -50, 
-                Roll: 0, 
-                Distance: 7564.9396
-            },
-        },{
-            name: "MELBOURNE",
-            position: {
-                X: 144.97065926872557,
-                Y:  -37.76446403056759,
-                Altitude: 26353.564460337027, 
+                X: 145.71741313,
+                Y:  -36.61581478,
+                Altitude: 8793.0359, 
                 AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 50076.846
+                Distance: 8793.0359
+            },
+        },{
+            name: "MELBOURNE",
+            position: {
+                X: 144.99148652,
+                Y:  -37.78937768,
+                Altitude: 17272.057, 
+                AltitudeType: 3,
+                Yaw: 0, 
+                Pitch: -50, 
+                Roll: 0, 
+                Distance: 17272.057
             },
         },{
             name: "OBJ BLUEBIRD",
             position: {
                 X: 144.30674965,
                 Y:  -36.76241963,
-                Altitude: 0, 
-                AltitudeType: 0,
+                Altitude: 15710.816, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
@@ -117,86 +117,110 @@ export const bookmarksConfig: IBookmarkConfig = {
         },{
             name: "OBJ GALAH",
             position: {
-                X: 145.87146543,
-                Y:  -36.59429059,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.86157198,
+                Y:  -36.57603154,
+                Altitude: 7412.7258, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 9842.7081
+                Distance: 7412.7258
             },
         },{
             name: "OBJ HAWK",
             position: {
-                X: 146.01150929,
-                Y:  -36.55772302,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 145.97070419,
+                Y:  -36.51705803,
+                Altitude: 18547.527, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 20517.88
+                Distance: 18547.527
             },
         },{
             name: "OBJ IBIS",
             position: {
-                X: 146.23130193,
-                Y:  -36.46695354,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 146.22730218,
+                Y:  -36.44666363,
+                Altitude: 10862.869, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 11753.13
+                Distance: 10862.869
             },
         },{
             name: "OBJ JABIRU",
             position: {
-                X: 146.32942442,
-                Y:  -36.36614346,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 146.30756967,
+                Y: -36.31669413,
+                Altitude: 21377.522, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 19506.554
+                Distance: 21377.522
             },
         },{
             name: "OBJ KAKA",
             position: {
-                X: 146.47037057,
-                Y:  -36.18813195,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 146.47070704,
+                Y:  -36.17283963,
+                Altitude: 6568.6377, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 9858.7836
+                Distance: 6568.6377
             },
         },{
             name: "OBJ LAPWING",
             position: {
-                X: 146.615064097,
-                Y:  -36.15122723,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 146.6127613,
+                Y:  -36.13260823,
+                Altitude: 9220.0706, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 7406.5474
+                Distance: 9220.0706
             },
         },{
             name: "OBJ MAGPIE",
             position: {
-                X: 146.91973205,
-                Y:  -36.1307173,
-                Altitude: 0, 
-                AltitudeType: 0,
+                X: 146.88017819,
+                Y:  -36.04213735,
+                Altitude: 33497.648, 
+                AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 41400.168
+                Distance: 33497.648
+            },
+        },{
+            name: "STRATHBOGIEGOAT",
+            position: {
+                X: 145.18482122,
+                Y:  -36.9565905,
+                Altitude: 33497.648, 
+                AltitudeType: 3,
+                Yaw: 0, 
+                Pitch: -50, 
+                Roll: 0, 
+                Distance: 329.8629
+            },
+        },{
+            name: "COACH ROAD",
+            position: {
+                X: 145.21197986,
+                Y:  -36.94201526,
+                Altitude: 33497.648, 
+                AltitudeType: 3,
+                Yaw: 0, 
+                Pitch: -50, 
+                Roll: 0, 
+                Distance: 666.9621
             },
         }
     ]

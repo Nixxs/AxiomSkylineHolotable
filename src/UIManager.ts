@@ -27,7 +27,7 @@ export class UIManager {
   modelId: string = "";
 
   wallLs: number = -1; // left hand side for wall buttons
-  wallPos: number = -0.2; // distance out from wall
+  wallPos: number = -0.3; // distance out from wall
   buttonSizeWAll = 0.1;
 
   private orbatScaleFactor: number;
@@ -74,6 +74,7 @@ export class UIManager {
     const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
     const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
     const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
+    bookmarkMenus.forEach(m => m.show(false));
     this.menusTable.push(BookmarksMenuTable);
     this.menusWall.push(BookmarksMenuWall);
 
@@ -110,7 +111,7 @@ export class UIManager {
     // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
     //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
     const orbatMenuWall = new Menu(0.4, 0.6, new Vector<3>([wallLhs, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
-    orbatMenuWall.rows = 5;
+    orbatMenuWall.rows = 6;
     orbatMenuWall.cols = 1
 
     // Sub menus
@@ -323,7 +324,8 @@ export class UIManager {
     const bookmarks: Button[] = [];
     bookmarksConfig.bookmarks.forEach(b => {
       bookmarks.push(getMenu().createButton(b.name, "blank.xpl2", () => {
-        this.bookmarkManager.ZoomTo(b.name)
+        this.bookmarkManager.ZoomTo(b.name);
+        getMenu().show(false);
       }))
     })
     getMenu().addButtons(bookmarks);
