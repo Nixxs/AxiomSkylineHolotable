@@ -1,13 +1,23 @@
 export const controlConfig = {
   ControlModels: [
     {
-      "modelName": "Future Attack Aviation",
-      "modelType": "taskIndicator",
-      "modelPath": "CM_AttackAviationDotted.obj",
-      "buttonIcon": "CM_-_AMA.xpl2",
-      "Black": 0,
-      "Blue": 1,
-      "Red": 1,
+      "modelName": "ARA TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_ARA_TEXT.dae",
+      "buttonIcon": "CM_ARA_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "AMA TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_AMA_TEXT.dae",
+      "buttonIcon": "CM_AMA_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
       "Green": 0
     },
     {

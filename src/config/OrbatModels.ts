@@ -1,6 +1,56 @@
 export const orbatConfig: IOrbatConfig = {
     OrbatModels: [
         {
+            modelName: "8/12 REGT",
+            modelType: "orbat",
+            missionType: "na",
+            forceType: "friendly",
+            buttonIcon: "BUTTON_ORBAT_812REGT.dae",
+            buttons: [
+                {
+                    modelName: "8/12 REGT",
+                    modelType: "orbat",
+                    missionType: "na",
+                    forceType: "friendly",
+                    buttonIcon: "BUTTON_ORBAT_812REGT.dae",
+                    models: [
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_CSS.dae",
+                            modelName: "ORBAT_ORBAT_I_CSS"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_LINE.dae",
+                            modelName: "ORBAT_ORBAT_I_LINE"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_EYE_CPL.dae",
+                            modelName: "ORBAT_ORBAT_I_EYE_CPL"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_EYE.dae",
+                            modelName: "ORBAT_ORBAT_I_EYE"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_EYE.dae",
+                            modelName: "ORBAT_ORBAT_I_EYE"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_EYE.dae",
+                            modelName: "ORBAT_ORBAT_I_EYE"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_I_REGT.dae",
+                            modelName: "ORBAT_ORBAT_I_REGT"
+                        },
+                        {
+                            modelFile: "OrbatFriendly/ORBAT_ORBAT_II_REGT.dae",
+                            modelName: "ORBAT_ORBAT_II_REGT"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             modelName: "BG JACKA",
             modelType: "orbat",
             missionType: "na",
