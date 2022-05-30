@@ -1,6 +1,46 @@
 export const controlConfig = {
   ControlModels: [
     {
+      "modelName": "TRP1 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_TRP1_TEXT.dae",
+      "buttonIcon": "CM_TRP1_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "TRP2 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_TRP2_TEXT.dae",
+      "buttonIcon": "CM_TRP2_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "TRP3 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_TRP3_TEXT.dae",
+      "buttonIcon": "CM_TRP3_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "TRP4 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_TRP4_TEXT.dae",
+      "buttonIcon": "CM_TRP4_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
       "modelName": "BP1 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_BP1_TEXT.dae",
