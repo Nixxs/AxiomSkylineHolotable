@@ -329,11 +329,13 @@ export class UIManager {
   }
 
   changeBasemap(){
-    const itemIdStreets = GetItemIDByName("Streets");
+    // fallback hard coded as this was not tested yet
+    const itemIdStreets = GetItemIDByName("Streets") ? GetItemIDByName("Streets") as string : "0_28095807";
+    const itemIdSatellite = GetItemIDByName("Satellite") ? GetItemIDByName("Satellite") as string : "0_264"  as string;
     console.log("itemIdStreets:: " + itemIdStreets);
-    // temporarily hard coded. Update to use GetItemIDByName
-    const ImageryLayer = sgWorld.Creator.GetObject("0_28095807") as ITerrainModel;
-    const TerrainLayer = sgWorld.Creator.GetObject("0_264") as ITerrainModel;
+    console.log("itemIdSatellite:: " + itemIdSatellite);
+    const ImageryLayer = sgWorld.Creator.GetObject(itemIdStreets) as ITerrainModel;
+    const TerrainLayer = sgWorld.Creator.GetObject(itemIdSatellite) as ITerrainModel;
     const val =  ImageryLayer.Visibility.Show;
     ImageryLayer.Visibility.Show = !val
     TerrainLayer.Visibility.Show = val
