@@ -1,6 +1,46 @@
 export const controlConfig = {
   ControlModels: [
     {
+      "modelName": "BP1 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_BP1_TEXT.dae",
+      "buttonIcon": "CM_BP1_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "BP2 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_BP2_TEXT.dae",
+      "buttonIcon": "CM_BP2_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "BP3 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_BP3_TEXT.dae",
+      "buttonIcon": "CM_BP3_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
+      "modelName": "BP4 TEXT",
+      "modelType": "controlMeasure",
+      "modelPath": "CM_BP4_TEXT.dae",
+      "buttonIcon": "CM_BP4_TEXT.dae",
+      "Black": 1,
+      "Blue": 0,
+      "Red": 0,
+      "Green": 0
+    },
+    {
       "modelName": "ARA TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_ARA_TEXT.dae",
