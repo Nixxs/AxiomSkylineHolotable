@@ -17,9 +17,14 @@ export class Ray {
       RightRay.SetParam(200, 0x200);  // Make sure that the ray object itself will not be pickable
       this.ID = RightRay.ID;
     } else {
-      const obj = sgWorld.Creator.GetObject(this.ID) as ITerrainPolyline;
-      obj.Geometry = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
-      obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
+      try {
+        const obj = sgWorld.Creator.GetObject(this.ID) as ITerrainPolyline;
+        obj.Geometry = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
+        obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
+      } catch (error) {
+        console.error("Ray error");
+      }
+
     }
   }
 }

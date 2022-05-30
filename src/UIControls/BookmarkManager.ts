@@ -5,6 +5,7 @@ import { UserMode } from "../UserManager";
 
 export class BookmarkManager {
 
+
     private bookmarks = bookmarksConfig.bookmarks;
     private currentIndex = 0;
 
@@ -20,26 +21,32 @@ export class BookmarkManager {
         BookmarkManager.doZoom(this.bookmarks[this.currentIndex]);
     }
 
-    private updateIndex(val: number){
-        if(this.currentIndex + val > this.bookmarks.length - 1){
+    private updateIndex(val: number) {
+        if (this.currentIndex + val > this.bookmarks.length - 1) {
             this.currentIndex = 0;
         }
-        else if(this.currentIndex + val < 0){
+        else if (this.currentIndex + val < 0) {
             this.currentIndex = this.bookmarks.length - 1;
-        }else{
+        } else {
             this.currentIndex += val;
         }
     }
 
-    private static doZoom(b: IBookmark){
+
+    ZoomTo(name: string) {
+       const b = this.bookmarks.filter(b => b.name === name)[0];
+       BookmarkManager.doZoom(b);
+    }
+
+    private static doZoom(b: IBookmark) {
         const p = b.position;
-        const pos = sgWorld.Creator.CreatePosition(p.X, p.Y, p.Altitude, p.AltitudeType, p.Yaw, p.Pitch, p.Roll, p.Distance);
+        const pos = sgWorld.Creator.CreatePosition(p.X, p.Y, 0, p.AltitudeType, p.Yaw, p.Pitch, p.Roll, p.Distance);
         sgWorld.Navigate.JumpTo(pos);
         ProgramManager.getInstance().userModeManager!.userMode = UserMode.Standard;
         BookmarkManager.createTextLabel(b.name, p);
     }
 
-    private static createTextLabel(text: string, p: IBookmarkPosition){
+    private static createTextLabel(text: string, p: IBookmarkPosition) {
         const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
         labelStyle.FontSize = 48;
         const pos = sgWorld.Creator.CreatePosition(p.X, p.Y, 10, AltitudeTypeCode.ATC_TERRAIN_RELATIVE);
@@ -48,7 +55,7 @@ export class BookmarkManager {
         setTimeout(() => {
             ProgramManager.getInstance().deleteItemSafe(cTextLabel.ID)
         }, (4500));
-      
+
     }
 
 }
