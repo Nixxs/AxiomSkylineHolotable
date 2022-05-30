@@ -4,7 +4,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode, GetObject } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode, GetObject, GetItemIDByName } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
@@ -64,37 +64,37 @@ export class UIManager {
 
   createMenus() {
     // create the main control menu. Each menu must be replicated twice, once for wall once for table
-    // tools menu ============
-    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], true, true, true, 0.05);
+
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
     const wallLhs = this.wallLs;
     const wallPos = this.wallPos;; // distance out from wall
 
     // create a sub menu for the bookmarks.
-    const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
-    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 10, 1);
+    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 8, 1);
     const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
     bookmarkMenus.forEach(m => m.show(false));
     this.menusTable.push(BookmarksMenuTable);
     this.menusWall.push(BookmarksMenuWall);
 
-    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    // tools menu ============
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, true, 0.05, 2, 4);
+    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll);
     toolsMenuWall.rows = 2;
-    toolsMenuWall.cols = 5
-    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    toolsMenuWall.cols = 5;
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
-    toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
-    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => {this.changeBasemap()}, "Show basemap");
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
+    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
+    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => {this.changeBasemap()}, "Show basemap");
+    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
 
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
-    // wall has two extra buttons
-    // north m
+    // wall has two extra buttons for controlling view angle
     toolsMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
     toolsMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
 
@@ -329,28 +329,12 @@ export class UIManager {
   }
 
   changeBasemap(){
-    // const traverseTree = (current: string) => {
-
-    //   while (current) {
-    //     var currentName = sgWorld.ProjectTree.GetItemName(current);
-    //     console.log(currentName)
-    //     if (sgWorld.ProjectTree.IsGroup(current)) {
-    //       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
-    //       traverseTree(child);
-    //     }
-    //     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
-    //   }
-    // }
-
-    // var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
-    // id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
-    // traverseTree(id);
-
-    // why won't terra find the layer?! had to hard code ID
+    const itemIdStreets = GetItemIDByName("Streets");
+    console.log("itemIdStreets:: " + itemIdStreets);
+    // temporarily hard coded. Update to use GetItemIDByName
     const ImageryLayer = sgWorld.Creator.GetObject("0_28095807") as ITerrainModel;
     const TerrainLayer = sgWorld.Creator.GetObject("0_264") as ITerrainModel;
     const val =  ImageryLayer.Visibility.Show;
-    console.log(val);
     ImageryLayer.Visibility.Show = !val
     TerrainLayer.Visibility.Show = val
   }
@@ -559,3 +543,4 @@ export class UIManager {
     }
   }
 }
+

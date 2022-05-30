@@ -522,15 +522,29 @@ export function MaxZoom() {
   return null;
 }
 
+/**
+ * Traverse the tree to find an item by its name and return the ID
+ * FindItem in the API only works with a full path eg MyGroup\\ItemName
+ * So this is more flexible
+ * @param {string} name
+ */
+export function GetItemIDByName(name: string): string | null{
+  return findInTree(getFirstID(), name)
+}
+
 function colourItemsOnStartup() {
   try {
-    var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
-    id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
-    traverseTree(id);
+    traverseTree(getFirstID());
   } catch (error) {
     console.error("colourItemsOnStartup error")
     console.error(JSON.stringify(error))
   }
+}
+
+function getFirstID(): string {
+  var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
+  id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.ROOT);
+  return id;
 }
 
 function traverseTree(current: string) {
@@ -547,9 +561,23 @@ function traverseTree(current: string) {
       traverseTree(child);
     }
     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
-
   }
+}
 
+function findInTree(current: string, find: string): string | null {
+  while (current) {
+    var currentName = sgWorld.ProjectTree.GetItemName(current);
+    if(currentName === find){
+      return current;
+    }
+    if (sgWorld.ProjectTree.IsGroup(current)) {
+      var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
+      const findVal = findInTree(child, find);
+      if(findVal) return findVal;
+    }
+    current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
+  }
+  return null;
 }
 
 function colorItems(parentId: string, color: string) {
