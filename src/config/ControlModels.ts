@@ -1,7 +1,7 @@
 export const controlConfig = {
   ControlModels: [
     {
-      "modelName": "TRP1 TEXT",
+      "modelName": "A_TRP1 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_TRP1_TEXT.dae",
       "buttonIcon": "CM_TRP1_TEXT.dae",
@@ -11,7 +11,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "TRP2 TEXT",
+      "modelName": "A_TRP2 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_TRP2_TEXT.dae",
       "buttonIcon": "CM_TRP2_TEXT.dae",
@@ -21,7 +21,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "TRP3 TEXT",
+      "modelName": "A_TRP3 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_TRP3_TEXT.dae",
       "buttonIcon": "CM_TRP3_TEXT.dae",
@@ -31,7 +31,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "TRP4 TEXT",
+      "modelName": "A_TRP4 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_TRP4_TEXT.dae",
       "buttonIcon": "CM_TRP4_TEXT.dae",
@@ -41,7 +41,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "BP1 TEXT",
+      "modelName": "A_BP1 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_BP1_TEXT.dae",
       "buttonIcon": "CM_BP1_TEXT.dae",
@@ -51,7 +51,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "BP2 TEXT",
+      "modelName": "A_BP2 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_BP2_TEXT.dae",
       "buttonIcon": "CM_BP2_TEXT.dae",
@@ -61,7 +61,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "BP3 TEXT",
+      "modelName": "A_BP3 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_BP3_TEXT.dae",
       "buttonIcon": "CM_BP3_TEXT.dae",
@@ -71,7 +71,7 @@ export const controlConfig = {
       "Green": 0
     },
     {
-      "modelName": "BP4 TEXT",
+      "modelName": "A_BP4 TEXT",
       "modelType": "controlMeasure",
       "modelPath": "CM_BP4_TEXT.dae",
       "buttonIcon": "CM_BP4_TEXT.dae",
