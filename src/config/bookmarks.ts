@@ -105,14 +105,14 @@ export const bookmarksConfig: IBookmarkConfig = {
         },{
             name: "OBJ BLUEBIRD",
             position: {
-                X: 144.30674965,
-                Y:  -36.76241963,
+                X: 144.2822635,
+                Y:  -36.75873505,
                 Altitude: 15710.816, 
                 AltitudeType: 3,
                 Yaw: 0, 
                 Pitch: -50, 
                 Roll: 0, 
-                Distance: 15710.816
+                Distance: 400.229
             },
         },{
             name: "OBJ GALAH",

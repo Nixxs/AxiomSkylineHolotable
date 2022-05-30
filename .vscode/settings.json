@@ -3,6 +3,7 @@
         "abgr",
         "ARGB",
         "AUTOPITCH",
+        "CASSOWAY",
         "classid",
         "CLSID",
         "Colour",
@@ -16,6 +17,7 @@
         "pickable",
         "Puckapunyal",
         "raycasted",
+        "STRATHBOGIEGOAT",
         "TEXTUP",
         "uncollidebale"
     ]

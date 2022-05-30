@@ -78,7 +78,7 @@ function dragMode() {
       let powerStrength = 1;
       if (GetDeviceType() == DeviceType.Wall) {
         let curAltitudeRatio = worldPos.Altitude / 2000; // scaling now works less as you go from 1000 down to 10 altitude
-        console.log("worldPos.Altitude " + worldPos.Altitude )
+        console.log("worldPos.Altitude " + worldPos.Altitude)
         powerStrength = Math.min(Math.max(curAltitudeRatio, 0.25), 1);
       }
       const factor = Math.pow(scaleRatio, power * powerStrength);
@@ -362,10 +362,10 @@ export class UserModeManager {
       sgWorld.ProjectTree.SetVisibility(model.ID, true);
       const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
       model.ScaleFactor = 5 * roomPos.Altitude;
-      
-      if(GetDeviceType() === DeviceType.Wall){
+
+      if (GetDeviceType() === DeviceType.Wall) {
         const pos = sgWorld.Navigate.GetPosition(3);
-        model.ScaleFactor =  pos.Altitude /2;
+        model.ScaleFactor = pos.Altitude / 2;
       }
 
 
@@ -497,8 +497,8 @@ export class UserModeManager {
       console.log("Nothing selected to scale");
       return;
     }
-    const model = GetObject(this.currentlySelectedId)  as ITerrainModel;
-    if(model){
+    const model = GetObject(this.currentlySelectedId) as ITerrainModel;
+    if (model) {
       model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
       // adam wanted all the models to be shorter
       model.ScaleZ *= this.ModelZScaleFactor;
@@ -569,284 +569,292 @@ export class UserModeManager {
   }
 
   Update() {
-    const button1pressed = ProgramManager.getInstance().getButton1Pressed(1);
-    switch (ProgramManager.getInstance().getMode()) {
-      case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
-      case ProgramMode.Device:
-        this.laser1?.UpdateTable(1);
-        this.laser2?.UpdateTable(0);
-        break;
-    }
-    switch (gControlMode) {
-      case ControlMode.Table:
-        dragMode();
-        break;
-      case ControlMode.Wall:
-        wallMode(this.laser1!);
-        break;
-      case ControlMode.Wand:
-        wandMode(this.laser1!);
-        break;
-    }
-    switch (this.userMode) {
-      case UserMode.Standard:
-        setSelection(this.laser1!, button1pressed);
-        showTooltipIntersected(this.laser1!)
-        highlightIntersected(this.laser1!);
-        break;
-      case UserMode.Measurement:
-        if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
-          // Move the line end position to the cursor
-          const teEndPos = this.laser1!.collision!.hitPoint.Copy();
-          const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
-          const mLine = GetObject(this.measurementModeLineID) as ITerrainPolyline;
-          if(!mLine) return;
-          const Geometry = mLine.Geometry as ILineString;
-          Geometry.StartEdit();
-          Geometry.Points.Item(1).X = teEndPos.X;
-          Geometry.Points.Item(1).Y = teEndPos.Y;
-          Geometry.EndEdit();
+    try {
 
-          // Update the label
-          const direction: string = teStartPos.Yaw.toFixed(this.decimalPlaces);
-          const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
-          const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
-          const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-          const mLabel =GetObject(this.measurementTextLabelID) as ITerrainLabel;
-          mLabel.Text = strLabelText;
-          mLabel.Position = teHalfPos;
+      const button1pressed = ProgramManager.getInstance().getButton1Pressed(1);
+      switch (ProgramManager.getInstance().getMode()) {
+        case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
+        case ProgramMode.Device:
+          this.laser1?.UpdateTable(1);
+          this.laser2?.UpdateTable(0);
+          break;
+      }
+      switch (gControlMode) {
+        case ControlMode.Table:
+          dragMode();
+          break;
+        case ControlMode.Wall:
+          wallMode(this.laser1!);
+          break;
+        case ControlMode.Wand:
+          wandMode(this.laser1!);
+          break;
+      }
+      switch (this.userMode) {
+        case UserMode.Standard:
+          setSelection(this.laser1!, button1pressed);
+          showTooltipIntersected(this.laser1!)
+          highlightIntersected(this.laser1!);
+          break;
+        case UserMode.Measurement:
+          if (this.measurementModeFirstPoint !== null && this.measurementTextLabelID !== null && this.measurementModeLineID !== null) {
+            // Move the line end position to the cursor
+            const teEndPos = this.laser1!.collision!.hitPoint.Copy();
+            const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
+            const mLine = GetObject(this.measurementModeLineID) as ITerrainPolyline;
+            if (!mLine) return;
+            const Geometry = mLine.Geometry as ILineString;
+            Geometry.StartEdit();
+            Geometry.Points.Item(1).X = teEndPos.X;
+            Geometry.Points.Item(1).Y = teEndPos.Y;
+            Geometry.EndEdit();
 
-          // Exit mode when pressed again
+            // Update the label
+            const direction: string = teStartPos.Yaw.toFixed(this.decimalPlaces);
+            const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
+            const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
+            const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
+            const mLabel = GetObject(this.measurementTextLabelID) as ITerrainLabel;
+            mLabel.Text = strLabelText;
+            mLabel.Position = teHalfPos;
+
+            // Exit mode when pressed again
+            if (ProgramManager.getInstance().getButton1Pressed(1)) {
+              console.log("finished line");
+              highlightById(false, this.drawButtonId);
+
+              ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
+              this.setStandardMode();
+              // consume the button press
+              ControllerReader.controllerInfos[1].button1Pressed = false;
+              this.measurementModeLineID = null;
+              this.measurementTextLabelID = null;
+              this.measurementModeFirstPoint = null;
+            }
+          } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            // Create the line and label
+            console.log("new line");
+
+            this.measurementModeFirstPoint = this.laser1!.collision!.hitPoint.Copy();
+
+            const teStartPos = this.measurementModeFirstPoint.Copy();
+            const teEndPos = teStartPos.Copy();
+
+            const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
+            const lineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+            const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, grp, "__line");
+            mLine.LineStyle.Width = this.measurementLineWidth;
+            this.measurementModeLineID = mLine.ID;
+            this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, grp, "___label").ID;
+
+            // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
+            // if you add any other object types into the lineObjects array make sure you handle them in the undo function
+            this.undoObjectIds.push(this.measurementModeLineID);
+            this.undoObjectIds.push(this.measurementTextLabelID);
+            console.log(this.undoObjectIds.toString());
+
+            // consume the button press
+            ControllerReader.controllerInfos[1].button1Pressed = false;
+          }
+          break;
+        case UserMode.DropRangeRing:
           if (ProgramManager.getInstance().getButton1Pressed(1)) {
-            console.log("finished line");
-            highlightById(false, this.drawButtonId);
-
-            ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
+            this.dropRangeRing();
             this.setStandardMode();
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
-            this.measurementModeLineID = null;
-            this.measurementTextLabelID = null;
-            this.measurementModeFirstPoint = null;
           }
-        } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
-          // Create the line and label
-          console.log("new line");
-
-          this.measurementModeFirstPoint = this.laser1!.collision!.hitPoint.Copy();
-
-          const teStartPos = this.measurementModeFirstPoint.Copy();
-          const teEndPos = teStartPos.Copy();
-
-          const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
-          const lineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
-          const mLine = sgWorld.Creator.CreatePolyline(lineGeom, this.measurementLineColor, 2, grp, "__line");
-          mLine.LineStyle.Width = this.measurementLineWidth;
-          this.measurementModeLineID = mLine.ID;
-          this.measurementTextLabelID = sgWorld.Creator.CreateTextLabel(teStartPos, "0m", this.measurementLabelStyle, grp, "___label").ID;
-
-          // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
-          // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-          this.undoObjectIds.push(this.measurementModeLineID);
-          this.undoObjectIds.push(this.measurementTextLabelID);
-          console.log(this.undoObjectIds.toString());
-
-          // consume the button press
-          ControllerReader.controllerInfos[1].button1Pressed = false;
-        }
-        break;
-      case UserMode.DropRangeRing:
-        if (ProgramManager.getInstance().getButton1Pressed(1)) {
-          this.dropRangeRing();
-          this.setStandardMode();
-          // consume the button press
-          ControllerReader.controllerInfos[1].button1Pressed = false;
-        }
-        break;
-      case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
-      case UserMode.MoveModel:
-        const modelObject = GetObject(this.currentlySelectedId!);
-        if (!modelObject) {
-          // user most likely deleted it using delete button
-          this.userMode = UserMode.Standard;
           break;
-        } else {
-          if (ProgramManager.getInstance().getButton1Pressed(1)) {
-            // this is for making the model collide-able again
-            modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
-            ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
-            this.setStandardMode();
-            // consume the button press
-            ProgramManager.getInstance().setButton1Pressed(1, false);
+        case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
+        case UserMode.MoveModel:
+          const modelObject = GetObject(this.currentlySelectedId!);
+          if (!modelObject) {
+            // user most likely deleted it using delete button
+            this.userMode = UserMode.Standard;
+            break;
           } else {
-            const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-            if (newModelPosition !== undefined) {
-              newModelPosition.Pitch = 0;
+            if (ProgramManager.getInstance().getButton1Pressed(1)) {
+              // this is for making the model collide-able again
+              modelObject.SetParam(200, modelObject.GetParam(200) & (~512));
+              ProgramManager.getInstance().refreshCollaborationModeLayers(modelObject.ID);
+              this.setStandardMode();
+              // consume the button press
+              ProgramManager.getInstance().setButton1Pressed(1, false);
+            } else {
+              const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+              if (newModelPosition !== undefined) {
+                newModelPosition.Pitch = 0;
 
-              // adam asked for models to always be north facing so yaw is 0 on every update now
-              var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
-              modelName = modelName.toLocaleLowerCase();
-              // if its an orbat, it is not rotatable. Also if on wall stop rotation
-              if (modelName.indexOf('orbat') !== -1 || GetDeviceType() === DeviceType.Wall) {
-                newModelPosition.Yaw = 0;
-              } else {
-                newModelPosition.Yaw = newModelPosition.Roll * 2;
-              }
-
-              newModelPosition.Roll = 0;
-              const modelObject = GetObject(this.currentlySelectedId!);
-              if (!modelObject) {
-                // user most likely deleted it
-              } else {
-                modelObject.Position = newModelPosition;
-              }
-            }
-
-            if (GetDeviceType() === DeviceType.Wall) {
-               
-
-            }
-
-            // disable/enable tinting of models, disabled for now as it is not currently required
-            const enableColourToggle = false;
-            if (ProgramManager.getInstance().getButton2Pressed(1) && enableColourToggle) {
-              const modelObject = GetObject(this.currentlySelectedId!) as ITerrainModel;
-              if(modelObject){
-                console.log(modelObject.Terrain.Tint.ToHTMLColor());
-                console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
-  
-                var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-                var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
-                if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
-                  modelObject.Terrain.Tint = blueColor;
+                // adam asked for models to always be north facing so yaw is 0 on every update now
+                var modelName = sgWorld.ProjectTree.GetItemName(this.currentlySelectedId!);
+                modelName = modelName.toLocaleLowerCase();
+                // if its an orbat, it is not rotatable. Also if on wall stop rotation
+                if (modelName.indexOf('orbat') !== -1 || GetDeviceType() === DeviceType.Wall) {
+                  newModelPosition.Yaw = 0;
                 } else {
-                  modelObject.Terrain.Tint = redColor;
+                  newModelPosition.Yaw = newModelPosition.Roll * 2;
+                }
+
+                newModelPosition.Roll = 0;
+                const modelObject = GetObject(this.currentlySelectedId!);
+                if (!modelObject) {
+                  // user most likely deleted it
+                } else {
+                  modelObject.Position = newModelPosition;
+                }
+              }
+
+              if (GetDeviceType() === DeviceType.Wall) {
+
+
+              }
+
+              // disable/enable tinting of models, disabled for now as it is not currently required
+              const enableColourToggle = false;
+              if (ProgramManager.getInstance().getButton2Pressed(1) && enableColourToggle) {
+                const modelObject = GetObject(this.currentlySelectedId!) as ITerrainModel;
+                if (modelObject) {
+                  console.log(modelObject.Terrain.Tint.ToHTMLColor());
+                  console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
+
+                  var blueColor = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
+                  var redColor = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
+                  if (modelObject.Terrain.Tint.ToARGBColor() === redColor.ToARGBColor()) {
+                    modelObject.Terrain.Tint = blueColor;
+                  } else {
+                    modelObject.Terrain.Tint = redColor;
+                  }
                 }
               }
             }
           }
-        }
-        break;
-      case UserMode.PlaceLabel:
-        try {
-          // we will only let the label be placed on another object
-          if (ProgramManager.getInstance().getButton1Pressed(1)) {
-            const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
-            if (intersectedItemId) {
-              const model = GetObject(intersectedItemId) as ITerrainModel;
-              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-              if (model && label) {
-                label.Style.FontSize = 20;
-                label.Style.TextAlignment = "Left";
-                label.Style.Bold = true;
-                label.Style.BackgroundColor = sgWorld.Creator.CreateColor(255, 255, 255, 0);
-                // setTimeout(() => {
-                //   label.Style.MaxViewingHeight = 10000;
-                // }, 1000)
-                const offsetX = 1 - (model.ScaleFactor / 3.3);
-                label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
-                ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
-                this.setStandardMode();
-                // consume the button press
-                ProgramManager.getInstance().setButton1Pressed(1, false);
-              }
-            };
-          } else {
-            if (ProgramManager.getInstance().getButton2Pressed(1)) {
-              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-              if (!label) {
-                ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
-                this.currentlySelectedId = "";
-              }
-            }
-            const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-            if (newModelPosition !== undefined) {
-              newModelPosition.Pitch = 0;
-              newModelPosition.Yaw = newModelPosition.Roll * 2;
-              newModelPosition.Roll = 0;
-              const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-              if (!label) {
-                // it has been killed
-                this.userMode = UserMode.Standard;
-              } else {
-                label.Position = newModelPosition;
-              }
-            }
-          }
-        } catch (error) {
-          console.log("error in place label:: " + error);
-        }
-        break;
-      case UserMode.DrawLine:
-        if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
-
-          // Move the line end position to the cursor
-          var dLine = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
-          if (!dLine) {
-            // fail
-            this.userMode = UserMode.Standard;
-            return;
-          };
-          var Geometry = dLine.Geometry as ILineString;
-
-          const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-          if (teEndPos !== undefined) {
-            // start the edit session to enable modification of the geometry
-            Geometry.StartEdit();
+          break;
+        case UserMode.PlaceLabel:
+          try {
+            // we will only let the label be placed on another object
             if (ProgramManager.getInstance().getButton1Pressed(1)) {
-              // if button 1 is pressed add a new point to the geometry
-              Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+              const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
+              if (intersectedItemId) {
+                const model = GetObject(intersectedItemId) as ITerrainModel;
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+                if (model && label) {
+                  label.Style.FontSize = 20;
+                  label.Style.TextAlignment = "Left";
+                  label.Style.Bold = true;
+                  label.Style.BackgroundColor = sgWorld.Creator.CreateColor(255, 255, 255, 0);
+                  // setTimeout(() => {
+                  //   label.Style.MaxViewingHeight = 10000;
+                  // }, 1000)
+                  const offsetX = 1 - (model.ScaleFactor / 3.3);
+                  label.Attachment.AttachTo(model.ID, offsetX, 0, 0, 0, 0, 0);
+                  ProgramManager.getInstance().refreshCollaborationModeLayers(label.ID);
+                  this.setStandardMode();
+                  // consume the button press
+                  ProgramManager.getInstance().setButton1Pressed(1, false);
+                }
+              };
             } else {
-              // if button hasn't been pressed just move the last point to the current
-              // position of the laser so the user what the new line will look like
-              const drawPointIndex = Geometry.Points.Count - 1;
-              Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
-              Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+              if (ProgramManager.getInstance().getButton2Pressed(1)) {
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+                if (!label) {
+                  ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
+                  this.currentlySelectedId = "";
+                }
+              }
+              const newModelPosition = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+              if (newModelPosition !== undefined) {
+                newModelPosition.Pitch = 0;
+                newModelPosition.Yaw = newModelPosition.Roll * 2;
+                newModelPosition.Roll = 0;
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+                if (!label) {
+                  // it has been killed
+                  this.userMode = UserMode.Standard;
+                } else {
+                  label.Position = newModelPosition;
+                }
+              }
             }
-            Geometry.EndEdit();
+          } catch (error) {
+            console.log("error in place label:: " + error);
           }
+          break;
+        case UserMode.DrawLine:
+          if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
-          // Exit mode when button 2 is pressed
-          if (ProgramManager.getInstance().getButton2Pressed(1)) {
-            console.log("finished line");
-            // delete the last point as this will not have been placed by the user just drawn for planning
-            Geometry.StartEdit();
-            Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
-            Geometry.EndEdit();
+            // Move the line end position to the cursor
+            var dLine = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
+            if (!dLine) {
+              // fail
+              this.userMode = UserMode.Standard;
+              return;
+            };
+            var Geometry = dLine.Geometry as ILineString;
 
-            ProgramManager.getInstance().refreshCollaborationModeLayers(dLine.ID);
-            this.setStandardMode();
+            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (teEndPos !== undefined) {
+              // start the edit session to enable modification of the geometry
+              Geometry.StartEdit();
+              if (ProgramManager.getInstance().getButton1Pressed(1)) {
+                // if button 1 is pressed add a new point to the geometry
+                Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+              } else {
+                // if button hasn't been pressed just move the last point to the current
+                // position of the laser so the user what the new line will look like
+                const drawPointIndex = Geometry.Points.Count - 1;
+                Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+                Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+              }
+              Geometry.EndEdit();
+            }
+
+            // Exit mode when button 2 is pressed
+            if (ProgramManager.getInstance().getButton2Pressed(1)) {
+              console.log("finished line");
+              // delete the last point as this will not have been placed by the user just drawn for planning
+              if(Geometry.Points.Count > 0){
+                Geometry.StartEdit();
+                Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
+                Geometry.EndEdit();
+              }
+
+              ProgramManager.getInstance().refreshCollaborationModeLayers(dLine.ID);
+              this.setStandardMode();
+              // consume the button press
+              ControllerReader.controllerInfos[1].button2Pressed = false;
+              this.drawLineID = null;
+              this.drawLineFirstPoint = null;
+            }
+          } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            // Create the line
+            console.log("new line");
+
+            this.drawLineFirstPoint = this.laser1!.collision!.hitPoint.Copy();
+
+            const teStartPos = this.drawLineFirstPoint.Copy();
+            const teEndPos = teStartPos.Copy();
+
+            const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
+            const drawLineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
+            const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, grp, "__line");
+            dLine.LineStyle.Width = this.drawLineWidth;
+            this.drawLineID = dLine.ID;
+
+            // add the new item to the array so it can be deleted in sequence via the undo button
+            // if you add any other object types into the lineObjects array make sure you handle them in the undo function
+            this.undoObjectIds.push(this.drawLineID);
+            console.log(this.undoObjectIds.toString());
+
             // consume the button press
-            ControllerReader.controllerInfos[1].button2Pressed = false;
-            this.drawLineID = null;
-            this.drawLineFirstPoint = null;
+            ControllerReader.controllerInfos[1].button1Pressed = false;
           }
-        } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
-          // Create the line
-          console.log("new line");
-
-          this.drawLineFirstPoint = this.laser1!.collision!.hitPoint.Copy();
-
-          const teStartPos = this.drawLineFirstPoint.Copy();
-          const teEndPos = teStartPos.Copy();
-
-          const strLineWKT = "LineString( " + teStartPos.X + " " + teStartPos.Y + ", " + teEndPos.X + " " + teEndPos.Y + " )";
-          const drawLineGeom = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(strLineWKT);
-          const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
-          const dLine = sgWorld.Creator.CreatePolyline(drawLineGeom, this.drawLineColor, 2, grp, "__line");
-          dLine.LineStyle.Width = this.drawLineWidth;
-          this.drawLineID = dLine.ID;
-
-          // add the new item to the array so it can be deleted in sequence via the undo button
-          // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-          this.undoObjectIds.push(this.drawLineID);
-          console.log(this.undoObjectIds.toString());
-
-          // consume the button press
-          ControllerReader.controllerInfos[1].button1Pressed = false;
-        }
-        break;
+          break;
+      }
+    } catch (error) {
+      // for demo we can't have errors
+      console.log("UPDATE ERROR" + error)
     }
   }
 }
