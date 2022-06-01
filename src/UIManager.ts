@@ -437,11 +437,13 @@ export class UIManager {
         break;
       case "ViewAbove":
         const pos1 = sgWorld.Navigate.GetPosition(3);
+        pos1.Yaw = 0;
         pos1.Pitch = -90;
         sgWorld.Navigate.JumpTo(pos1)
         break;
       case "ViewOblique":
         const pos2 = sgWorld.Navigate.GetPosition(3);
+        pos2.Yaw = 0;
         pos2.Pitch = -50;
         sgWorld.Navigate.JumpTo(pos2)
         break;
@@ -540,7 +542,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+   //  return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
