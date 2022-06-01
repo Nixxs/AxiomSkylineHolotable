@@ -506,13 +506,19 @@ export class UserModeManager {
   }
 
   deleteModel(): void {
+ 
     if (this.currentlySelectedId === undefined) {
       console.log("Nothing selected to delete");
       return;
     }
-    const model = GetObject(this.currentlySelectedId);
-    if (model) {
+    if(this.userMode === UserMode.PlaceLabel){
+      // const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
       ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
+    }else{
+      const model = GetObject(this.currentlySelectedId);
+      if (model) {
+        ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
+      }
     }
     // delete the model from the lineObjects array so it doesn't cause issues with the delete button
     const indexOfDeleteObject = this.undoObjectIds.indexOf(this.currentlySelectedId);
@@ -601,7 +607,7 @@ export class UserModeManager {
             // Move the line end position to the cursor
             const teEndPos = this.laser1!.collision!.hitPoint.Copy();
             const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
-            const mLine = GetObject(this.measurementModeLineID) as ITerrainPolyline;
+            const mLine = GetObject(this.measurementModeLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
             if (!mLine) return;
             const Geometry = mLine.Geometry as ILineString;
             Geometry.StartEdit();
@@ -614,7 +620,8 @@ export class UserModeManager {
             const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
             const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
             const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-            const mLabel = GetObject(this.measurementTextLabelID) as ITerrainLabel;
+            const mLabel = GetObject(this.measurementTextLabelID,ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+            if(!mLabel) return;
             mLabel.Text = strLabelText;
             mLabel.Position = teHalfPos;
 
