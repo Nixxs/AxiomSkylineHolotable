@@ -88,7 +88,7 @@ export class UIManager {
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => {this.changeBasemap()}, "Show basemap");
+    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.changeBasemap() }, "Show basemap");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
 
 
@@ -313,7 +313,7 @@ export class UIManager {
       }
     }
 
-    if(getMenu().isVisible){
+    if (getMenu().isVisible) {
       getMenu().show(false);
       return;
     }
@@ -328,17 +328,32 @@ export class UIManager {
     getMenu().addButtons(bookmarks);
   }
 
-  changeBasemap(){
-    // fallback hard coded as this was not tested yet
-    const itemIdStreets = GetItemIDByName("Streets") ? GetItemIDByName("Streets") as string : "0_28095807";
-    const itemIdSatellite = GetItemIDByName("Satellite") ? GetItemIDByName("Satellite") as string : "0_264"  as string;
-    console.log("itemIdStreets:: " + itemIdStreets);
-    console.log("itemIdSatellite:: " + itemIdSatellite);
-    const ImageryLayer = sgWorld.Creator.GetObject(itemIdStreets) as ITerrainModel;
-    const TerrainLayer = sgWorld.Creator.GetObject(itemIdSatellite) as ITerrainModel;
-    const val =  ImageryLayer.Visibility.Show;
-    ImageryLayer.Visibility.Show = !val
-    TerrainLayer.Visibility.Show = val
+  changeBasemap() {
+    try {
+
+      // fallback hard coded as this was not tested yet
+      const itemIdStreets = GetItemIDByName("Streets") ? GetItemIDByName("Streets") as string : "0_28095807";
+      const itemIdSatellite = GetItemIDByName("Satellite") ? GetItemIDByName("Satellite") as string : "0_264" as string;
+      console.log("itemIdStreets:: " + itemIdStreets);
+      console.log("itemIdSatellite:: " + itemIdSatellite);
+      const ImageryLayer = GetObject(itemIdStreets, ObjectTypeCode.OT_IMAGERY_LAYER);
+      const TerrainLayer = GetObject(itemIdSatellite, ObjectTypeCode.OT_IMAGERY_LAYER);
+      if (!ImageryLayer) {
+        console.log("Streets item is null");
+        return;
+      }
+      if (!TerrainLayer) {
+        console.log("Satellite item is null");
+        return;
+      }
+      const val = ImageryLayer.Visibility.Show;
+      console.log(ImageryLayer.ID);
+      console.log(TerrainLayer.ID);
+      ImageryLayer.Visibility.Show = !val
+      TerrainLayer.Visibility.Show = val;
+    } catch (error) {
+      console.log("Error in show basemap" + error);
+    }
   }
 
   drawTable() {
