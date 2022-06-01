@@ -101,7 +101,7 @@ export function setFilmMode(filmMode: boolean) {
 export const enum ProgramMode {
   Unknown,
   Desktop,
-  Device 
+  Device
 }
 
 export const enum DeviceType {
@@ -130,7 +130,7 @@ export function GetDeviceType() {
  * Handles running the script in any program mode
  */
 export class ProgramManager {
-  
+
   static OnFrame() { }
   static OneFrame = function () { }
   static DoOneFrame(f: () => void) { ProgramManager.OneFrame = f; }
@@ -224,7 +224,7 @@ export class ProgramManager {
         console.log("error no children")
       }
       console.log("create new group under collab tree");
-      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);; 
+      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);;
       return grp
     } else {
       grp = ProgramManager.getInstance().getGroupID(groupName);
@@ -347,7 +347,7 @@ export class ProgramManager {
         setComClientForcedInputMode();
         colourItemsOnStartup(); // color the items in the tree
         // was not working in collab mode so just doing every 5 seconds
-        setInterval(()=> colourItemsOnStartup(), 5000); 
+        setInterval(() => colourItemsOnStartup(), 5000);
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -374,7 +374,7 @@ export class ProgramManager {
             }
           }
         });
-        sgWorld.AttachEvent("OnCommandExecuted", (CommandID: string, parameters: any) => {
+        sgWorld.AttachEvent("OnCommandExecuted", (CommandID: string, ...parameters: any[]) => {
           console.log(CommandID + " " + JSON.stringify(parameters))
         });
         // TODO this was not working in collab mode. Needs more testing. May not work?
@@ -504,21 +504,26 @@ export function MaxZoom() {
 /**
  * Returns models by their ID
  * Optionally supply a model type for other items such as labels
- * @param {string} [oid]
- * @param {*} [objectType=ObjectType.OT_MODEL]
- * @return {*}  {(ITerrainModel | null)}
  */
- export function GetObject(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
-  try {
-    if (oid !== undefined && oid != "") {
+
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_IMAGERY_LAYER): ITerrainRasterLayer | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_MODEL): ITerrainModel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_POLYLINE): ITerrainPolyline | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_LABEL): ITerrainLabel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_POLYGON): ITerrainPolygon | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_SPHERE): ITerrainSphere | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_BOX): ITerrain3DRectBase | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_IMAGE_LABEL): ITerrainImageLabel | null;
+
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode): ITerraExplorerObject | null {
+  if (oid !== undefined)
+    try {
       const object = sgWorld.Creator.GetObject(oid);
-      if (object && object.ObjectType === objectType) {
-        return object as any;
-      }
+      if (object.ObjectType === objectType)
+        return object;
+    } catch (error) {
+      return null;
     }
-  } catch (error) {
-    return null;
-  }
   return null;
 }
 
@@ -528,7 +533,7 @@ export function MaxZoom() {
  * So this is more flexible
  * @param {string} name
  */
-export function GetItemIDByName(name: string): string | null{
+export function GetItemIDByName(name: string): string | null {
   return findInTree(getFirstID(), name)
 }
 
@@ -552,8 +557,8 @@ function traverseTree(current: string) {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
     if (sgWorld.ProjectTree.IsGroup(current)) {
-      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1 
-      || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
+      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1
+        || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
         const colName = currentName.split("_")[currentName.split("_").length - 1]
         colorItems(current, colName);
       }
@@ -567,13 +572,13 @@ function traverseTree(current: string) {
 function findInTree(current: string, find: string): string | null {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
-    if(currentName === find){
+    if (currentName === find) {
       return current;
     }
     if (sgWorld.ProjectTree.IsGroup(current)) {
       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
       const findVal = findInTree(child, find);
-      if(findVal) return findVal;
+      if (findVal) return findVal;
     }
     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
   }
@@ -585,12 +590,11 @@ function colorItems(parentId: string, color: string) {
     // get the next item as this will be a parent
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
-      const obj = GetObject(id); // sgWorld.ProjectTree.GetObject(id);
+      const obj = GetObject(id, ObjectTypeCode.OT_MODEL); // sgWorld.ProjectTree.GetObject(id);
       if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
-        const model = obj as ITerrainModel;
         const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
-        if (col) {
-          model.Terrain.Tint = col;
+        if (col !== undefined) {
+          obj.Terrain.Tint = col;
         }
       }
       id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);

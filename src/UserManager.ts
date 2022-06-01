@@ -183,7 +183,7 @@ let highlightedId = "";
 let previousCol: number[] = [];
 function showTooltipIntersected(laser: Laser) {
   if (laser.collision != undefined && laser.collision.objectID) {
-    const model = GetObject(laser.collision.objectID) as ITerrainModel;
+    const model = GetObject(laser.collision.objectID, ObjectTypeCode.OT_MODEL);
     if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
       tooltipTimeout = setTimeout(() => {
         if (lastTooltip) ProgramManager.getInstance().deleteItemSafe(lastTooltip)
@@ -220,7 +220,7 @@ function showTooltipIntersected(laser: Laser) {
 }
 
 function highlightById(highlight: boolean, oid?: string): void {
-  const model = GetObject(oid)
+  const model = GetObject(oid, ObjectTypeCode.OT_MODEL);
   if (model && oid) {
 
     if (highlight) {
@@ -414,9 +414,9 @@ export class UserModeManager {
       console.log("creating label:: " + sLabel + " " + label.ObjectType);
       // check if the user was placing a label and changed their mind
       if (this.userMode == UserMode.PlaceLabel) {
-        const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-        if (label) {
-          ProgramManager.getInstance().deleteItemSafe(label.ID)
+        const currentLabel = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL);
+        if (currentLabel !== null) {
+          ProgramManager.getInstance().deleteItemSafe(currentLabel.ID)
         }
       }
 
@@ -436,8 +436,8 @@ export class UserModeManager {
       // We have just selected the model
       if (modelID !== undefined) {
         console.log(`modelID = ${modelID}, typeof = ${typeof modelID}`);
-        const modelObject = GetObject(modelID) as ITerrainModel;
-        if (modelObject) {
+        const modelObject = GetObject(modelID, ObjectTypeCode.OT_MODEL);
+        if (modelObject !== null) {
           // this will make the model not pickable which is what you want while moving it 
           modelObject.SetParam(200, 0x200);
           console.log("made it uncollidebale");
@@ -497,7 +497,7 @@ export class UserModeManager {
       console.log("Nothing selected to scale");
       return;
     }
-    const model = GetObject(this.currentlySelectedId) as ITerrainModel;
+    const model = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_MODEL);
     if (model) {
       model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
       // adam wanted all the models to be shorter
@@ -506,16 +506,15 @@ export class UserModeManager {
   }
 
   deleteModel(): void {
- 
+
     if (this.currentlySelectedId === undefined) {
       console.log("Nothing selected to delete");
       return;
     }
-    if(this.userMode === UserMode.PlaceLabel){
-      // const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+    if (this.userMode === UserMode.PlaceLabel) {
       ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
-    }else{
-      const model = GetObject(this.currentlySelectedId);
+    } else {
+      const model = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_MODEL);
       if (model) {
         ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
       }
@@ -553,12 +552,10 @@ export class UserModeManager {
   }
 
   toggleDrawRectangle(): void {
-
     const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
     const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
 
-    const onDraw = (geometry: any) => {
-
+    const onDraw = (_geometry: IGeometry) => {
       try {
         if (!rect || rect.ID) return;
         this.undoObjectIds.push(rect.ID);
@@ -568,15 +565,12 @@ export class UserModeManager {
       } catch (error) {
         // don't worry
       }
-
     }
     sgWorld.AttachEvent("OnDrawingFinished", onDraw);
-
   }
 
   Update() {
     try {
-
       const button1pressed = ProgramManager.getInstance().getButton1Pressed(1);
       switch (ProgramManager.getInstance().getMode()) {
         case ProgramMode.Desktop: this.laser1?.UpdateDesktop(); break;
@@ -607,21 +601,21 @@ export class UserModeManager {
             // Move the line end position to the cursor
             const teEndPos = this.laser1!.collision!.hitPoint.Copy();
             const teStartPos = this.measurementModeFirstPoint.Copy().AimTo(teEndPos);
-            const mLine = GetObject(this.measurementModeLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
-            if (!mLine) return;
-            const Geometry = mLine.Geometry as ILineString;
-            Geometry.StartEdit();
-            Geometry.Points.Item(1).X = teEndPos.X;
-            Geometry.Points.Item(1).Y = teEndPos.Y;
-            Geometry.EndEdit();
+            const mLine = GetObject(this.measurementModeLineID, ObjectTypeCode.OT_POLYLINE);
+            if (mLine === null) return;
+            const lineGeometry = mLine.Geometry;
+            lineGeometry.StartEdit();
+            lineGeometry.Points.Item(1).X = teEndPos.X;
+            lineGeometry.Points.Item(1).Y = teEndPos.Y;
+            lineGeometry.EndEdit();
 
             // Update the label
             const direction: string = teStartPos.Yaw.toFixed(this.decimalPlaces);
             const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
             const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
             const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-            const mLabel = GetObject(this.measurementTextLabelID,ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-            if(!mLabel) return;
+            const mLabel = GetObject(this.measurementTextLabelID, ObjectTypeCode.OT_LABEL);
+            if (mLabel === null) return;
             mLabel.Text = strLabelText;
             mLabel.Position = teHalfPos;
 
@@ -675,8 +669,8 @@ export class UserModeManager {
           break;
         case UserMode.PlaceModel: // Fall-through because currently these two modes do the exact same thing
         case UserMode.MoveModel:
-          const modelObject = GetObject(this.currentlySelectedId!);
-          if (!modelObject) {
+          const modelObject = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_MODEL);
+          if (modelObject === null) {
             // user most likely deleted it using delete button
             this.userMode = UserMode.Standard;
             break;
@@ -704,8 +698,8 @@ export class UserModeManager {
                 }
 
                 newModelPosition.Roll = 0;
-                const modelObject = GetObject(this.currentlySelectedId!);
-                if (!modelObject) {
+                const modelObject = GetObject(this.currentlySelectedId!, ObjectTypeCode.OT_MODEL);
+                if (modelObject === null) {
                   // user most likely deleted it
                 } else {
                   modelObject.Position = newModelPosition;
@@ -713,14 +707,13 @@ export class UserModeManager {
               }
 
               if (GetDeviceType() === DeviceType.Wall) {
-
-
+                // TODO
               }
 
               // disable/enable tinting of models, disabled for now as it is not currently required
               const enableColourToggle = false;
               if (ProgramManager.getInstance().getButton2Pressed(1) && enableColourToggle) {
-                const modelObject = GetObject(this.currentlySelectedId!) as ITerrainModel;
+                const modelObject = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_MODEL);
                 if (modelObject) {
                   console.log(modelObject.Terrain.Tint.ToHTMLColor());
                   console.log("ARGBColour: " + modelObject.Terrain.Tint.ToARGBColor());
@@ -743,8 +736,8 @@ export class UserModeManager {
             if (ProgramManager.getInstance().getButton1Pressed(1)) {
               const intersectedItemId = ProgramManager.getInstance().userModeManager?.getCollisionID(1);
               if (intersectedItemId) {
-                const model = GetObject(intersectedItemId) as ITerrainModel;
-                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+                const model = GetObject(intersectedItemId, ObjectTypeCode.OT_MODEL);
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL);
                 if (model && label) {
                   label.Style.FontSize = 20;
                   label.Style.TextAlignment = "Left";
@@ -763,8 +756,8 @@ export class UserModeManager {
               };
             } else {
               if (ProgramManager.getInstance().getButton2Pressed(1)) {
-                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-                if (!label) {
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL);
+                if (label === null) {
                   ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
                   this.currentlySelectedId = "";
                 }
@@ -774,8 +767,8 @@ export class UserModeManager {
                 newModelPosition.Pitch = 0;
                 newModelPosition.Yaw = newModelPosition.Roll * 2;
                 newModelPosition.Roll = 0;
-                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-                if (!label) {
+                const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL);
+                if (label === null) {
                   // it has been killed
                   this.userMode = UserMode.Standard;
                 } else {
@@ -791,39 +784,39 @@ export class UserModeManager {
           if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
 
             // Move the line end position to the cursor
-            var dLine = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYLINE) as ITerrainPolyline;
+            const dLine = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYLINE);
             if (!dLine) {
               // fail
               this.userMode = UserMode.Standard;
               return;
-            };
-            var Geometry = dLine.Geometry as ILineString;
+            }
+            const geometry = dLine.Geometry;
 
             const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
             if (teEndPos !== undefined) {
               // start the edit session to enable modification of the geometry
-              Geometry.StartEdit();
+              geometry.StartEdit();
               if (ProgramManager.getInstance().getButton1Pressed(1)) {
                 // if button 1 is pressed add a new point to the geometry
-                Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+                geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
               } else {
                 // if button hasn't been pressed just move the last point to the current
                 // position of the laser so the user what the new line will look like
-                const drawPointIndex = Geometry.Points.Count - 1;
-                Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
-                Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+                const drawPointIndex = geometry.Points.Count - 1;
+                geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+                geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
               }
-              Geometry.EndEdit();
+              geometry.EndEdit();
             }
 
             // Exit mode when button 2 is pressed
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
               console.log("finished line");
               // delete the last point as this will not have been placed by the user just drawn for planning
-              if(Geometry.Points.Count > 0){
-                Geometry.StartEdit();
-                Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
-                Geometry.EndEdit();
+              if (geometry.Points.Count > 0) {
+                geometry.StartEdit();
+                geometry.Points.DeletePoint(geometry.Points.Count - 1);
+                geometry.EndEdit();
               }
 
               ProgramManager.getInstance().refreshCollaborationModeLayers(dLine.ID);

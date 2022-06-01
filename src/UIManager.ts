@@ -1,20 +1,21 @@
-import { basePath, sgWorld, sessionManager } from "./Axiom";
+import { basePath, sgWorld } from "./Axiom";
 import { runConsole } from "./Debug";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode, GetObject, GetItemIDByName } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName, deviceHeightOffset } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
-import { IOrbatMenuItem, IOrbatModel, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
+import { IOrbatMenuItem, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
 import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
 import { UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
+import { ControllerReader } from "./ControllerReader";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -91,7 +92,6 @@ export class UIManager {
     toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.changeBasemap() }, "Show basemap");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
 
-
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
     // wall has two extra buttons for controlling view angle
@@ -100,7 +100,6 @@ export class UIManager {
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
-
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05,);
@@ -153,9 +152,62 @@ export class UIManager {
 
     this.createControlMeasuresMenu();
 
+    (() => {
+      let open = 0;
+      const pageName = () => {
+        return `page/${open}.png`;
+      }
+      let pageID: string | undefined;
+      let imgID: string | undefined;
+
+      const getPage = () => {
+        let obj = GetObject(pageID, ObjectTypeCode.OT_BOX);
+        if (obj === null) {
+          obj = sgWorld.Creator.CreateBox(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4))
+            , 1, 1, 1, 0xFF000000, 0xFF000000, this.groupId, "presentation text");
+          pageID = obj.ID;
+          obj.Visibility.Show = false;
+        }
+        // I use this to determine if an image file exists...
+        let img = GetObject(imgID, ObjectTypeCode.OT_IMAGE_LABEL);
+        if (img === null) {
+          img = sgWorld.Creator.CreateImageLabel(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -1.2, 0.7, 4))
+            , basePath + pageName(), sgWorld.Creator.CreateLabelStyle(0), this.groupId, "presentation text");
+          imgID = img.ID;
+          img.Visibility.Show = false;
+        }
+        return [obj, img] as const;
+      }
+
+      const presentation = new Button("presentation", sgWorld.Creator.CreatePosition(0.5, -0.2, 0.7, 4), basePath + "ui/blank.xpl2", this.groupId, () => {
+        let [obj, img] = getPage();
+
+        open++;
+        const page = pageName();
+        img.ImageFileName = basePath + page;
+        if (img.ImageFileName !== basePath + page) {
+          open = 0;
+          obj.Visibility.Show = false;
+        } else {
+          obj.FillStyle.Texture.FileName = basePath + page;
+          obj.Visibility.Show = true;
+        }
+      }, false, "SMEAC");
+      const OGDraw = presentation.Draw;
+      presentation.Draw = () => {
+        OGDraw.call(presentation);
+        // draw my page
+        let [obj, _img] = getPage();
+        obj.Position = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4));
+        const boxSize = (ControllerReader.controllerInfos[0]?.scaleFactor ?? 1) / 1.1;
+        obj.Width = boxSize;
+        obj.Height = boxSize * 0.001;
+        obj.Depth = boxSize;
+      }
+      presentation.scale = 0.1;
+      this.menusTable.push(presentation as any); // FIXME for a more permanent solution
+    })();
   }
-
-
 
   onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: Menu[]): void {
     console.log("onOrbatShowMenu  ===========================")
@@ -185,7 +237,6 @@ export class UIManager {
   }
 
   private createControlMeasuresMenu() {
-
     // 4 buttons. black for control measures, red, blue green task measures, 
 
     // control measures menu ============
@@ -212,7 +263,6 @@ export class UIManager {
     showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));
     this.menusTable.push(showControlsTable);
     this.menusWall.push(showControlsWall);
-
   }
 
   onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
@@ -300,8 +350,6 @@ export class UIManager {
   }
 
   onBookmarkShow(menus: MenuVerbs[]) {
-
-
     const getMenu = () => {
       let [bookmarksMenuTable, bookmarksMenuWall] = menus;
       switch (this.GetDeviceTypeOverride()) {
@@ -330,19 +378,18 @@ export class UIManager {
 
   changeBasemap() {
     try {
-
       // fallback hard coded as this was not tested yet
-      const itemIdStreets = GetItemIDByName("Streets") ? GetItemIDByName("Streets") as string : "0_28095807";
-      const itemIdSatellite = GetItemIDByName("Satellite") ? GetItemIDByName("Satellite") as string : "0_264" as string;
+      const itemIdStreets = GetItemIDByName("Streets") ?? "0_28095807";
+      const itemIdSatellite = GetItemIDByName("Satellite") ?? "0_264";
       console.log("itemIdStreets:: " + itemIdStreets);
       console.log("itemIdSatellite:: " + itemIdSatellite);
       const ImageryLayer = GetObject(itemIdStreets, ObjectTypeCode.OT_IMAGERY_LAYER);
       const TerrainLayer = GetObject(itemIdSatellite, ObjectTypeCode.OT_IMAGERY_LAYER);
-      if (!ImageryLayer) {
+      if (ImageryLayer === null) {
         console.log("Streets item is null");
         return;
       }
-      if (!TerrainLayer) {
+      if (TerrainLayer === null) {
         console.log("Satellite item is null");
         return;
       }
@@ -385,8 +432,8 @@ export class UIManager {
     // D2. Create polygon
 
     if (this.polygonId) {
-      const poly: ITerrainPolygon = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON) as ITerrainPolygon;
-      if (poly) {
+      const poly = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON);
+      if (poly !== null) {
         poly.geometry = cPolygonGeometry;
       }
     } else {
@@ -542,10 +589,6 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-   //  return GetDeviceType();
-    if (GetDeviceType() === DeviceType.Desktop) {
-      return DeviceType.Wall;
-    }
     return GetDeviceType();
   }
 

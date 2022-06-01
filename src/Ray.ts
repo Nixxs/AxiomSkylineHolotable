@@ -1,5 +1,6 @@
 import { sgWorld } from "./Axiom";
 import { collisionInfo } from "./Laser";
+import { GetObject } from "./ProgramManager";
 
 export class Ray {
   constructor(private groupID: string) { }
@@ -18,13 +19,14 @@ export class Ray {
       this.ID = RightRay.ID;
     } else {
       try {
-        const obj = sgWorld.Creator.GetObject(this.ID) as ITerrainPolyline;
-        obj.Geometry = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
-        obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
+        const obj = GetObject(this.ID, ObjectTypeCode.OT_POLYLINE);
+        if (obj !== null) {
+          obj.Geometry = sgWorld.Creator.GeometryCreator.CreateLineStringGeometry(verticesArray);
+          obj.LineStyle.Color.abgrColor = (pickRayInfo.objectID !== undefined) ? 0xFF0000FF : 0xFFFF0000;
+        }
       } catch (error) {
         console.error("Ray error");
       }
-
     }
   }
 }

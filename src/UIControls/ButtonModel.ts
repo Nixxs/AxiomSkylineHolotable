@@ -24,14 +24,14 @@ export class ButtonModel extends Button {
 
       } else {
         // Move the button to be in the right spot
-        const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
-        if (!obj) return;
+        const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
+        if (obj === null) return;
         obj.Position = pos;
         obj.Position.Altitude = obj.Position.Altitude
         obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
 
-        const model: ITerrainModel = GetObject(this.modelId) as ITerrainModel;
-        if (!model) return;
+        const model = GetObject(this.modelId, ObjectTypeCode.OT_MODEL);
+        if (model === null) return;
         model.Position = pos;
         model.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
         if (this.color) {
@@ -41,18 +41,17 @@ export class ButtonModel extends Button {
         // objLbl.Position.Pitch = 90
       }
     } catch (error) {
-        console.error("button error not found:: " + this.modelPath)
+      console.error("button error not found:: " + this.modelPath)
     }
   }
 
   show(value: boolean) {
     super.show(value);
     if (!this.modelId) return;
-    let obj: ITerrainModel = GetObject(this.modelId) as ITerrainModel;
-    if(obj){
+    const obj = GetObject(this.modelId, ObjectTypeCode.OT_MODEL);
+    if (obj !== null) {
       obj.Visibility.Show = value;
     }
-
   }
 
   destroy(): void {
