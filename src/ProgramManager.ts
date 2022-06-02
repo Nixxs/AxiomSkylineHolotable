@@ -555,24 +555,6 @@ function traverseTree(current: string) {
   }
 }
 
-/**
-* stops errors if the object doesn't exist
-*
-* @param {*} id
-*/
-export function deleteItemSafe(id: string) {
-  try {
-    const object = sgWorld.Creator.GetObject(id);
-    if (object) {
-      sgWorld.Creator.DeleteObject(id);
-    }
-    // ensure it is also removed from the undo manager
-    UndoManager.getInstance().Remove(id);
-  } catch (error) {
-    // fine
-  }
-}
-
 
 function findInTree(current: string, find: string): string | null {
   while (current) {
