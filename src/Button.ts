@@ -1,6 +1,6 @@
 import { sgWorld } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
-import { GetObject, ProgramManager, roomToWorldCoord } from "./ProgramManager";
+import { deleteItemSafe, GetObject, ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
 let selectedButton: Button | null = null;
 export function SimulateSelectedButton() {
@@ -66,7 +66,7 @@ export class Button {
     } else {
       // Move the button to be in the right spot
       const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
-      if(!obj) return;
+      if (!obj) return;
       obj.Position = pos;
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
     }
@@ -93,7 +93,7 @@ export class Button {
   destroy() {
     if (this.ID === undefined) return;
     try {
-      ProgramManager.getInstance().deleteItemSafe(this.ID!)
+      deleteItemSafe(this.ID!)
     } catch (error) {
       // its already been destroyed don't worry
     }
