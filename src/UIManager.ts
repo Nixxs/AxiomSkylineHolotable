@@ -232,7 +232,6 @@ export class UIManager {
     const currentMenu = getMenu();
     if (currentMenu.isVisible) {
       currentMenu.show(false);
-      return;
     }
 
     const controls: Button[] = [];
