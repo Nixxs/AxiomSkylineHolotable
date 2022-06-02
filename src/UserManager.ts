@@ -4,7 +4,8 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, GetObject, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { deleteItemSafe, DeviceType, GetDeviceType, GetObject, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { UndoManager } from "./UndoManager";
 
 const enum ControlMode {
   Wand,
@@ -186,7 +187,7 @@ function showTooltipIntersected(laser: Laser) {
     const model = GetObject(laser.collision.objectID) as ITerrainModel;
     if (model && lastTooltipModelID !== model.ID && model.Tooltip.Text) {
       tooltipTimeout = setTimeout(() => {
-        if (lastTooltip) ProgramManager.getInstance().deleteItemSafe(lastTooltip)
+        if (lastTooltip) deleteItemSafe(lastTooltip)
         const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
         labelStyle.LockMode = LabelLockMode.LM_AXIS_AUTOPITCH_TEXTUP
         // DW tried to check for overlaps but 
@@ -211,7 +212,7 @@ function showTooltipIntersected(laser: Laser) {
   }
   else {
     if (lastTooltip) {
-      ProgramManager.getInstance().deleteItemSafe(lastTooltip)
+      deleteItemSafe(lastTooltip)
       lastTooltip = "";
       lastTooltipModelID = "";
     }
@@ -276,7 +277,6 @@ export class UserModeManager {
   private drawLineColor: IColor;
   private drawButtonId: string | undefined;
 
-  public undoObjectIds: Array<string> = []; // list of ids that will be removed on undo
   private laser1?: Laser;
   private laser2?: Laser;
 
@@ -331,8 +331,8 @@ export class UserModeManager {
     if (this.userMode == UserMode.Measurement) {
       highlightById(true, buttonId);
       if (this.measurementModeLineID !== null) {
-        ProgramManager.getInstance().deleteItemSafe(this.measurementModeLineID);
-        ProgramManager.getInstance().deleteItemSafe(this.measurementTextLabelID!);
+        deleteItemSafe(this.measurementModeLineID);
+        deleteItemSafe(this.measurementTextLabelID!);
       }
       this.userMode = UserMode.Standard;
     } else {
@@ -380,8 +380,7 @@ export class UserModeManager {
       ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
 
       // add the new model to the line objects array so it can be deleted via the undo button
-      this.undoObjectIds.push(this.currentlySelectedId);
-      console.log(this.undoObjectIds.toString());
+      UndoManager.getInstance().AddItem(this.currentlySelectedId);
 
       this.userMode = UserMode.PlaceModel;
     }
@@ -416,13 +415,13 @@ export class UserModeManager {
       if (this.userMode == UserMode.PlaceLabel) {
         const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
         if (label) {
-          ProgramManager.getInstance().deleteItemSafe(label.ID)
+          deleteItemSafe(label.ID)
         }
       }
 
       this.currentlySelectedId = label.ID;
       // add the new label to the line objects array so it can be deleted via the undo button
-      this.undoObjectIds.push(label.ID);
+      UndoManager.getInstance().AddItem(label.ID)
       this.userMode = UserMode.PlaceLabel;
     }
   }
@@ -506,43 +505,34 @@ export class UserModeManager {
   }
 
   deleteModel(): void {
- 
+
     if (this.currentlySelectedId === undefined) {
       console.log("Nothing selected to delete");
       return;
     }
-    if(this.userMode === UserMode.PlaceLabel){
+    if (this.userMode === UserMode.PlaceLabel) {
       // const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-      ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
-    }else{
+      deleteItemSafe(this.currentlySelectedId)
+    } else {
       const model = GetObject(this.currentlySelectedId);
       if (model) {
-        ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId)
+        deleteItemSafe(this.currentlySelectedId)
       }
     }
-    // delete the model from the lineObjects array so it doesn't cause issues with the delete button
-    const indexOfDeleteObject = this.undoObjectIds.indexOf(this.currentlySelectedId);
-    this.undoObjectIds.splice(indexOfDeleteObject, 1);
+    // delete the model from the undo array so it doesn't cause issues with the undo button
+    UndoManager.getInstance().Remove(this.currentlySelectedId);
   }
 
   // deletes the most recent item that was added to the lineObjects array
   // if there is nothing in the array doesn't do anything
   undo(): void {
     console.log("undo")
-    const objectToDelete = this.undoObjectIds.pop();
-    if (objectToDelete != undefined) {
-      console.log("deleting: " + objectToDelete);
-      ProgramManager.getInstance().deleteItemSafe(objectToDelete)
-
-      // if the user selects a model then hits the undo button to delete the model then 
-      // we have to update the currently selected value to none so it doesn't cause errors
-      if (objectToDelete === ProgramManager.getInstance().currentlySelected) {
-        ProgramManager.getInstance().currentlySelected = "none";
-      }
-    } else {
-      console.log("nothing to delete");
+    const deleted = UndoManager.getInstance().Undo();
+    if (deleted.indexOf(ProgramManager.getInstance().currentlySelected) > -1) {
+      ProgramManager.getInstance().currentlySelected = "none";
     }
   }
+
 
   toggleDrawLine(buttonId?: string): void {
     this.userMode = UserMode.DrawLine;
@@ -561,7 +551,7 @@ export class UserModeManager {
 
       try {
         if (!rect || rect.ID) return;
-        this.undoObjectIds.push(rect.ID);
+        UndoManager.getInstance().AddItem(rect.ID);
         rect.LineStyle.Color = this.getColorFromString("green")
         console.log("drawn");
         sgWorld.DetachEvent("OnDrawingFinished", onDraw);
@@ -620,8 +610,8 @@ export class UserModeManager {
             const distance: string = teStartPos.DistanceTo(teEndPos).toFixed(this.decimalPlaces);
             const strLabelText = `${direction} ${String.fromCharCode(176)} / ${distance}m`;
             const teHalfPos = teStartPos.Move(teStartPos.DistanceTo(teEndPos) / 2, teStartPos.Yaw, 0);
-            const mLabel = GetObject(this.measurementTextLabelID,ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-            if(!mLabel) return;
+            const mLabel = GetObject(this.measurementTextLabelID, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+            if (!mLabel) return;
             mLabel.Text = strLabelText;
             mLabel.Position = teHalfPos;
 
@@ -657,10 +647,7 @@ export class UserModeManager {
 
             // add the label and the line to the line objects array so it can be deleted in sequence vai the undo button
             // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-            this.undoObjectIds.push(this.measurementModeLineID);
-            this.undoObjectIds.push(this.measurementTextLabelID);
-            console.log(this.undoObjectIds.toString());
-
+            UndoManager.getInstance().AddItems([this.measurementModeLineID, this.measurementTextLabelID])
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
           }
@@ -765,7 +752,7 @@ export class UserModeManager {
               if (ProgramManager.getInstance().getButton2Pressed(1)) {
                 const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
                 if (!label) {
-                  ProgramManager.getInstance().deleteItemSafe(this.currentlySelectedId!)
+                  deleteItemSafe(this.currentlySelectedId!)
                   this.currentlySelectedId = "";
                 }
               }
@@ -820,7 +807,7 @@ export class UserModeManager {
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
               console.log("finished line");
               // delete the last point as this will not have been placed by the user just drawn for planning
-              if(Geometry.Points.Count > 0){
+              if (Geometry.Points.Count > 0) {
                 Geometry.StartEdit();
                 Geometry.Points.DeletePoint(Geometry.Points.Count - 1);
                 Geometry.EndEdit();
@@ -851,8 +838,7 @@ export class UserModeManager {
 
             // add the new item to the array so it can be deleted in sequence via the undo button
             // if you add any other object types into the lineObjects array make sure you handle them in the undo function
-            this.undoObjectIds.push(this.drawLineID);
-            console.log(this.undoObjectIds.toString());
+            UndoManager.getInstance().AddItem(this.drawLineID)
 
             // consume the button press
             ControllerReader.controllerInfos[1].button1Pressed = false;
