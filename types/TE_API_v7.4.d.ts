@@ -695,7 +695,7 @@ interface ICreator {
   CreatePosition(X: number, Y: number, Altitude: number, AltitudeType: number, Yaw?: number, Pitch?: number, Roll?: number, Distance?: number): IPosition; //Creates an IPosition73, representing the coordinate position.
   CreatePresentation: unknown; //Creates an IPresentation73, representing the presentation.
   CreatePyramid: unknown; //Creates an ITerrain3DRectBase73, representing the pyramid, in the 3D Window.
-  CreateRectangle: unknown; //Creates an ITerrainRectangle73, representing the rectangle, in the 3D Window.
+  CreateRectangle(Position: IPosition, ObjectWidth: number, ObjectDepth: number, LineColor: Color, FillColor: Color, GroupID: string, Description: string): ITerrainRectangle; //Creates an ITerrainRectangle73, representing the rectangle, in the 3D Window.
   CreateRegularPolygon: unknown; //Creates an ITerrainRegularPolygon73 representing the polygon, in the 3D Window.
   CreateRouteWaypoint: unknown; //Creates IRouteWaypoint73 representing the created waypoint.
   CreateScreenOverlay: unknown; //Creates IScreenOverlay73 representing the newly created screen overlay.

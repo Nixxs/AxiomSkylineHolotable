@@ -514,6 +514,7 @@ export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT
 export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_SPHERE): ITerrainSphere | null;
 export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_BOX): ITerrain3DRectBase | null;
 export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_IMAGE_LABEL): ITerrainImageLabel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_RECTANGLE): ITerrainRectangle | null;
 
 export function GetObject(oid: string | undefined, objectType: ObjectTypeCode): ITerraExplorerObject | null {
   if (oid !== undefined)

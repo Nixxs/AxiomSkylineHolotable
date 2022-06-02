@@ -161,10 +161,10 @@ export class UIManager {
       let imgID: string | undefined;
 
       const getPage = () => {
-        let obj = GetObject(pageID, ObjectTypeCode.OT_BOX);
+        let obj = GetObject(pageID, ObjectTypeCode.OT_RECTANGLE);
         if (obj === null) {
-          obj = sgWorld.Creator.CreateBox(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4))
-            , 1, 1, 1, 0xFF000000, 0xFF000000, this.groupId, "presentation text");
+          obj = sgWorld.Creator.CreateRectangle(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4))
+            , 1, 1, 0xFF000000, 0xFF000000, this.groupId, "presentation text");
           pageID = obj.ID;
           obj.Visibility.Show = false;
         }
@@ -201,7 +201,6 @@ export class UIManager {
         obj.Position = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4));
         const boxSize = (ControllerReader.controllerInfos[0]?.scaleFactor ?? 1) / 1.1;
         obj.Width = boxSize;
-        obj.Height = boxSize * 0.001;
         obj.Depth = boxSize;
       }
       presentation.scale = 0.1;
