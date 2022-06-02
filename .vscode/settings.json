@@ -1,24 +1,34 @@
 {
-    "cSpell.words": [
-        "abgr",
-        "ARGB",
-        "AUTOPITCH",
-        "CASSOWAY",
-        "classid",
-        "CLSID",
-        "Colour",
-        "colours",
-        "deadzone",
-        "degs",
-        "Headsetpos",
-        "Holographics",
-        "Holotable",
-        "Orbat",
-        "pickable",
-        "Puckapunyal",
-        "raycasted",
-        "STRATHBOGIEGOAT",
-        "TEXTUP",
-        "uncollidebale"
-    ]
+  "cSpell.words": [
+    "abgr",
+    "ARGB",
+    "AUTOPITCH",
+    "CASSOWAY",
+    "classid",
+    "CLSID",
+    "Colour",
+    "colours",
+    "deadzone",
+    "degs",
+    "Headsetpos",
+    "Holographics",
+    "Holotable",
+    "Orbat",
+    "pickable",
+    "Puckapunyal",
+    "raycasted",
+    "STRATHBOGIEGOAT",
+    "TEXTUP",
+    "uncollidebale"
+  ],
+  "javascript.format.enable": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "editor.tabSize": 2,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "diffEditor.maxComputationTime": 0,
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "files.insertFinalNewline": true
 }
