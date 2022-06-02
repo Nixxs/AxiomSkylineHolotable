@@ -101,7 +101,7 @@ export function setFilmMode(filmMode: boolean) {
 export const enum ProgramMode {
   Unknown,
   Desktop,
-  Device 
+  Device
 }
 
 export const enum DeviceType {
@@ -130,14 +130,14 @@ export function GetDeviceType() {
  * Handles running the script in any program mode
  */
 export class ProgramManager {
-  
+
   static OnFrame() { }
   static OneFrame = function () { }
   static DoOneFrame(f: () => void) { ProgramManager.OneFrame = f; }
 
   private mode = ProgramMode.Unknown;
   private modeTimer = 0;
-  public currentlySelected?= "";
+  public currentlySelected = "";
   private colorItemsTimeout: number = 0;
 
   getMode() { return this.mode; }
@@ -170,22 +170,6 @@ export class ProgramManager {
 
   private constructor() {
     console.log("ProgramManager:: constructor");
-  }
-
-  /**
- * stops errors if the object doesn't exist
- *
- * @param {*} id
- */
-  deleteItemSafe(id: string) {
-    try {
-      const object = sgWorld.Creator.GetObject(id);
-      if (object) {
-        sgWorld.Creator.DeleteObject(id);
-      }
-    } catch (error) {
-      // fine
-    }
   }
 
   deleteGroup(groupName: string) {
@@ -224,7 +208,7 @@ export class ProgramManager {
         console.log("error no children")
       }
       console.log("create new group under collab tree");
-      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);; 
+      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);;
       return grp
     } else {
       grp = ProgramManager.getInstance().getGroupID(groupName);
@@ -347,7 +331,7 @@ export class ProgramManager {
         setComClientForcedInputMode();
         colourItemsOnStartup(); // color the items in the tree
         // was not working in collab mode so just doing every 5 seconds
-        setInterval(()=> colourItemsOnStartup(), 5000); 
+        setInterval(() => colourItemsOnStartup(), 5000);
         sgWorld.AttachEvent("OnFrame", () => {
           const prev = ProgramManager.OneFrame;
           ProgramManager.OneFrame = () => { };
@@ -508,7 +492,7 @@ export function MaxZoom() {
  * @param {*} [objectType=ObjectType.OT_MODEL]
  * @return {*}  {(ITerrainModel | null)}
  */
- export function GetObject(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel |  ITerrainPolyline | null {
+export function GetObject(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel | ITerrainPolyline | null {
   try {
     if (oid !== undefined && oid != "") {
       const object = sgWorld.Creator.GetObject(oid);
@@ -528,7 +512,7 @@ export function MaxZoom() {
  * So this is more flexible
  * @param {string} name
  */
-export function GetItemIDByName(name: string): string | null{
+export function GetItemIDByName(name: string): string | null {
   return findInTree(getFirstID(), name)
 }
 
@@ -552,8 +536,8 @@ function traverseTree(current: string) {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
     if (sgWorld.ProjectTree.IsGroup(current)) {
-      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1 
-      || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
+      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1
+        || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
         const colName = currentName.split("_")[currentName.split("_").length - 1]
         colorItems(current, colName);
       }
@@ -564,16 +548,33 @@ function traverseTree(current: string) {
   }
 }
 
+/**
+* stops errors if the object doesn't exist
+*
+* @param {*} id
+*/
+export function deleteItemSafe(id: string) {
+  try {
+    const object = sgWorld.Creator.GetObject(id);
+    if (object) {
+      sgWorld.Creator.DeleteObject(id);
+    }
+  } catch (error) {
+    // fine
+  }
+}
+
+
 function findInTree(current: string, find: string): string | null {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
-    if(currentName === find){
+    if (currentName === find) {
       return current;
     }
     if (sgWorld.ProjectTree.IsGroup(current)) {
       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
       const findVal = findInTree(child, find);
-      if(findVal) return findVal;
+      if (findVal) return findVal;
     }
     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
   }
