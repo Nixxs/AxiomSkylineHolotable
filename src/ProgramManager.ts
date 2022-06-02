@@ -611,6 +611,21 @@ function colorItems(parentId: string, color: string) {
     // swallow it. There doesn't appear to be a way to tell if there is another 
     // item so it fails eventually when you do get next item
   }
+
 }
 
-
+/**
+ * stops errors if the object doesn't exist
+ *
+ * @param {*} id
+ */
+export function deleteItemSafe(id: string) {
+  try {
+    const object = sgWorld.Creator.GetObject(id);
+    if (object) {
+      sgWorld.Creator.DeleteObject(id);
+    }
+  } catch (error) {
+    // fine
+  }
+}

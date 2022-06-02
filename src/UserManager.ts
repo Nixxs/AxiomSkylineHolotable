@@ -528,7 +528,6 @@ export class UserModeManager {
   undo(): void {
     console.log("undo")
     UndoManager.getInstance().Undo();
-
   }
 
 
