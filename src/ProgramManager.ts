@@ -2,7 +2,7 @@ import { sgWorld } from "./Axiom";
 import { sessionManager } from "./Axiom";
 import { Button } from "./Button";
 import { ControllerReader } from "./ControllerReader";
-import { debug, debugHandleRefreshGesture } from "./Debug";
+import { debug, debugHandleRefreshGesture, saveConsole } from "./Debug";
 import { DesktopInputManager } from "./DesktopInputManager";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
@@ -362,6 +362,12 @@ export class ProgramManager {
         sgWorld.AttachEvent("OnCommandExecuted", (CommandID: string, parameters: any) => {
           console.log(CommandID + " " + JSON.stringify(parameters))
         });
+        sgWorld.AttachEvent("OnKeyboard", (Message, Char, KeyState) => {
+          // left control and l
+          if (KeyState === 2 && Char === 76 && Message == 256) {
+            saveConsole();
+          }
+        });
         // TODO this was not working in collab mode. Needs more testing. May not work?
         // sgWorld.AttachEvent("OnProjectTreeAction", (CommandID: string, parameters: any) => {
         //   // if in collab mode make sure the models are coloured on the other machine
@@ -411,9 +417,9 @@ function Update() {
       ProgramManager.getInstance().Update();
     } catch (e) {
       ++recentProblems;
-      console.log("Update error");
-      console.log(e);
-      console.log("CallStack:\n" + debug.stacktrace(debug.info));
+      console.error("Update error");
+      console.error(e);
+      console.error("CallStack:\n" + debug.stacktrace(debug.info));
       setTimeout(() => {
         if (recentProblems > 0) {
           console.log(String(recentProblems) + " other problems");
@@ -434,9 +440,9 @@ function Draw() {
       ProgramManager.getInstance().Draw();
     } catch (e) {
       ++recentProblems;
-      console.log("Draw error");
-      console.log(e);
-      console.log("CallStack:\n" + debug.stacktrace(debug.info));
+      console.error("Draw error");
+      console.error(e);
+      console.error("CallStack:\n" + debug.stacktrace(debug.info));
       setTimeout(() => {
         if (recentProblems > 0) {
           console.log(String(recentProblems) + " other problems");

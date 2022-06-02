@@ -1,0 +1,33 @@
+<Tool caption="Axiom" id="ACO096" Path="Axiom\Axiom.html" NeedProject="1" AutoStart="0">
+
+	<Icon path="Axiom.ico"/>
+	<Ribbon Show="1" Toggle="1" splitButton="1">
+		<Panel id="AxiomTools" caption="Axiom" /> 
+		<ToolTip title="Enter Axiom Demo Mode" description="Enter Axiom Demo Mode"/>  
+
+
+    <Submenu>
+
+      <GroupTitle>Demo Mode</GroupTitle>
+			<Separator></Separator>
+
+ 
+      <Item caption="Axiom Demo Mode" id="AXO72129" Path="Axiom\Axiom.html" NeedProject="1" AutoStart="0">
+
+        <ToolTip title="Axiom Demo Mode" description="Axiom Demo Mode"/>
+        <Icon path="save-as-32_edit.ico"/>
+          <Container>
+				    <Popup x="30" y="30" width="400" height="400" ShowCaption="1"/>
+      	</Container>
+      </Item>
+
+
+    </Submenu>
+	</Ribbon>
+
+  <Container>
+				<Popup x="30" y="30" width="400" height="400" ShowCaption="1"/>
+	</Container>
+
+  
+</Tool>

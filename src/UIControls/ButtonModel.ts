@@ -1,7 +1,7 @@
 import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
 import { ControllerReader } from "../ControllerReader";
-import { GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
+import { deleteItemSafe, GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
 
 export class ButtonModel extends Button {
 
@@ -41,7 +41,7 @@ export class ButtonModel extends Button {
         // objLbl.Position.Pitch = 90
       }
     } catch (error) {
-        console.error("button error not found:: " + this.modelPath)
+      console.error("button error not found:: " + this.modelPath)
     }
   }
 
@@ -49,7 +49,7 @@ export class ButtonModel extends Button {
     super.show(value);
     if (!this.modelId) return;
     let obj: ITerrainModel = GetObject(this.modelId) as ITerrainModel;
-    if(obj){
+    if (obj) {
       obj.Visibility.Show = value;
     }
 
@@ -58,7 +58,7 @@ export class ButtonModel extends Button {
   destroy(): void {
     super.destroy();
     if (!this.modelId) return;
-    ProgramManager.getInstance().deleteItemSafe(this.modelId)
+    deleteItemSafe(this.modelId)
   }
 
 

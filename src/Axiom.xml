@@ -1,0 +1,22 @@
+<Tool caption="Axiom" id="AX1209" Path="Axiom.html" NeedProject="0" >
+
+  <Icon path="MyAddon.ico"/>
+
+  <Ribbon Show="1" Toggle="0">
+
+
+    <Category id="MyTabId" caption="My Tab"/>
+
+    <Panel id="MyGroupId" caption="My Group" />
+
+    <ToolTip title="My Tooltip" description="Tool for demonstrating add-on use"/>
+
+ 
+
+  </Ribbon>
+
+ 
+
+</Tool>
+
+ 

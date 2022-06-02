@@ -45,13 +45,35 @@ export function debugHandleRefreshGesture() {
 
 // interactive debug console
 console.log = function (str) {
-  const el = document.getElementById("consoleOutput");
-  if (el === null)
-    throw new Error("No console output element");
-  const wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
-  el.textContent += String(str) + "\n";
-  if (wasNearBottom)
-    el.scrollTop = el.scrollHeight - el.clientHeight;
+  try {
+    // if (typeof str === "object") {
+    //   str = JSON.stringify(str)
+    // }
+    const el = document.getElementById("consoleOutput");
+    if (el === null)
+      throw new Error("No console output element");
+    const wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
+    el.textContent += String(str) + "\n";
+    if (wasNearBottom)
+      el.scrollTop = el.scrollHeight - el.clientHeight;
+  } catch (error) {
+  }
+}
+
+console.error = function (str) {
+  try {
+    if (typeof str === "object") {
+      str = JSON.stringify(str)
+    }
+    const el = document.getElementById("consoleOutput");
+    if (el === null)
+      throw new Error("No console output element");
+    const wasNearBottom = el.scrollHeight - el.clientHeight <= el.scrollTop + el.clientHeight * 0.5;
+    el.textContent += "ERROR: " + String(str) + "\n";
+    if (wasNearBottom)
+      el.scrollTop = el.scrollHeight - el.clientHeight;
+  } catch (error) {
+  }
 }
 
 export function runConsole() {
@@ -69,3 +91,27 @@ export function runConsole() {
 
   el.value = "";
 }
+
+export function saveConsole() {
+  const el = document.getElementById("consoleOutput");
+  if (el === null)
+    throw new Error("No console output element");
+  const log = el.textContent;
+  if (!log) return;
+  alert(log);
+  var filename = "log.txt";
+  var blob = new Blob([log], { type: 'text/csv' });
+  const w: any = window;
+  if (w.navigator.msSaveOrOpenBlob) {
+    w.navigator.msSaveBlob(blob, filename);
+  }
+  else {
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+}
+
