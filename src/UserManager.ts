@@ -527,10 +527,8 @@ export class UserModeManager {
   // if there is nothing in the array doesn't do anything
   undo(): void {
     console.log("undo")
-    const deleted = UndoManager.getInstance().Undo();
-    if (deleted.indexOf(ProgramManager.getInstance().currentlySelected) > -1) {
-      ProgramManager.getInstance().currentlySelected = "none";
-    }
+    UndoManager.getInstance().Undo();
+
   }
 
 

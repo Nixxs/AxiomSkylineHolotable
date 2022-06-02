@@ -28,11 +28,16 @@ export class UndoManager {
     const objectToDelete = this.itemIds.pop();
     if (objectToDelete != undefined) {
       console.log("deleting: " + objectToDelete);
-      objectToDelete.forEach(id => {
+      const clonedArr = [...objectToDelete]; // clone cause as we delete the items will be removed
+      clonedArr.forEach(id => {
         deleteItemSafe(id)
-      })
-      return objectToDelete
+      });
+      if (clonedArr.indexOf(ProgramManager.getInstance().currentlySelected) > -1) {
+        ProgramManager.getInstance().currentlySelected = "none";
+      }
+      return objectToDelete;
     }
+    console.log(this.itemIds);
     return []
   }
 
@@ -42,5 +47,7 @@ export class UndoManager {
         ids.splice(ids.indexOf(id), 1);
       }
     })
+    // remove any empty arrays
+    this.itemIds = this.itemIds.filter(i => i.length > 0);
   }
 }

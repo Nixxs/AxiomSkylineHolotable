@@ -8,6 +8,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
 import { UIManager } from "./UIManager";
+import { UndoManager } from "./UndoManager";
 import { UserModeManager } from "./UserManager";
 
 export function setComClientForcedInputMode() {
@@ -559,6 +560,8 @@ export function deleteItemSafe(id: string) {
     if (object) {
       sgWorld.Creator.DeleteObject(id);
     }
+    // ensure it is also removed from the undo manager
+    UndoManager.getInstance().Remove(id);
   } catch (error) {
     // fine
   }
