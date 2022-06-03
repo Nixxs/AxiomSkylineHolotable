@@ -163,8 +163,8 @@ export class UIManager {
       const getPage = () => {
         let obj = GetObject(pageID, ObjectTypeCode.OT_RECTANGLE);
         if (obj === null) {
-          obj = sgWorld.Creator.CreateRectangle(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4, 90))
-            , 1, 1, 0xFF000000, 0xFF000000, this.groupId, "presentation text");
+          obj = sgWorld.Creator.CreateRectangle(roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.9, 0.7, 4, 90))
+            , 0, 0, 0xFF000000, 0xFF000000, this.groupId, "presentation text");
           pageID = obj.ID;
           obj.Visibility.Show = false;
         }
@@ -179,7 +179,7 @@ export class UIManager {
         return [obj, img] as const;
       }
 
-      const presentation = new Button("presentation", sgWorld.Creator.CreatePosition(0.45, -0.25, 0.7, 4), basePath + "ui/blank.xpl2", this.groupId, () => {
+      const presentation = new Button("presentation", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_SMEAC.dae", this.groupId, () => {
         let [obj, img] = getPage();
 
         open++;
@@ -198,10 +198,11 @@ export class UIManager {
         OGDraw.call(presentation);
         // draw my page
         let [obj, _img] = getPage();
-        obj.Position = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, -0.6, 0.7, 4, -90));
+        obj.Position = roomToWorldCoord(sgWorld.Creator.CreatePosition(0.15, -0.65, 0.7, 4, -90));
         const boxSize = (ControllerReader.controllerInfos[0]?.scaleFactor ?? 1) / 1.1;
         obj.Width = boxSize * 0.9; // actual height
         obj.Depth = boxSize * 0.7; // actual width
+        obj.LineStyle.Width = 0;
       }
       presentation.scale = 0.1;
       this.menusTable.push(presentation as any); // FIXME for a more permanent solution
