@@ -50,7 +50,7 @@ export class MenuPaging extends Menu {
     this.buttons = [];
     this.buttons.push(...buttons);
     this.totalPages = Math.ceil(this.buttons.length / (this.cols * this.rows));
-    console.log("totalPages"+this.totalPages)
+    console.log("totalPages" + this.totalPages)
     this.recomputeButtons = true;
     this.show(true);
   }
@@ -60,14 +60,14 @@ export class MenuPaging extends Menu {
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
     const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback, false, name);
-    return btn; 
+    return btn;
   }
 
 
   private addPagingButtons() {
     // add the paging buttons to the left and the right
     const ypr = this.orientation.GetYPR();
-    let newPos = this.getButtonPosition(0-0.5,  ((this.rows -1) / 2) + 0.5);
+    let newPos = this.getButtonPosition(0 - 0.5, ((this.rows - 1) / 2) + 0.5);
     let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
     var posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
@@ -110,6 +110,9 @@ export class MenuPaging extends Menu {
     this.btnPL.show(showPaging);
     this.btnPR.show(showPaging);
     this.isVisible = visibility;
+    if (!visibility) {
+      this.pageNumber = 0; // when hidden reset to page 1
+    }
   }
 
   // paging controls

@@ -237,7 +237,11 @@ export class UIManager {
     const currentMenu = getMenu();
     if (currentMenu.isVisible) {
       currentMenu.show(false);
-      return;
+      // the menus really need an id ore something. Check if its the same menu. If it is close it and don't show again
+      const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+      if (currentMenu.buttons[0].color.abgrColor === buttonRGBA.abgrColor) {
+        return;
+      }
     }
 
     const controls: Button[] = [];
@@ -277,7 +281,6 @@ export class UIManager {
       let VerbsMenuTable = menus[0];
       let VerbsMenuWall = menus[1];
       if (VerbsMenuTable.isVisible) { // turn it off
-        console.log("turn it off")
         VerbsMenuTable.show(false);
         VerbsMenuWall.show(false);
         return;
