@@ -799,22 +799,6 @@ export class UserModeManager {
             };
             var Geometry = dLine.Geometry as ILineString;
 
-            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-            if (teEndPos !== undefined) {
-              // start the edit session to enable modification of the geometry
-              Geometry.StartEdit();
-              if (ProgramManager.getInstance().getButton1Pressed(1)) {
-                // if button 1 is pressed add a new point to the geometry
-                Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
-              } else {
-                // if button hasn't been pressed just move the last point to the current
-                // position of the laser so the user what the new line will look like
-                const drawPointIndex = Geometry.Points.Count - 1;
-                Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
-                Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
-              }
-              Geometry.EndEdit();
-            }
 
             // Exit mode when button 2 is pressed
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
@@ -832,6 +816,25 @@ export class UserModeManager {
               ControllerReader.controllerInfos[1].button2Pressed = false;
               this.drawLineID = null;
               this.drawLineFirstPoint = null;
+
+              return;
+            }
+
+            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (teEndPos !== undefined) {
+              // start the edit session to enable modification of the geometry
+              Geometry.StartEdit();
+              if (ProgramManager.getInstance().getButton1Pressed(1)) {
+                // if button 1 is pressed add a new point to the geometry
+                Geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+              } else {
+                // if button hasn't been pressed just move the last point to the current
+                // position of the laser so the user what the new line will look like
+                const drawPointIndex = Geometry.Points.Count - 1;
+                Geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+                Geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+              }
+              Geometry.EndEdit();
             }
           } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
             // Create the line

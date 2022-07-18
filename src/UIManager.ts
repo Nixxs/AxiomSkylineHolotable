@@ -542,7 +542,8 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-   //  return GetDeviceType();
+    return GetDeviceType();
+    // when testing on desktop you can use this to change the view
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
