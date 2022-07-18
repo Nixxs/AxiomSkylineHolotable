@@ -31,6 +31,8 @@ export class UIManager {
   buttonSizeWAll = 0.1;
 
   private orbatScaleFactor: number;
+  private verbsMenus: MenuVerbs[] = [];
+  private bookmarkMenus: MenuVerbs[] = [];
 
   constructor() {
     this.orbatScaleFactor = 1.2;
@@ -72,8 +74,8 @@ export class UIManager {
     // create a sub menu for the bookmarks.
     const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 10, 1);
     const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 8, 1);
-    const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
-    bookmarkMenus.forEach(m => m.show(false));
+    this.bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
+    this.bookmarkMenus.forEach(m => m.show(false));
     this.menusTable.push(BookmarksMenuTable);
     this.menusWall.push(BookmarksMenuWall);
 
@@ -89,7 +91,9 @@ export class UIManager {
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.changeBasemap() }, "Show basemap");
-    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
+    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => {
+      this.onBookmarkShow(this.bookmarkMenus)
+    }, "Show bookmarks");
 
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
@@ -129,6 +133,7 @@ export class UIManager {
     const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
+    this.verbsMenus = [VerbsMenuTable, VerbsMenuWall];
     this.menusTable.push(VerbsMenuTable);
     this.menusWall.push(VerbsMenuWall);
 
@@ -137,16 +142,16 @@ export class UIManager {
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
     showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
-      this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
     showVerbsTable.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
-      this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
     showVerbsWall.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
-      this.onVerbMenuShow("TaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
     showVerbsWall.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
-      this.onVerbMenuShow("MissionTaskVerb", [VerbsMenuTable, VerbsMenuWall])
+      this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
     this.menusTable.push(showVerbsTable);
     this.menusWall.push(showVerbsWall);
@@ -294,6 +299,7 @@ export class UIManager {
           VerbsMenuWall.addButtons(verbControlsWall);
           break;
       }
+      this.bookmarkMenus.forEach(m => m.show(false));
     } catch (error) {
       console.log(JSON.stringify(error));
     }
@@ -326,6 +332,7 @@ export class UIManager {
       }))
     })
     getMenu().addButtons(bookmarks);
+    this.verbsMenus.forEach(v => v.show(false))
   }
 
   changeBasemap() {
