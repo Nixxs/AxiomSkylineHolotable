@@ -345,8 +345,8 @@ export class UserModeManager {
 
   toggleModelMode(modelPath: string, modelName: string, modelColor: string) {
     if (this.userMode == UserMode.PlaceModel) {
-      console.log("end model mode");
-      this.userMode = UserMode.Standard;
+      // we are already in model mode
+      return;
     } else {
       const fullModelPath = basePath + `model/${modelPath}`;
       const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()

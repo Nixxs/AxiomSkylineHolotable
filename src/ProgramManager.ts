@@ -552,7 +552,7 @@ function findInTree(current: string, find: string): string | null {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
     if (currentName === find) {
-      return current;
+      return current; //  return the ID
     }
     if (sgWorld.ProjectTree.IsGroup(current)) {
       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
