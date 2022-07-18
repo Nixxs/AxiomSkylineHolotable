@@ -255,14 +255,13 @@ function colorToRGBA(col: IColor): number[] {
 const wallMode = wandMode;
 
 export class UserModeManager {
-  public userMode = UserMode.Standard;
   public modelIds: string[] = [];
 
   private spacing = 5000;
   private numRings = 5;
   private measurementModeFirstPoint: IPosition | null = null;
-  private measurementModeLineID: string | null = null;
-  private measurementTextLabelID: string | null = null;
+  private measurementModeLineID: string | undefined = undefined;
+  private measurementTextLabelID: string | undefined = undefined;
   private currentlySelectedId?: string;
   private measurementLineWidth = 3;
   private measurementLineColor: IColor;
@@ -270,7 +269,7 @@ export class UserModeManager {
   private measurementLabelStyle: ILabelStyle;
   private labelStyle = sgWorld.Creator.CreateLabelStyle(0);
 
-  private drawLineID: string | null = null;
+  private drawLineID: string | undefined = undefined;
   private drawLineFirstPoint: IPosition | null = null;
   private drawLineWidth = -10;
   private drawLineColor: IColor;
@@ -292,6 +291,19 @@ export class UserModeManager {
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
     this.drawLineColor = sgWorld.Creator.CreateColor(0, 0, 0, 0); //black
+  }
+
+  private _userMode = UserMode.Standard;
+  public get userMode() {
+    return this._userMode;
+  }
+
+  public set userMode(mode) {
+    // when the user mode changes we need to check if any cleanup needs to be done.
+    if (this._userMode !== UserMode.Standard && mode !== UserMode.Standard) {
+      this.cleanUpOnChangeMode();
+    }
+    this._userMode = mode;
   }
 
   getCollisionID(userIndex: number) {
@@ -328,63 +340,53 @@ export class UserModeManager {
   }
 
   toggleMeasurementMode(buttonId?: string) {
-    if (this.userMode == UserMode.Measurement) {
+    if (this.userMode !== UserMode.Measurement) {
       highlightById(true, buttonId);
-      if (this.measurementModeLineID !== null) {
-        deleteItemSafe(this.measurementModeLineID);
-        deleteItemSafe(this.measurementTextLabelID!);
-      }
-      this.userMode = UserMode.Standard;
-    } else {
       this.userMode = UserMode.Measurement;
     }
-    this.measurementModeLineID = null;
-    this.measurementTextLabelID = null;
+    this.measurementModeLineID = undefined;
+    this.measurementTextLabelID = undefined;
     this.measurementModeFirstPoint = null;
   }
 
   toggleModelMode(modelPath: string, modelName: string, modelColor: string) {
-    if (this.userMode == UserMode.PlaceModel) {
-      // we are already in model mode
-      return;
-    } else {
-      const fullModelPath = basePath + `model/${modelPath}`;
-      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
-      pos.Pitch = 0;
-      console.log("creating model:: " + modelPath);
-      const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
-      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
-      let color = this.getColorFromString(modelColor);
 
-      model.Terrain.Tint = color;
-      // this is required to refresh the collaboration mode
-      console.log("setting visibility to true");
-      sgWorld.ProjectTree.SetVisibility(model.ID, true);
-      const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
-      model.ScaleFactor = 5 * roomPos.Altitude;
+    this.userMode = UserMode.PlaceModel;
 
-      if (GetDeviceType() === DeviceType.Wall) {
-        const pos = sgWorld.Navigate.GetPosition(3);
-        model.ScaleFactor = pos.Altitude / 2;
-      }
+    const fullModelPath = basePath + `model/${modelPath}`;
+    const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+    pos.Pitch = 0;
+    console.log("creating model:: " + modelPath);
+    const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
+    const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+    let color = this.getColorFromString(modelColor);
 
+    model.Terrain.Tint = color;
+    // this is required to refresh the collaboration mode
+    console.log("setting visibility to true");
+    sgWorld.ProjectTree.SetVisibility(model.ID, true);
+    const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
+    model.ScaleFactor = 5 * roomPos.Altitude;
 
-      // adam wanted the original models less tall so multiply scale z by a factor
-      model.ScaleZ *= this.ModelZScaleFactor;
-
-      // this will make the model not pickable which is what you want while moving it 
-      model.SetParam(200, 0x200);
-
-      this.currentlySelectedId = model.ID;
-      this.modelIds.push(this.currentlySelectedId);
-      ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
-
-      // add the new model to the line objects array so it can be deleted via the undo button
-      this.undoObjectIds.push(this.currentlySelectedId);
-      console.log(this.undoObjectIds.toString());
-
-      this.userMode = UserMode.PlaceModel;
+    if (GetDeviceType() === DeviceType.Wall) {
+      const pos = sgWorld.Navigate.GetPosition(3);
+      model.ScaleFactor = pos.Altitude / 2;
     }
+
+
+    // adam wanted the original models less tall so multiply scale z by a factor
+    model.ScaleZ *= this.ModelZScaleFactor;
+
+    // this will make the model not pickable which is what you want while moving it 
+    model.SetParam(200, 0x200);
+
+    this.currentlySelectedId = model.ID;
+    this.modelIds.push(this.currentlySelectedId);
+    ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
+
+    // add the new model to the line objects array so it can be deleted via the undo button
+    this.undoObjectIds.push(this.currentlySelectedId);
+    console.log(this.undoObjectIds.toString());
   }
 
   getColorFromString(modelColor: string, opacity: number = -1) {
@@ -444,13 +446,38 @@ export class UserModeManager {
         }
         this.userMode = UserMode.MoveModel;
       } else {
-        this.userMode = UserMode.Standard;
+        this.setStandardMode();
       }
     }
   }
 
   setStandardMode() {
     this.userMode = UserMode.Standard;
+  }
+
+  cleanUpOnChangeMode() {
+    console.log("cleanUpOnChangeMode");
+    switch (this.userMode) {
+      case UserMode.DrawLine:
+        deleteItemSafe(this.drawLineID)
+        break;
+      case UserMode.Measurement:
+        deleteItemSafe(this.measurementModeLineID);
+        deleteItemSafe(this.measurementTextLabelID!);
+        break;
+      case UserMode.PlaceLabel:
+      case UserMode.PlaceModel:
+        if (this.currentlySelectedId) {
+          deleteItemSafe(this.currentlySelectedId)
+          // we are already in model mode. delete the one they were dragging
+          if (this.undoObjectIds.indexOf(this.currentlySelectedId) > -1) {
+            this.undoObjectIds.splice(this.undoObjectIds.indexOf(this.currentlySelectedId), 1)
+          };
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   toggleRangeRingMode() {
@@ -546,7 +573,7 @@ export class UserModeManager {
 
   toggleDrawLine(buttonId?: string): void {
     this.userMode = UserMode.DrawLine;
-    this.drawLineID = null;
+    this.drawLineID = undefined;
     this.drawLineFirstPoint = null;
     this.drawButtonId = buttonId;
     highlightById(true, this.drawButtonId);
@@ -628,14 +655,12 @@ export class UserModeManager {
             // Exit mode when pressed again
             if (ProgramManager.getInstance().getButton1Pressed(1)) {
               console.log("finished line");
-              highlightById(false, this.drawButtonId);
-
               ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
               this.setStandardMode();
               // consume the button press
               ControllerReader.controllerInfos[1].button1Pressed = false;
-              this.measurementModeLineID = null;
-              this.measurementTextLabelID = null;
+              this.measurementModeLineID = undefined;
+              this.measurementTextLabelID = undefined;
               this.measurementModeFirstPoint = null;
             }
           } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
@@ -745,6 +770,7 @@ export class UserModeManager {
               if (intersectedItemId) {
                 const model = GetObject(intersectedItemId) as ITerrainModel;
                 const label = GetObject(this.currentlySelectedId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
+
                 if (model && label) {
                   label.Style.FontSize = 20;
                   label.Style.TextAlignment = "Left";
@@ -814,7 +840,7 @@ export class UserModeManager {
               this.setStandardMode();
               // consume the button press
               ControllerReader.controllerInfos[1].button2Pressed = false;
-              this.drawLineID = null;
+              this.drawLineID = undefined;
               this.drawLineFirstPoint = null;
 
               return;

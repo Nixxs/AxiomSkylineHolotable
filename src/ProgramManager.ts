@@ -593,8 +593,9 @@ function colorItems(parentId: string, color: string) {
  *
  * @param {*} id
  */
-export function deleteItemSafe(id: string) {
+export function deleteItemSafe(id?: string) {
   try {
+    if (!id) return;
     const object = sgWorld.Creator.GetObject(id);
     if (object) {
       sgWorld.Creator.DeleteObject(id);

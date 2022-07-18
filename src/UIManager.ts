@@ -90,7 +90,7 @@ export class UIManager {
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
     toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.changeBasemap() }, "Show basemap");
+    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => {
       this.onBookmarkShow(this.bookmarkMenus)
     }, "Show bookmarks");
@@ -223,6 +223,9 @@ export class UIManager {
   onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
     console.log(`show menu ${controlType} ${color}`);
 
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.cleanUpOnChangeMode();
+
     const getMenu = () => {
       const [ControlsMenuTable, ControlsMenuWall] = menus;
       switch (this.GetDeviceTypeOverride()) {
@@ -278,6 +281,10 @@ export class UIManager {
 
   onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
     try {
+
+      const pm = ProgramManager.getInstance().userModeManager;
+      pm?.cleanUpOnChangeMode();
+
       let VerbsMenuTable = menus[0];
       let VerbsMenuWall = menus[1];
       if (VerbsMenuTable.isVisible) { // turn it off
@@ -310,6 +317,9 @@ export class UIManager {
 
   onBookmarkShow(menus: MenuVerbs[]) {
 
+
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.cleanUpOnChangeMode();
 
     const getMenu = () => {
       let [bookmarksMenuTable, bookmarksMenuWall] = menus;
@@ -440,9 +450,11 @@ export class UIManager {
         um.deleteModel();
         break;
       case "ScaleModelUp":
+        um.cleanUpOnChangeMode();
         um.scaleModel(+1);
         break;
       case "ScaleModelDown":
+        um.cleanUpOnChangeMode();
         um.scaleModel(-1);
         break;
       case "ViewAbove":
@@ -457,6 +469,10 @@ export class UIManager {
         pos2.Pitch = -50;
         sgWorld.Navigate.JumpTo(pos2)
         break;
+      case "ChangeBasemap":
+        um.cleanUpOnChangeMode();
+        this.changeBasemap();
+        break
       default:
         console.log("onButtonClick:: action not found" + name)
     }
