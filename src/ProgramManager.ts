@@ -488,21 +488,27 @@ export function MaxZoom() {
 /**
  * Returns models by their ID
  * Optionally supply a model type for other items such as labels
- * @param {string} [oid]
- * @param {*} [objectType=ObjectType.OT_MODEL]
- * @return {*}  {(ITerrainModel | null)}
  */
-export function GetObject(oid?: string, objectType = ObjectTypeCode.OT_MODEL): ITerrainModel | ITerrainLabel | ITerrainPolyline | null {
-  try {
-    if (oid !== undefined && oid != "") {
+
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_IMAGERY_LAYER): ITerrainRasterLayer | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_MODEL): ITerrainModel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_POLYLINE): ITerrainPolyline | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_LABEL): ITerrainLabel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_POLYGON): ITerrainPolygon | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_SPHERE): ITerrainSphere | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_BOX): ITerrain3DRectBase | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_IMAGE_LABEL): ITerrainImageLabel | null;
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode.OT_RECTANGLE): ITerrainRectangle | null;
+
+export function GetObject(oid: string | undefined, objectType: ObjectTypeCode): ITerraExplorerObject | null {
+  if (oid !== undefined)
+    try {
       const object = sgWorld.Creator.GetObject(oid);
-      if (object && object.ObjectType === objectType) {
-        return object as any;
-      }
+      if (object.ObjectType === objectType)
+        return object;
+    } catch (error) {
+      return null;
     }
-  } catch (error) {
-    return null;
-  }
   return null;
 }
 
@@ -569,12 +575,11 @@ function colorItems(parentId: string, color: string) {
     // get the next item as this will be a parent
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
-      const obj = GetObject(id); // sgWorld.ProjectTree.GetObject(id);
+      const obj = GetObject(id, ObjectTypeCode.OT_MODEL); // sgWorld.ProjectTree.GetObject(id);
       if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
-        const model = obj as ITerrainModel;
         const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
-        if (col) {
-          model.Terrain.Tint = col;
+        if (col !== undefined) {
+          obj.Terrain.Tint = col;
         }
       }
       id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.NEXT);
