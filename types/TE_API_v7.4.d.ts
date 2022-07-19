@@ -557,7 +557,7 @@ interface ITerrainPolyline extends ITerraExplorerObject {
   Attachment: IAttachment;
   ExtendToGround: boolean;
   FillStyle: IFillStyle;
-  Geometry: IGeometry;
+  Geometry: ILineString;
   LineStyle: ILineStyle;
   Message: IMessageObject;
   Position: IPosition;
@@ -663,7 +663,7 @@ interface ICreator {
   CreateFeatureLayer: unknown; //Creates an IFeatureLayer73, representing the feature layer in the 3D Window.
   CreateFromStream: unknown; //Reserved. Currently not used.
   CreateHoleOnTerrain: unknown; //Creates an ITerrainHole73, representing the Hole On Terrain object in the 3D Window.
-  CreateImageLabel: unknown; //Creates an ITerrainImageLabel73 representing the image label in the 3D Window.
+  CreateImageLabel(Position: IPosition, ImageFileName: string, LabelStyle: ILabelStyle, GroupID: string, Description: string): ITerrainImageLabel; //Creates an ITerrainImageLabel73 representing the image label in the 3D Window.
   CreateImageLabelFromBuffer: unknown; //Creates an ITerrainImageLabel73 representing the image label in the 3D Window. The pixel data of the label's image file is retrieved from a memory buffer.
   CreateImageryLayer: unknown; //Creates an ITerrainRasterLayer73, representing the imagery layer in the 3D Window.
   CreateKMLLayer: unknown; //Creates an IKMLLayer73, representing the KML layer in the 3D Window.
@@ -695,7 +695,7 @@ interface ICreator {
   CreatePosition(X: number, Y: number, Altitude: number, AltitudeType: number, Yaw?: number, Pitch?: number, Roll?: number, Distance?: number): IPosition; //Creates an IPosition73, representing the coordinate position.
   CreatePresentation: unknown; //Creates an IPresentation73, representing the presentation.
   CreatePyramid: unknown; //Creates an ITerrain3DRectBase73, representing the pyramid, in the 3D Window.
-  CreateRectangle: unknown; //Creates an ITerrainRectangle73, representing the rectangle, in the 3D Window.
+  CreateRectangle(Position: IPosition, ObjectWidth: number, ObjectDepth: number, LineColor: Color, FillColor: Color, GroupID: string, Description: string): ITerrainRectangle; //Creates an ITerrainRectangle73, representing the rectangle, in the 3D Window.
   CreateRegularPolygon: unknown; //Creates an ITerrainRegularPolygon73 representing the polygon, in the 3D Window.
   CreateRouteWaypoint: unknown; //Creates IRouteWaypoint73 representing the created waypoint.
   CreateScreenOverlay: unknown; //Creates IScreenOverlay73 representing the newly created screen overlay.
@@ -764,14 +764,14 @@ interface IProjectTree {
   GetGroupLocation: unknown; // Returns the location of the specified group.
   GetGroupMessageID: unknown; // Returns the message set for a specific group or layer in the Project Tree using its ID.
   GetGroupStartTime: unknown; // Returns the specified group’s start date and time.
- /**
-  * Returns the name of a specific item using its ID.
-  *
-  * @param {string} id
-  * @return {*}  {string}
-  * @memberof IProjectTree
-  */
- GetItemName(id: string): string; 
+  /**
+   * Returns the name of a specific item using its ID.
+   *
+   * @param {string} id
+   * @return {*}  {string}
+   * @memberof IProjectTree
+   */
+  GetItemName(id: string): string;
   GetLayer: unknown; // Returns an interface to the IFeatureLayer73 object based on the specified group ID.
   /**
    * Retrieves the Project Tree item that has the specified relationship, indicated by the Code parameter, to another item whose ID is specified.
@@ -781,10 +781,10 @@ interface IProjectTree {
    * @return {*}  {string}
    * @memberof IProjectTree
    */
-  GetNextItem(id: string, code: ItemCode): string; 
+  GetNextItem(id: string, code: ItemCode): string;
   // Returns an ITerraExplorerObject interface to an object based on its ID.
-  GetObject(id: string) : ITerraExplorerObject
-  GetVisibility: unknown; // Returns the visibility status of a Project Tree item on the terrain.
+  GetObject(id: string): ITerraExplorerObject
+  GetVisibility(id: string): 0 | 1 | 2; // Returns the visibility status of a Project Tree item on the terrain.
   /**
    * Determines whether or not a ProjectTree item is a group.
    *
@@ -997,4 +997,44 @@ interface IScreenPointInfo {
   // Gets the y-screen coordinate of the terrain coordinate.
   Y: number
 
+}
+
+interface IBBox2D {
+  MaxX: number;
+  MaxY: number;
+  MinX: number;
+  MinY: number;
+}
+
+interface ITerrainRasterLayer extends ITerraExplorerObject {
+  Action: IAction;
+  Attachment: IAttachment;
+  CoordinateSystem: ICoordinateSystem;
+  DataSourceBBox: IBBox2D;
+  DataSourceWKT: string;
+  DisplayName: string;
+  Elevation: boolean;
+  ElevationOffset: number;
+  ElevationScale: number;
+  FileName: string;
+  FillStyle: IFillStyle;
+  Geometry: IGeometry;
+  Imagery: boolean;
+  InitParam: string[];
+  LineStyle: ILineStyle;
+  Message: IMessageObject;
+  NullTolerance: number;
+  NullValue: number;
+  PlugName: string;
+  Position: IPosition;
+  Reproject: boolean;
+  ReprojectionElevation: boolean;
+  Terrain: ITerrainObject;
+  Timespan: ITimeSpan;
+  Tooltip: ITooltip;
+  TreeItem: ITreeItem;
+  UseNull: boolean;
+  Visibility: IVisibility;
+  Refresh: unknown;
+  RefreshRect: unknown;
 }

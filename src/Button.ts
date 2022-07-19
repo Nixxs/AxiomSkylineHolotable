@@ -10,21 +10,14 @@ export function SimulateSelectedButton() {
 export class Button {
   ID?: string;
   scale = 1;
-  initError: boolean = false;
-  callback: (id?: string) => void = () => { };
+  initError = false;
 
-  constructor(public name: string, public roomPosition: IPosition, public modelPath: string,
-    public groupID: string = "",
-    callback?: (id?: string) => void, hidden?: boolean, public tooltip: string = "", public color: any = null) {
-
+  constructor(public name: string, public roomPosition: IPosition, public modelPath: string, public groupID: string = "", public callback: (id?: string) => void = () => { }, hidden?: boolean, public tooltip: string = "", public color?: IColor) {
     const newButton = document.createElement("option");
     newButton.textContent = name;
     document.getElementById("buttons")?.appendChild(newButton);
     if (hidden === true) {
       this.show(false);
-    }
-    if (callback) {
-      this.callback = callback;
     }
     newButton.addEventListener("click", () => { selectedButton = this; })
     selectedButton ??= this;
@@ -46,16 +39,16 @@ export class Button {
   }
 
   Draw() {
-
     if (this.initError) return;
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.initError) return;
     if (this.ID === undefined) {
       try {
         const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+        obj.BestLOD = 0;
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
-        if (this.color) {
+        if (this.color !== undefined) {
           // tint the model
           obj.Terrain.Tint = this.color;
         }
@@ -65,13 +58,12 @@ export class Button {
       }
     } else {
       // Move the button to be in the right spot
-      const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
-      if (!obj) return;
+      const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
+      if (obj === null) return;
       obj.Position = pos;
       obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
     }
   }
-
 
   setPosition(pos: IPosition) {
     this.roomPosition = pos;
@@ -86,8 +78,9 @@ export class Button {
   show(value: boolean) {
     if (this.ID === undefined) this.Draw();
     if (this.ID === undefined) return;
-    const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
-    obj.Visibility.Show = value;
+    const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
+    if (obj !== null)
+      obj.Visibility.Show = value;
   }
 
   destroy() {

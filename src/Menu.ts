@@ -9,7 +9,7 @@ import { Button } from "./Button";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { radsToDegs } from "./Mathematics";
-import { DeviceType, GetDeviceType, ProgramManager } from "./ProgramManager";
+import { ProgramManager } from "./ProgramManager";
 
 export class Menu {
   // buttonSize is the roomspace width of one button
@@ -128,7 +128,7 @@ export class Menu {
     this.cols = 0;
     this.recomputeButtons = true;
   }
-  
+
 
   show(visibility: boolean) {
     for (let button of this.buttons)

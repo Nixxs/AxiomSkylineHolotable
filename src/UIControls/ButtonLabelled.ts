@@ -20,15 +20,15 @@ export class ButtonLabelled extends Button {
       this.labelId = label.ID;
     } else {
       // Move the button to be in the right spot
-      const obj: ITerrainModel = GetObject(this.ID) as ITerrainModel;
-      if (obj) {
+      const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
+      if (obj !== null) {
         obj.Position = pos;
         obj.Position.Altitude = obj.Position.Altitude
         obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
         obj.ScaleX = obj.ScaleFactor * 2
       }
-      const objLbl: ITerrainLabel = GetObject(this.labelId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-      if (objLbl) {
+      const objLbl = GetObject(this.labelId, ObjectTypeCode.OT_LABEL);
+      if (objLbl !== null) {
         objLbl.Position = pos;
       }
       // objLbl.Position.Pitch = 90
@@ -38,8 +38,8 @@ export class ButtonLabelled extends Button {
   show(value: boolean) {
     super.show(value);
     if (!this.labelId) return;
-    let obj: ITerrainLabel = GetObject(this.labelId, ObjectTypeCode.OT_LABEL) as ITerrainLabel;
-    if (obj) {
+    const obj = GetObject(this.labelId, ObjectTypeCode.OT_LABEL);
+    if (obj !== null) {
       obj.Visibility.Show = value;
     }
   }

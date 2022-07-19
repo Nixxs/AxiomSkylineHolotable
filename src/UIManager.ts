@@ -91,7 +91,6 @@ export class UIManager {
     toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.changeBasemap() }, "Show basemap");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => this.onBookmarkShow(bookmarkMenus), "Show bookmarks");
 
-
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
     // wall has two extra buttons for controlling view angle
@@ -100,7 +99,6 @@ export class UIManager {
 
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
-
 
     // orbat menu ============
     const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05,);
@@ -153,9 +151,93 @@ export class UIManager {
 
     this.createControlMeasuresMenu();
 
+
+
+    const rightMenu = (() => {
+      const treeItems = {
+        OPFOR_MASTER_OVERLAY: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\OPFOR MASTER OVERLAY"),
+        MLCOA_RED: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\MLCOA_RED"),
+        MDCOA_RED: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\MDCOA_RED"),
+        BLUEFOR_Master_OP: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\BLUEFOR Master OP OVERLAY"),
+        BLUEFOR_Op: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\BLUFOR_OP_Overlay"),
+        DECISION_SUPORT: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\DECISION_SUPORT_OVERLAY_Blue"),
+        CONPLAN: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\CONPLAN_BLUE")
+      };
+
+      function getVisibilities(): FixedSizeArray<boolean, 7> {
+        return [
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.OPFOR_MASTER_OVERLAY),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.MLCOA_RED),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.MDCOA_RED),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Master_OP),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Op),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.DECISION_SUPORT),
+          0 < sgWorld.ProjectTree.GetVisibility(treeItems.CONPLAN)
+        ];
+      }
+
+      function setVisibilities(visibilities: FixedSizeArray<boolean, 7>) {
+        sgWorld.ProjectTree.SetVisibility(treeItems.OPFOR_MASTER_OVERLAY, visibilities[0]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.MLCOA_RED, visibilities[1]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.MDCOA_RED, visibilities[2]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Master_OP, visibilities[3]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Op, visibilities[4]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.DECISION_SUPORT, visibilities[5]);
+        sgWorld.ProjectTree.SetVisibility(treeItems.CONPLAN, visibilities[6]);
+      }
+
+      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_4_mlcoa.xpl2", this.groupId, () => {
+        const visibilities = getVisibilities();
+        visibilities[1] = !visibilities[1];
+        visibilities[0] = visibilities[1];
+        visibilities[2] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
+        setVisibilities(visibilities);
+      }, false, "MLCOA Red");
+
+      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_3_mdcoa.xpl2", this.groupId, () => {
+        const visibilities = getVisibilities();
+        visibilities[2] = !visibilities[2];
+        visibilities[0] = visibilities[2];
+        visibilities[1] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
+        setVisibilities(visibilities);
+      }, false, "MDCOA Red");
+
+      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_2_master.xpl2", this.groupId, () => {
+        const visibilities = getVisibilities();
+        visibilities[4] = !visibilities[4];
+        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+        visibilities[0] = visibilities[1] = visibilities[2] = false;
+        setVisibilities(visibilities);
+
+      }, false, "BlueFor Op");
+
+      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_1_decision.xpl2", this.groupId, () => {
+        const visibilities = getVisibilities();
+        visibilities[5] = !visibilities[5];
+        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+        visibilities[0] = visibilities[1] = visibilities[2] = false;
+        setVisibilities(visibilities);
+
+      }, false, "Decision Support");
+
+      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_0_conplan.xpl2", this.groupId, () => {
+        const visibilities = getVisibilities();
+        visibilities[6] = !visibilities[6];
+        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+        visibilities[0] = visibilities[1] = visibilities[2] = false;
+        setVisibilities(visibilities);
+      }, false, "Conplan");
+
+      const menu = new Menu(0.05, 0.4, new Vector<3>([0.4, -1.13, 0.71]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
+      menu.addButton(mlcoaRed);
+      menu.addButton(mdcoaRed);
+      menu.addButton(blueforOp);
+      menu.addButton(decisionSuport);
+      menu.addButton(conplan);
+      return menu;
+    })();
+    this.menusTable.push(rightMenu);
   }
-
-
 
   onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: Menu[]): void {
     console.log("onOrbatShowMenu  ===========================")
@@ -166,7 +248,7 @@ export class UIManager {
       /// no sub menu items just show the models
       this.onOrbatModelAdd(menuItems.buttons[0])
     } else {
-      // create a menu which has the sub menu items
+      // create a menu that has the sub menu items
       menuItems.buttons.forEach(btn => {
         console.log("adding new button ===========================")
         subMenuOrbatTable.createButton(btn.modelName, btn.buttonIcon, () => {
@@ -185,7 +267,6 @@ export class UIManager {
   }
 
   private createControlMeasuresMenu() {
-
     // 4 buttons. black for control measures, red, blue green task measures, 
 
     // control measures menu ============
@@ -212,7 +293,6 @@ export class UIManager {
     showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));
     this.menusTable.push(showControlsTable);
     this.menusWall.push(showControlsWall);
-
   }
 
   onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
@@ -232,7 +312,6 @@ export class UIManager {
     const currentMenu = getMenu();
     if (currentMenu.isVisible) {
       currentMenu.show(false);
-      return;
     }
 
     const controls: Button[] = [];
@@ -300,8 +379,6 @@ export class UIManager {
   }
 
   onBookmarkShow(menus: MenuVerbs[]) {
-
-
     const getMenu = () => {
       let [bookmarksMenuTable, bookmarksMenuWall] = menus;
       switch (this.GetDeviceTypeOverride()) {
@@ -338,11 +415,11 @@ export class UIManager {
       console.log("itemIdSatellite:: " + itemIdSatellite);
       const ImageryLayer = GetObject(itemIdStreets, ObjectTypeCode.OT_IMAGERY_LAYER);
       const TerrainLayer = GetObject(itemIdSatellite, ObjectTypeCode.OT_IMAGERY_LAYER);
-      if (!ImageryLayer) {
+      if (ImageryLayer === null) {
         console.log("Streets item is null");
         return;
       }
-      if (!TerrainLayer) {
+      if (TerrainLayer === null) {
         console.log("Satellite item is null");
         return;
       }
@@ -385,8 +462,8 @@ export class UIManager {
     // D2. Create polygon
 
     if (this.polygonId) {
-      const poly: ITerrainPolygon = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON) as ITerrainPolygon;
-      if (poly) {
+      const poly = GetObject(this.polygonId, ObjectTypeCode.OT_POLYGON);
+      if (poly !== null) {
         poly.geometry = cPolygonGeometry;
       }
     } else {
