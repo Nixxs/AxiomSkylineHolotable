@@ -76,10 +76,11 @@ export class MenuPaging extends Menu {
 
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
-      newPos = this.getButtonPosition(0, this.rows + 0.5);
-      posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      newPos = this.getButtonPosition(1, this.rows + 0.5);
-      posR = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      newPos = this.getButtonPosition(0, 0);
+      const offset = this.buttonSize / 2;
+      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - offset, newPos.data[1] + offset, newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      newPos = this.getButtonPosition(1, 0);
+      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + offset, newPos.data[1] + offset, newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
     const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
