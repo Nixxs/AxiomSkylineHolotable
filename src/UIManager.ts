@@ -1,20 +1,21 @@
-import { basePath, sgWorld, sessionManager } from "./Axiom";
+import { basePath, sgWorld } from "./Axiom";
 import { runConsole } from "./Debug";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, worldToRoomCoord, setFilmMode, GetObject, GetItemIDByName } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
-import { IOrbatMenuItem, IOrbatModel, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
+import { IOrbatMenuItem, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
 import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
 import { UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
+import { FixedSizeArray } from "./math/fixedSizeArray";
 
 export class UIManager {
   menusTable: Menu[] = [];
@@ -150,8 +151,6 @@ export class UIManager {
     this.menusWall.push(showVerbsWall);
 
     this.createControlMeasuresMenu();
-
-
 
     const rightMenu = (() => {
       const treeItems = {
@@ -619,7 +618,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-   //  return GetDeviceType();
+    //  return GetDeviceType();
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
     }
