@@ -14,23 +14,17 @@ export class MenuPaging extends Menu {
   private totalPages: number = 0;
   private btnPL!: Button;
   private btnPR!: Button;
+  private offset: number = 0;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number, public cols: number) {
-    super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal);
-
-    // // this needs to be more flexible. Add these into the constructor
-    // if (rows > cols) {
-    //   // recalculate the anchor so that it is centred.
-    //   const newX = anchor.data[0] - ((this.cols * this.buttonSize) / 2);
-    //   anchor.data[0] = newX
-    //  // this.cols = 10;
-    //  // this.rows = 2;
-    // //  } else {
-    //  // this.cols = 1;
-    // //  this.rows = 10;
-    // }
+  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number, public cols: number, menuId: string) {
+    super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal, Infinity, 0, 0, menuId);
 
 
+    // if it is vertical we need a bit of space at the bottom for the buttons
+    if (this.rows > this.cols) {
+      this.offset = this.buttonSize / 2;
+      anchor.Add(new Vector([0, this.offset, 0]))
+    }
     this.corner = anchor.Copy().Sub(orientation.Apply(new Vector([width * (anchorPosition[0] - (leftAligned ? 0 : 1)), 0, height * (anchorPosition[1] - (topAligned ? 1 : 0))])));
     console.log(`corner ${this.corner.data}`);
     console.log(`xDirection ${this.xDirection.data}`);
@@ -77,10 +71,9 @@ export class MenuPaging extends Menu {
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
       newPos = this.getButtonPosition(0, 0);
-      const offset = this.buttonSize / 2;
-      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - offset, newPos.data[1] + offset, newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - this.offset, newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
       newPos = this.getButtonPosition(1, 0);
-      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + offset, newPos.data[1] + offset, newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + this.offset, newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
     const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {

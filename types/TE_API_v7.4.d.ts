@@ -816,10 +816,20 @@ interface IProjectTree {
 }
 
 type IDateTime = unknown;
-type IProject = unknown;
 type ISGServer = unknown;
 type ITerrain = unknown;
 type IVersion = unknown;
+
+interface IProject {
+  Settings: any
+  Open(ProjectURL: string, Asynchronous?: boolean, User?: string, Password?: string): void;
+  Close(bSuppressConfirmation?: boolean): boolean;
+  Save(): void;
+  SaveAs(ProjectFileName: string): string;
+  LoadFiles(FileNamesArray: Object, GroupID?: string): void;
+  Name: string;
+  FileVersion: unknown;
+}
 
 declare const enum ItemCode {
   SELECTED = 10,

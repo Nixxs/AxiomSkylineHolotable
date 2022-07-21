@@ -12,7 +12,7 @@ import { IOrbatMenuItem, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatMo
 import { Button, SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
 import { MenuVerbs } from "./UIControls/MenuVerbs";
-import { UserMode } from "./UserManager";
+import { getColorFromString, UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
 import { FixedSizeArray } from "./math/fixedSizeArray";
@@ -33,7 +33,8 @@ export class UIManager {
 
   private orbatScaleFactor: number;
   private verbsMenus: MenuVerbs[] = [];
-  private bookmarkMenus: MenuVerbs[] = [];
+
+  private sharedMenuSpace: Menu[] = [];
 
   constructor() {
     this.orbatScaleFactor = 1.2;
@@ -73,15 +74,30 @@ export class UIManager {
     const wallPos = this.wallPos;; // distance out from wall
 
     // create a sub menu for the bookmarks.
-    // create the verb menu
-    //   const VerbsMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
-    //const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
-    const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
-    this.bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
-    this.bookmarkMenus.forEach(m => m.show(false));
+    const BookmarksMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "BookmarksMenu");
+    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "BookmarksMenu");
+    const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
+    bookmarkMenus.forEach(m => m.show(false));
+    this.sharedMenuSpace.push(...bookmarkMenus)
     this.menusTable.push(BookmarksMenuTable);
     this.menusWall.push(BookmarksMenuWall);
+
+
+    // sub menu for drawing
+    const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+
+    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
+    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
+    drawingMenuTable.createButton("Line", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    drawingMenuTable.addButton(btnBlack);
+    drawingMenuTable.addButton(btnGreen);
+    drawingMenuTable.show(false);
+    drawingMenuWall.show(false);
+    const drawingMenus = [drawingMenuTable, drawingMenuWall]
+    this.menusTable.push(drawingMenuTable);
+    this.menusWall.push(drawingMenuWall);
+    this.sharedMenuSpace.push(...drawingMenus)
 
     // tools menu ============
     const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, true, 0.05, 2, 4);
@@ -92,11 +108,11 @@ export class UIManager {
     toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
     toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
-    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
     toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
     toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
     toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => {
-      this.onBookmarkShow(this.bookmarkMenus)
+      this.onBookmarkShow(bookmarkMenus)
     }, "Show bookmarks");
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
@@ -122,6 +138,7 @@ export class UIManager {
     const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
+    this.sharedMenuSpace.push(...[subMenuOrbatTable, subMenuOrbatWall])
     orbatConfig.OrbatModels.forEach((model, i) => {
       orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]), model.modelName);
     });
@@ -131,11 +148,13 @@ export class UIManager {
     this.menusWall.push(orbatMenuWall);
 
     // create the verb menu
-    const VerbsMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.1, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], true, true, true, 0.05, 10, 1);
-    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    // const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const VerbsMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "VerbsMenu");
+    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "VerbsMenu");
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
     this.verbsMenus = [VerbsMenuTable, VerbsMenuWall];
+    this.sharedMenuSpace.push(...this.verbsMenus)
     this.menusTable.push(VerbsMenuTable);
     this.menusWall.push(VerbsMenuWall);
 
@@ -244,11 +263,26 @@ export class UIManager {
       return menu;
     })();
     this.menusTable.push(rightMenu);
+
   }
 
   onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: Menu[]): void {
     console.log("onOrbatShowMenu  ===========================")
-    const [subMenuOrbatTable, subMenuOrbatWall] = menus;
+
+    const getMenu = () => {
+      const [subMenuOrbatTable, subMenuOrbatWall] = menus;
+      switch (this.GetDeviceTypeOverride()) {
+        case DeviceType.Desktop:
+        case DeviceType.Table:
+          return subMenuOrbatTable
+        case DeviceType.Wall:
+          return subMenuOrbatWall;
+      }
+    }
+
+    const currentMenu = getMenu();
+    this.hideOtherMenus(getMenu().menuId)
+
     menus.forEach(m => m.removeAllButtons())
 
     if (menuItems.buttons.length === 1) {
@@ -257,18 +291,16 @@ export class UIManager {
     } else {
       // create a menu that has the sub menu items
       menuItems.buttons.forEach(btn => {
-        console.log("adding new button ===========================")
-        subMenuOrbatTable.createButton(btn.modelName, btn.buttonIcon, () => {
+        currentMenu.createButton(btn.modelName, btn.buttonIcon, () => {
           menus.forEach(m => m.show(false))
           this.onOrbatModelAdd(btn)
         }, btn.modelName)
       })
-      subMenuOrbatTable.buttons.forEach(b => subMenuOrbatWall.addButton(b))
     }
   }
 
-  onVerbAdd(verb: { verbName: string; verbType: string; }, menus: MenuVerbs[]): void {
-    menus.forEach(m => m.show(false));
+  onVerbAdd(verb: { verbName: string; verbType: string; }, menu: MenuVerbs): void {
+    menu.show(false);
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.toggleLabel(verb.verbName);
   }
@@ -277,8 +309,8 @@ export class UIManager {
     // 4 buttons. black for control measures, red, blue green task measures, 
 
     // control measures menu ============
-    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, false, 0.05, 2, 10);
-    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10);
+    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, false, 0.05, 2, 10, "ControlsMenu");
+    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10, "ControlsMenu");
 
     ControlsMenuTable.show(false);
     ControlsMenuWall.show(false);
@@ -322,9 +354,7 @@ export class UIManager {
     const currentMenu = getMenu();
     if (currentMenu.isVisible) {
       currentMenu.show(false);
-      // the menus really need an id ore something. Check if its the same menu. If it is close it and don't show again
-      const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
-      if (currentMenu.buttons[0].color?.abgrColor === buttonRGBA.abgrColor) {
+      if (currentMenu.menuId === "ControlsMenu" + color) {
         return;
       }
     }
@@ -337,12 +367,12 @@ export class UIManager {
       if (model.modelType === controlType) {
         // some weird logic here... if its blue or red then add the black models too.
         if (model.Black === 1 && color !== "green") {
-          const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString("black", 150);
+          const buttonRGBA = getColorFromString("black", 150);
           const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
           controls.push(btn);
         }
         if (color === "blue" && model.Blue || color === "red" && model.Red || color === "green" && model.Green) {
-          const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+          const buttonRGBA = getColorFromString(color, 150);
           const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
           controls.push(btn);
         }
@@ -351,7 +381,7 @@ export class UIManager {
 
     // for green we need a specific button which allows a rectangle to be drawn
     if (color === "green") {
-      const buttonRGBA = ProgramManager.getInstance().userModeManager!.getColorFromString(color, 150);
+      const buttonRGBA = getColorFromString(color, 150);
       const btn = new Button("Obstacle Group", pos, basePath + "ui/CM_-_ObstacleGroup.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Obstacle Group", buttonRGBA)
       controls.push(btn);
     }
@@ -359,6 +389,9 @@ export class UIManager {
     controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0);
 
     currentMenu.addButtons(controls);
+
+    // update the id
+    currentMenu.menuId = "ControlsMenu" + color
   }
 
   onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
@@ -367,38 +400,49 @@ export class UIManager {
       const pm = ProgramManager.getInstance().userModeManager;
       pm?.cleanUpOnChangeMode();
 
-      let VerbsMenuTable = menus[0];
-      let VerbsMenuWall = menus[1];
-      if (VerbsMenuTable.isVisible) { // turn it off
-        VerbsMenuTable.show(false);
-        VerbsMenuWall.show(false);
-        return;
+
+      const getMenu = () => {
+        let [VerbsMenuTable, VerbsMenuWall] = menus;
+        switch (this.GetDeviceTypeOverride()) {
+          case DeviceType.Desktop:
+          case DeviceType.Table:
+            return VerbsMenuTable
+          case DeviceType.Wall:
+            return VerbsMenuWall;
+        }
       }
+
+
+      const currentMenu = getMenu();
+      if (currentMenu.isVisible) {
+        currentMenu.show(false);
+        if (currentMenu.menuId === "VerbsMenu" + verbType) {
+          return;
+        }
+      }
+
+      this.hideOtherMenus(currentMenu.menuId);
+
       let verbControlsTable: Button[] = [];
       let verbControlsWall: Button[] = [];
-      verbsConfig.verbs.forEach((verb) => {
-        if (verb.verbType === verbType) {
-          verbControlsTable.push(VerbsMenuTable.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
-          verbControlsWall.push(VerbsMenuWall.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, [VerbsMenuTable, VerbsMenuWall])));
-        }
+
+      // sort and filter
+      const filtered = verbsConfig.verbs.filter((v) => v.verbType === verbType)
+      filtered.sort((a, b) => a.verbName.localeCompare(b.verbName))
+      filtered.forEach((verb) => {
+        verbControlsTable.push(currentMenu.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, currentMenu)));
+        verbControlsWall.push(currentMenu.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, currentMenu)));
       });
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          VerbsMenuTable.addButtons(verbControlsTable);
-          break;
-        case DeviceType.Wall:
-          VerbsMenuWall.addButtons(verbControlsWall);
-          break;
-      }
-      this.bookmarkMenus.forEach(m => m.show(false));
+      currentMenu.addButtons(verbControlsTable);
+
+      currentMenu.menuId = "VerbsMenu" + verbType;
+
     } catch (error) {
       console.log(JSON.stringify(error));
     }
   }
 
   onBookmarkShow(menus: MenuVerbs[]) {
-
 
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.cleanUpOnChangeMode();
@@ -427,7 +471,42 @@ export class UIManager {
       }))
     })
     getMenu().addButtons(bookmarks);
-    this.verbsMenus.forEach(v => v.show(false))
+
+    this.hideOtherMenus(getMenu().menuId)
+  }
+
+  onDrawingShow(menus: Menu[]) {
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.cleanUpOnChangeMode();
+
+    const getMenu = () => {
+      let [drawingMenuTable, drawingMenuWall] = menus;
+      switch (this.GetDeviceTypeOverride()) {
+        case DeviceType.Desktop:
+        case DeviceType.Table:
+          return drawingMenuTable
+        case DeviceType.Wall:
+          return drawingMenuWall;
+      }
+    }
+
+    const currentMenu = getMenu();
+    if (currentMenu.isVisible) {
+      currentMenu.show(false);
+      return;
+    }
+
+    this.hideOtherMenus(currentMenu.menuId);
+    currentMenu.show(true);
+  }
+
+  hideOtherMenus(menuId: string) {
+    // hides other menus in the shared menu space
+    this.sharedMenuSpace.forEach(m => {
+      if (menuId.indexOf(m.menuId) === -1) {
+        m.show(false);
+      }
+    })
   }
 
   changeBasemap() {
@@ -505,6 +584,8 @@ export class UIManager {
     console.log("onButtonClick " + name)
     const um = ProgramManager.getInstance().userModeManager;
     if (um === undefined) throw new Error("Could not find userModeManager");
+    um.cleanUpOnChangeMode();
+
     switch (name) {
       case "NextBookmark":
         if (um.userMode == UserMode.Standard) {
@@ -517,10 +598,16 @@ export class UIManager {
         }
         break;
       case "Draw:Line":
-        um.toggleDrawLine()
+        um.toggleDrawLine();
+        this.hideOtherMenus("")
         break;
-      case "Draw:Rectangle":
-        um.toggleDrawRectangle()
+      case "Draw:Rectangle:black":
+        um.toggleDrawRectangle("black")
+        this.hideOtherMenus("")
+        break;
+      case "Draw:Rectangle:green":
+        um.toggleDrawRectangle("green")
+        this.hideOtherMenus("")
         break;
       case "Measure":
         um.toggleMeasurementMode();
@@ -532,11 +619,9 @@ export class UIManager {
         um.deleteModel();
         break;
       case "ScaleModelUp":
-        um.cleanUpOnChangeMode();
         um.scaleModel(+1);
         break;
       case "ScaleModelDown":
-        um.cleanUpOnChangeMode();
         um.scaleModel(-1);
         break;
       case "ViewAbove":
@@ -552,7 +637,6 @@ export class UIManager {
         sgWorld.Navigate.JumpTo(pos2)
         break;
       case "ChangeBasemap":
-        um.cleanUpOnChangeMode();
         this.changeBasemap();
         break
       default:
@@ -671,4 +755,6 @@ export class UIManager {
     }
   }
 }
+
+
 

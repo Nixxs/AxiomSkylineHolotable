@@ -359,7 +359,7 @@ export class UserModeManager {
     console.log("creating model:: " + modelPath);
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
     const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
-    let color = this.getColorFromString(modelColor);
+    let color = getColorFromString(modelColor);
 
     model.Terrain.Tint = color;
     // this is required to refresh the collaboration mode
@@ -389,19 +389,7 @@ export class UserModeManager {
     console.log(this.undoObjectIds.toString());
   }
 
-  getColorFromString(modelColor: string, opacity: number = -1) {
-    switch (modelColor) {
-      case "blue":
-        return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
-      case "red":
-        return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
-      case "green":
-        return sgWorld.Creator.CreateColor(greenRGBA[0], greenRGBA[1], greenRGBA[2], opacity > 0 ? opacity : greenRGBA[3]);
-      case "black":
-        return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
-    }
-    return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-  }
+
 
   toggleLabel(sLabel: string) {
     if (this.userMode == UserMode.PlaceModel) {
@@ -578,19 +566,23 @@ export class UserModeManager {
     highlightById(true, this.drawButtonId);
   }
 
-  toggleDrawRectangle(): void {
+  toggleDrawRectangle(color: string): void {
     const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
     const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
 
     const onDraw = (_geometry: IGeometry) => {
       try {
-        if (!rect || rect.ID) return;
-        this.undoObjectIds.push(rect.ID);
-        rect.LineStyle.Color = this.getColorFromString("green")
-        console.log("drawn");
         sgWorld.DetachEvent("OnDrawingFinished", onDraw);
+        if (!rect || !rect.ID) {
+          console.log("no rectangle");
+          return;
+        };
+        this.undoObjectIds.push(rect.ID);
+        rect.LineStyle.Color = getColorFromString(color)
+
       } catch (error) {
         // don't worry
+        console.log(error)
       }
     }
     sgWorld.AttachEvent("OnDrawingFinished", onDraw);
@@ -885,4 +877,19 @@ export class UserModeManager {
       console.log("UPDATE ERROR" + error)
     }
   }
+}
+
+
+export function getColorFromString(modelColor: string, opacity: number = -1) {
+  switch (modelColor) {
+    case "blue":
+      return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
+    case "red":
+      return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
+    case "green":
+      return sgWorld.Creator.CreateColor(greenRGBA[0], greenRGBA[1], greenRGBA[2], opacity > 0 ? opacity : greenRGBA[3]);
+    case "black":
+      return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
+  }
+  return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
 }

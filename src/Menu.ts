@@ -19,8 +19,9 @@ export class Menu {
   public yDirection: Vector<3>;
   public recomputeButtons = true;
   public isVisible: boolean = true;
+  public menuId: string
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number = 0, public cols: number = 0) {
+  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number = 0, public cols: number = 0, menuId?: string) {
     // anchorPosition is bottomLeft + [x * width, y * height]
 
     // let anchor = topLeft  + orientation.apply([width *  anchorPosition[0]     , 0, height * (anchorPosition[1] - 1)]);
@@ -38,6 +39,13 @@ export class Menu {
     console.log(`corner ${this.corner.data}`);
     console.log(`xDirection ${this.xDirection.data}`);
     console.log(`yDirection ${this.yDirection.data}`);
+
+    if (!menuId) {
+      // give it a unique id so it can be identified.
+      this.menuId = Date.now().toString() + Math.floor(Math.random() * 100000000).toString()
+    } else {
+      this.menuId = menuId;
+    }
   }
 
   addButton(button: Button) {

@@ -8,7 +8,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
 import { UIManager } from "./UIManager";
-import { UserModeManager } from "./UserManager";
+import { getColorFromString, UserModeManager } from "./UserManager";
 
 export function setComClientForcedInputMode() {
   sgWorld.SetParam(8166, 1); // Force COM input mode (Meaning your code here is in control)
@@ -325,6 +325,7 @@ export class ProgramManager {
   Init() {
     try {
       console.log("init:: " + new Date(Date.now()).toISOString());
+
       // Wait for managers to initialise on first frame
       const afterFirst = () => {
         console.log("do afterFirst")
@@ -577,7 +578,7 @@ function colorItems(parentId: string, color: string) {
     while (id) {
       const obj = GetObject(id, ObjectTypeCode.OT_MODEL); // sgWorld.ProjectTree.GetObject(id);
       if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
-        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
+        const col = getColorFromString(color.toLocaleLowerCase());
         if (col !== undefined) {
           obj.Terrain.Tint = col;
         }
