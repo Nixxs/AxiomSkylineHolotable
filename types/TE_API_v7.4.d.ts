@@ -26,7 +26,7 @@ interface IPosition {
   IsEqual: unknown;
   Lerp: unknown;
   Move(Distance: number, Yaw: number, Pitch: number): IPosition;
-  MoveToward: unknown;
+  MoveToward(Position: IPosition, Distance: number): IPosition;
   ToAbsolute: unknown;
   ToRelative: unknown;
   ToString(): string;

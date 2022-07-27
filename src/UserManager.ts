@@ -21,7 +21,7 @@ const gControlMode: ControlMode = ControlMode.Table;
 
 function dragMode() {
   const trigger = ProgramManager.getInstance().getButton3(1);
-  const newIntersect = ProgramManager.getInstance().userModeManager!.getCollisionPosition(1);
+  let newIntersect = ProgramManager.getInstance().userModeManager!.getCollisionPosition(1);
   const wandWorldIPos = ProgramManager.getInstance().userModeManager?.getWandPosition(1);
 
   if (wandWorldIPos === undefined)
@@ -57,9 +57,6 @@ function dragMode() {
     // dragged!
     const worldPos = sgWorld.Navigate.GetPosition(3).Copy();
 
-    worldPos.X += dragMode.startInfo.intersect.X - newIntersect.X;
-    worldPos.Y += dragMode.startInfo.intersect.Y - newIntersect.Y;
-
     // zoom
     const wandPosDiff = wandRoomPos.Copy().Sub(dragMode.startInfo.prevWandRoomPos);
     const magDifference = wandPosDiff.Mag();
@@ -83,7 +80,9 @@ function dragMode() {
       }
       const factor = Math.pow(scaleRatio, power * powerStrength);
       worldPos.Altitude *= factor;
-      // TODO: also offset position due to zoom. Otherwise one frame of jitter whenever zooming
+      // newIntersect should move away from the center of the screen by zoom factor
+      newIntersect.Cartesian = true;
+      newIntersect = newIntersect.MoveToward(sgWorld.Navigate.GetPosition(3), (1 - factor) * newIntersect.DistanceTo(sgWorld.Navigate.GetPosition(3)));
 
       const maxTableAltitude = 500000;
       const maxWallAltitude = 60000;
@@ -96,6 +95,9 @@ function dragMode() {
         worldPos.Altitude = 250;
       }
     }
+
+    worldPos.X += dragMode.startInfo.intersect.X - newIntersect.X;
+    worldPos.Y += dragMode.startInfo.intersect.Y - newIntersect.Y;
 
     dragMode.startInfo.prevWandRoomPos = wandRoomPos;
     dragMode.startInfo.prevWandRoomDir = wandRoomDir;
