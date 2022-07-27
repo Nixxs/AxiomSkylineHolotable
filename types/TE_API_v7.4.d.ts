@@ -260,7 +260,7 @@ interface IAnalysis {
 }
 
 interface ITerraExplorerObject {
-  ClientData: FClientData;
+  ClientData: any;
   ID: string;
   ObjectType: ObjectTypeCode;
   SaveInFlyFile: boolean;
@@ -687,7 +687,7 @@ interface ICreator {
   CreateModel(Position: IPosition, FileName: string, Scale: number, ModelType: 0 | 1 | 2, GroupID: string, Description: string): ITerrainModel; //Imports from a file an ITerrainModel73, representing a model object.
   CreateNewFeatureLayer: unknown; //Creates directly from TerraExplorer an IFeatureLayer73, representing a new feature layer.
   CreatePointCloudModel: unknown; //Imports an ITerrainPointCloudModel73 object from a file.
-  CreatePolygon(geometry: IGeometry, LineColor?: number, FillColor?: number, AltitudeTypeCode?: AltitudeTypeCode, GroupID?: string, Description?: string): ITerrainPolygon; //Creates an ITerrainPolygon73 in the 3D Window.
+  CreatePolygon(geometry: IGeometry, LineColor?: Color, FillColor?: Color, AltitudeTypeCode?: AltitudeTypeCode, GroupID?: string, Description?: string): ITerrainPolygon; //Creates an ITerrainPolygon73 in the 3D Window.
   CreatePolygonFromArray: unknown; //Creates an ITerrainPolygon73 representing the polygon by connecting the points in an array of points.
   CreatePolyline(Geometry: IGeometry, LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, in the 3D Window.
   CreatePolylineFromArray(verticesArray: [number, number, number][], LineColor: Color, AltitudeType: number, GroupID: string, Description: string): ITerrainPolyline; //Creates an ITerrainPolyline73, representing the polyline, by connecting the points in an array of points.
@@ -816,10 +816,20 @@ interface IProjectTree {
 }
 
 type IDateTime = unknown;
-type IProject = unknown;
 type ISGServer = unknown;
 type ITerrain = unknown;
 type IVersion = unknown;
+
+interface IProject {
+  Settings: any
+  Open(ProjectURL: string, Asynchronous?: boolean, User?: string, Password?: string): void;
+  Close(bSuppressConfirmation?: boolean): boolean;
+  Save(): void;
+  SaveAs(ProjectFileName: string): string;
+  LoadFiles(FileNamesArray: Object, GroupID?: string): void;
+  Name: string;
+  FileVersion: unknown;
+}
 
 declare const enum ItemCode {
   SELECTED = 10,

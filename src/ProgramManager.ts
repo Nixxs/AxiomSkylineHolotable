@@ -8,7 +8,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
 import { UIManager } from "./UIManager";
-import { UserModeManager } from "./UserManager";
+import { getColorFromString, UserModeManager } from "./UserManager";
 
 export function setComClientForcedInputMode() {
   sgWorld.SetParam(8166, 1); // Force COM input mode (Meaning your code here is in control)
@@ -325,6 +325,7 @@ export class ProgramManager {
   Init() {
     try {
       console.log("init:: " + new Date(Date.now()).toISOString());
+
       // Wait for managers to initialise on first frame
       const afterFirst = () => {
         console.log("do afterFirst")
@@ -558,7 +559,7 @@ function findInTree(current: string, find: string): string | null {
   while (current) {
     var currentName = sgWorld.ProjectTree.GetItemName(current);
     if (currentName === find) {
-      return current;
+      return current; //  return the ID
     }
     if (sgWorld.ProjectTree.IsGroup(current)) {
       var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
@@ -577,7 +578,7 @@ function colorItems(parentId: string, color: string) {
     while (id) {
       const obj = GetObject(id, ObjectTypeCode.OT_MODEL); // sgWorld.ProjectTree.GetObject(id);
       if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
-        const col = ProgramManager.getInstance().userModeManager?.getColorFromString(color.toLocaleLowerCase());
+        const col = getColorFromString(color.toLocaleLowerCase());
         if (col !== undefined) {
           obj.Terrain.Tint = col;
         }
@@ -598,8 +599,9 @@ function colorItems(parentId: string, color: string) {
  *
  * @param {*} id
  */
-export function deleteItemSafe(id: string) {
+export function deleteItemSafe(id?: string) {
   try {
+    if (!id) return;
     const object = sgWorld.Creator.GetObject(id);
     if (object) {
       sgWorld.Creator.DeleteObject(id);
@@ -607,4 +609,19 @@ export function deleteItemSafe(id: string) {
   } catch (error) {
     // fine
   }
+}
+
+/**
+ * Fixes the horrible api interface so client data can actually be used
+ * Otherwise you will get The left-hand side of an assignment expression 
+ * must be a variable or a property access.
+ * @export
+ * @param {ITerrainObject} modelObject
+ * @param {*} propertyName
+ * @param {string} clientData
+ */
+export function SetClientData(modelObject: ITerrainModel, propertyName: any, clientData: string) {
+  const w: any = window
+  // this function is in the index html
+  w.setClientData(modelObject, propertyName, clientData)
 }
