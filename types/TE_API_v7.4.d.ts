@@ -260,7 +260,7 @@ interface IAnalysis {
 }
 
 interface ITerraExplorerObject {
-  ClientData: FClientData;
+  ClientData: any;
   ID: string;
   ObjectType: ObjectTypeCode;
   SaveInFlyFile: boolean;

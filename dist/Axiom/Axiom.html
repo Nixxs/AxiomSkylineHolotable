@@ -12,6 +12,10 @@
     // turn on 3D rendering. Because this is invalid typescript code we have to do it here.
     SGWorld.Project.Settings("DoubleSidedRenderingOf3DModels") = 1;
     SGWorld.Project.Settings("CopyrightText") = "Axiom Holographics";
+    // another invalid javascript code they use and we need. create a global for it
+    window.setClientData = function (terrainObject, propertyName, data) {
+      terrainObject.ClientData(propertyName) = data;
+    }
   </script>
 </head>
 

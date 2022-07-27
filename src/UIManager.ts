@@ -4,7 +4,7 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName, deleteItemSafe, worldToRoomCoord, SetClientData } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
@@ -35,6 +35,7 @@ export class UIManager {
   private verbsMenus: MenuVerbs[] = [];
 
   private sharedMenuSpace: Menu[] = [];
+  private modelsToPlace: ITerrainModel[] = [];
 
   constructor() {
     this.orbatScaleFactor = 1.2;
@@ -149,7 +150,7 @@ export class UIManager {
     orbatMenuWall.cols = 1
 
     // Sub menus
-    const subMenuOrbatTable = new Menu(0.04, 0.2, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const subMenuOrbatTable = new Menu(0.04, 0.5, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
     const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
@@ -304,13 +305,17 @@ export class UIManager {
       /// no sub menu items just show the models
       this.onOrbatModelAdd(menuItems.buttons[0])
     } else {
+      // create a done/remove others button. This will remove any models which have not been moved
+      currentMenu.createButton("Done", "blank.xpl2", () => {
+        this.removeOtherModels();
+        menus.forEach(m => m.removeAllButtons());
+      });
       // create a menu that has the sub menu items
       menuItems.buttons.forEach(btn => {
         currentMenu.createButton(btn.modelName, btn.buttonIcon, () => {
-          menus.forEach(m => m.show(false))
           this.onOrbatModelAdd(btn)
-        }, btn.modelName)
-      })
+        }, btn.modelName);
+      });
     }
   }
 
@@ -704,7 +709,7 @@ export class UIManager {
 
   onOrbatModelAdd(model: IOrbatSubMenuItem): void {
     // add the orbat model to world space in the centre of the screen
-    const modelsToPlace: ITerrainModel[] = [];
+    this.modelsToPlace = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
     model.models.forEach((orbatModel, i) => {
       const x = Math.floor(i / 6);
@@ -720,7 +725,6 @@ export class UIManager {
       var pos;
       if (deviceType === DeviceType.Wall) {
         pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
-
       } else {
         pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       }
@@ -749,8 +753,11 @@ export class UIManager {
         }
 
         modelObject.ScaleFactor = scaleValue;
-        modelsToPlace.push(modelObject);
-      } catch {
+        this.modelsToPlace.push(modelObject);
+
+        SetClientData(modelObject, "moved", "false")
+      } catch (e) {
+        console.log(e);
         console.log("could not add model: " + modelPath);
       }
 
@@ -770,6 +777,20 @@ export class UIManager {
 
   }
 
+  removeOtherModels() {
+    // removes the orbat models which have not been moved
+    console.log("removeOtherModels")
+    this.modelsToPlace.forEach(m => {
+
+      const model = GetObject(m.ID, ObjectTypeCode.OT_MODEL);
+      if (model) {
+        if (model.ClientData("moved") === "false") {
+          deleteItemSafe(model.ID);
+        }
+      }
+    });
+  }
+
   Draw() {
     switch (this.GetDeviceTypeOverride()) {
       case DeviceType.Desktop:
@@ -786,7 +807,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    // return GetDeviceType();
+    return GetDeviceType();
     // when testing on desktop you can use this to change the view
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;

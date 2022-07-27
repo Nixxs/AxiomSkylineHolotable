@@ -610,3 +610,18 @@ export function deleteItemSafe(id?: string) {
     // fine
   }
 }
+
+/**
+ * Fixes the horrible api interface so client data can actually be used
+ * Otherwise you will get The left-hand side of an assignment expression 
+ * must be a variable or a property access.
+ * @export
+ * @param {ITerrainObject} modelObject
+ * @param {*} propertyName
+ * @param {string} clientData
+ */
+export function SetClientData(modelObject: ITerrainModel, propertyName: any, clientData: string) {
+  const w: any = window
+  // this function is in the index html
+  w.setClientData(modelObject, propertyName, clientData)
+}
