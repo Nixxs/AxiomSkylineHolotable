@@ -34,7 +34,7 @@ export class Laser {
     }
 
     if (isNothing !== this.collision?.isNothing) {
-      console.log(isNothing ? "Nothing" : "Something");
+      // console.log(isNothing ? "Nothing" : "Something");
     }
     const hitPosition = position.Copy().Move(distToHitPoint, position.Yaw, position.Pitch);
     hitPosition.Cartesian = true;

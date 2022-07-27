@@ -4,7 +4,7 @@ import { Laser } from "./Laser";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads, radsToDegs } from "./Mathematics";
-import { deleteItemSafe, DeviceType, GetDeviceType, GetObject, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, worldToRoomCoord } from "./ProgramManager";
+import { deleteItemSafe, DeviceType, GetDeviceType, GetObject, MaxZoom, ProgramManager, ProgramMode, roomToWorldCoord, SetClientData, worldToRoomCoord } from "./ProgramManager";
 
 const enum ControlMode {
   Wand,
@@ -124,6 +124,7 @@ export const enum UserMode {
   PlaceModel,
   MoveModel,
   DrawLine,
+  DrawPolygon,
   PlaceLabel // when placing a label it will attach to another object
 }
 
@@ -257,14 +258,13 @@ function colorToRGBA(col: IColor): number[] {
 const wallMode = wandMode;
 
 export class UserModeManager {
-  public userMode = UserMode.Standard;
   public modelIds: string[] = [];
 
   private spacing = 5000;
   private numRings = 5;
   private measurementModeFirstPoint: IPosition | null = null;
-  private measurementModeLineID: string | null = null;
-  private measurementTextLabelID: string | null = null;
+  private measurementModeLineID: string | undefined = undefined;
+  private measurementTextLabelID: string | undefined = undefined;
   private currentlySelectedId?: string;
   private measurementLineWidth = 3;
   private measurementLineColor: IColor;
@@ -272,7 +272,7 @@ export class UserModeManager {
   private measurementLabelStyle: ILabelStyle;
   private labelStyle = sgWorld.Creator.CreateLabelStyle(0);
 
-  private drawLineID: string | null = null;
+  private drawLineID: string | undefined = undefined;
   private drawLineFirstPoint: IPosition | null = null;
   private drawLineWidth = -10;
   private drawLineColor: IColor;
@@ -287,6 +287,7 @@ export class UserModeManager {
   public blueRGBA: Array<number> = blueRGBA;
 
   private ModelZScaleFactor: number = 0.25;
+  rectangleColor: string = "";
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -294,6 +295,19 @@ export class UserModeManager {
     this.measurementLabelStyle.PivotAlignment = "Top";
     this.measurementLabelStyle.MultilineJustification = "Left";
     this.drawLineColor = sgWorld.Creator.CreateColor(0, 0, 0, 0); //black
+  }
+
+  private _userMode = UserMode.Standard;
+  public get userMode() {
+    return this._userMode;
+  }
+
+  public set userMode(mode) {
+    // when the user mode changes we need to check if any cleanup needs to be done.
+    if (this._userMode !== UserMode.Standard && mode !== UserMode.Standard) {
+      this.cleanUpOnChangeMode();
+    }
+    this._userMode = mode;
   }
 
   getCollisionID(userIndex: number) {
@@ -330,78 +344,56 @@ export class UserModeManager {
   }
 
   toggleMeasurementMode(buttonId?: string) {
-    if (this.userMode == UserMode.Measurement) {
+    if (this.userMode !== UserMode.Measurement) {
       highlightById(true, buttonId);
-      if (this.measurementModeLineID !== null) {
-        deleteItemSafe(this.measurementModeLineID);
-        deleteItemSafe(this.measurementTextLabelID!);
-      }
-      this.userMode = UserMode.Standard;
-    } else {
       this.userMode = UserMode.Measurement;
     }
-    this.measurementModeLineID = null;
-    this.measurementTextLabelID = null;
+    this.measurementModeLineID = undefined;
+    this.measurementTextLabelID = undefined;
     this.measurementModeFirstPoint = null;
   }
 
   toggleModelMode(modelPath: string, modelName: string, modelColor: string) {
-    if (this.userMode == UserMode.PlaceModel) {
-      console.log("end model mode");
-      this.userMode = UserMode.Standard;
-    } else {
-      const fullModelPath = basePath + `model/${modelPath}`;
-      const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
-      pos.Pitch = 0;
-      console.log("creating model:: " + modelPath);
-      const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
-      const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
-      let color = this.getColorFromString(modelColor);
 
-      model.Terrain.Tint = color;
-      // this is required to refresh the collaboration mode
-      console.log("setting visibility to true");
-      sgWorld.ProjectTree.SetVisibility(model.ID, true);
-      const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
-      model.ScaleFactor = 5 * roomPos.Altitude;
+    this.userMode = UserMode.PlaceModel;
 
-      if (GetDeviceType() === DeviceType.Wall) {
-        const pos = sgWorld.Navigate.GetPosition(3);
-        model.ScaleFactor = pos.Altitude / 2;
-      }
+    const fullModelPath = basePath + `model/${modelPath}`;
+    const pos = sgWorld.Window.CenterPixelToWorld(0).Position.Copy()
+    pos.Pitch = 0;
+    console.log("creating model:: " + modelPath);
+    const grp = ProgramManager.getInstance().getCollaborationFolderID("models_" + modelColor);
+    const model = sgWorld.Creator.CreateModel(pos, fullModelPath, 1, 0, grp, modelName);
+    let color = getColorFromString(modelColor);
 
+    model.Terrain.Tint = color;
+    // this is required to refresh the collaboration mode
+    console.log("setting visibility to true");
+    sgWorld.ProjectTree.SetVisibility(model.ID, true);
+    const roomPos = roomToWorldCoord(sgWorld.Creator.CreatePosition(0, 0, 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE));
+    model.ScaleFactor = 5 * roomPos.Altitude;
 
-      // adam wanted the original models less tall so multiply scale z by a factor
-      model.ScaleZ *= this.ModelZScaleFactor;
-
-      // this will make the model not pickable which is what you want while moving it 
-      model.SetParam(200, 0x200);
-
-      this.currentlySelectedId = model.ID;
-      this.modelIds.push(this.currentlySelectedId);
-      ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
-
-      // add the new model to the line objects array so it can be deleted via the undo button
-      this.undoObjectIds.push(this.currentlySelectedId);
-      console.log(this.undoObjectIds.toString());
-
-      this.userMode = UserMode.PlaceModel;
+    if (GetDeviceType() === DeviceType.Wall) {
+      const pos = sgWorld.Navigate.GetPosition(3);
+      model.ScaleFactor = pos.Altitude / 2;
     }
+
+
+    // adam wanted the original models less tall so multiply scale z by a factor
+    model.ScaleZ *= this.ModelZScaleFactor;
+
+    // this will make the model not pickable which is what you want while moving it 
+    model.SetParam(200, 0x200);
+
+    this.currentlySelectedId = model.ID;
+    this.modelIds.push(this.currentlySelectedId);
+    ProgramManager.getInstance().currentlySelected = this.currentlySelectedId;
+
+    // add the new model to the line objects array so it can be deleted via the undo button
+    this.undoObjectIds.push(this.currentlySelectedId);
+    console.log(this.undoObjectIds.toString());
   }
 
-  getColorFromString(modelColor: string, opacity: number = -1) {
-    switch (modelColor) {
-      case "blue":
-        return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
-      case "red":
-        return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
-      case "green":
-        return sgWorld.Creator.CreateColor(greenRGBA[0], greenRGBA[1], greenRGBA[2], opacity > 0 ? opacity : greenRGBA[3]);
-      case "black":
-        return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
-    }
-    return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-  }
+
 
   toggleLabel(sLabel: string) {
     if (this.userMode == UserMode.PlaceModel) {
@@ -446,13 +438,38 @@ export class UserModeManager {
         }
         this.userMode = UserMode.MoveModel;
       } else {
-        this.userMode = UserMode.Standard;
+        this.setStandardMode();
       }
     }
   }
 
   setStandardMode() {
     this.userMode = UserMode.Standard;
+  }
+
+  cleanUpOnChangeMode() {
+    console.log("cleanUpOnChangeMode");
+    switch (this.userMode) {
+      case UserMode.DrawLine:
+        deleteItemSafe(this.drawLineID)
+        break;
+      case UserMode.Measurement:
+        deleteItemSafe(this.measurementModeLineID);
+        deleteItemSafe(this.measurementTextLabelID!);
+        break;
+      case UserMode.PlaceLabel:
+      case UserMode.PlaceModel:
+        if (this.currentlySelectedId) {
+          deleteItemSafe(this.currentlySelectedId)
+          // we are already in model mode. delete the one they were dragging
+          if (this.undoObjectIds.indexOf(this.currentlySelectedId) > -1) {
+            this.undoObjectIds.splice(this.undoObjectIds.indexOf(this.currentlySelectedId), 1)
+          };
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   toggleRangeRingMode() {
@@ -547,28 +564,17 @@ export class UserModeManager {
 
   toggleDrawLine(buttonId?: string): void {
     this.userMode = UserMode.DrawLine;
-    this.drawLineID = null;
+    this.drawLineID = undefined;
     this.drawLineFirstPoint = null;
     this.drawButtonId = buttonId;
     highlightById(true, this.drawButtonId);
   }
 
-  toggleDrawRectangle(): void {
-    const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
-    const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
-
-    const onDraw = (_geometry: IGeometry) => {
-      try {
-        if (!rect || rect.ID) return;
-        this.undoObjectIds.push(rect.ID);
-        rect.LineStyle.Color = this.getColorFromString("green")
-        console.log("drawn");
-        sgWorld.DetachEvent("OnDrawingFinished", onDraw);
-      } catch (error) {
-        // don't worry
-      }
-    }
-    sgWorld.AttachEvent("OnDrawingFinished", onDraw);
+  toggleDrawRectangle(color: string): void {
+    this.userMode = UserMode.DrawPolygon;
+    this.drawLineID = undefined;
+    this.drawLineFirstPoint = null;
+    this.rectangleColor = color;
   }
 
   Update() {
@@ -624,14 +630,12 @@ export class UserModeManager {
             // Exit mode when pressed again
             if (ProgramManager.getInstance().getButton1Pressed(1)) {
               console.log("finished line");
-              highlightById(false, this.drawButtonId);
-
               ProgramManager.getInstance().refreshCollaborationModeLayers(mLine.ID);
               this.setStandardMode();
               // consume the button press
               ControllerReader.controllerInfos[1].button1Pressed = false;
-              this.measurementModeLineID = null;
-              this.measurementTextLabelID = null;
+              this.measurementModeLineID = undefined;
+              this.measurementTextLabelID = undefined;
               this.measurementModeFirstPoint = null;
             }
           } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
@@ -705,6 +709,7 @@ export class UserModeManager {
                   // user most likely deleted it
                 } else {
                   modelObject.Position = newModelPosition;
+                  SetClientData(modelObject, "moved", "true"); // register it as moved
                 }
               }
 
@@ -794,22 +799,6 @@ export class UserModeManager {
             }
             const geometry = dLine.Geometry;
 
-            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
-            if (teEndPos !== undefined) {
-              // start the edit session to enable modification of the geometry
-              geometry.StartEdit();
-              if (ProgramManager.getInstance().getButton1Pressed(1)) {
-                // if button 1 is pressed add a new point to the geometry
-                geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
-              } else {
-                // if button hasn't been pressed just move the last point to the current
-                // position of the laser so the user what the new line will look like
-                const drawPointIndex = geometry.Points.Count - 1;
-                geometry.Points.Item(drawPointIndex).X = teEndPos.X;
-                geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
-              }
-              geometry.EndEdit();
-            }
 
             // Exit mode when button 2 is pressed
             if (ProgramManager.getInstance().getButton2Pressed(1)) {
@@ -825,8 +814,27 @@ export class UserModeManager {
               this.setStandardMode();
               // consume the button press
               ControllerReader.controllerInfos[1].button2Pressed = false;
-              this.drawLineID = null;
+              this.drawLineID = undefined;
               this.drawLineFirstPoint = null;
+
+              return;
+            }
+
+            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (teEndPos !== undefined) {
+              // start the edit session to enable modification of the geometry
+              geometry.StartEdit();
+              if (ProgramManager.getInstance().getButton1Pressed(1)) {
+                // if button 1 is pressed add a new point to the geometry
+                geometry.Points.AddPoint(teEndPos.X, teEndPos.Y, teEndPos.Altitude);
+              } else {
+                // if button hasn't been pressed just move the last point to the current
+                // position of the laser so the user what the new line will look like
+                const drawPointIndex = geometry.Points.Count - 1;
+                geometry.Points.Item(drawPointIndex).X = teEndPos.X;
+                geometry.Points.Item(drawPointIndex).Y = teEndPos.Y;
+              }
+              geometry.EndEdit();
             }
           } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
             // Create the line
@@ -853,10 +861,89 @@ export class UserModeManager {
             ControllerReader.controllerInfos[1].button1Pressed = false;
           }
           break;
+
+        case UserMode.DrawPolygon:
+          if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
+            // create a new box
+            const polygon = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYGON);
+            if (!polygon) {
+              // fail
+              this.userMode = UserMode.Standard;
+              return;
+            }
+            if (ProgramManager.getInstance().getButton1Pressed(1)) {
+              this.userMode = UserMode.Standard;
+              return; // we are done
+            }
+            const teStartPos = this.drawLineFirstPoint.Copy();
+            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (!teEndPos) return;
+            var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry([
+              teStartPos.X, teStartPos.Y, 0,
+              teEndPos.X, teStartPos.Y, 0,
+              teEndPos.X, teEndPos.Y, 0,
+              teStartPos.X, teEndPos.Y, 0,
+              teStartPos.X, teStartPos.Y, 0
+            ]);
+            const drawPolyGeom = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing);
+            polygon.geometry = drawPolyGeom;
+            // const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            // const poly = sgWorld.Creator.CreatePolygon(drawPolyGeom, this.drawLineColor, this.drawLineColor, 2, grp, "__line");
+            // poly.LineStyle.Width = this.drawLineWidth;
+            // this.drawLineID = poly.ID;
+
+          } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            // Create the line
+            console.log("new polygon");
+
+            this.drawLineFirstPoint = this.laser1!.collision!.hitPoint.Copy();
+
+            const teStartPos = this.drawLineFirstPoint.Copy();
+            const teEndPos = teStartPos.Copy();
+            teEndPos.X += 0.0001
+            teEndPos.Y += 0.0001
+            var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry([
+              teStartPos.X, teStartPos.Y, 0,
+              teEndPos.X, teStartPos.Y, 0,
+              teEndPos.X, teEndPos.Y, 0,
+              teStartPos.X, teEndPos.Y, 0,
+              teStartPos.X, teStartPos.Y, 0
+            ]);
+            const drawPolyGeom = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing);
+            const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            const color = getColorFromString(this.rectangleColor);
+            const poly = sgWorld.Creator.CreatePolygon(drawPolyGeom, color, this.drawLineColor, 2, grp, "__line");
+            poly.LineStyle.Width = this.drawLineWidth;
+            this.drawLineID = poly.ID;
+
+            // add the new item to the array so it can be deleted in sequence via the undo button
+            // if you add any other object types into the lineObjects array make sure you handle them in the undo function
+            this.undoObjectIds.push(this.drawLineID);
+            console.log(this.undoObjectIds.toString());
+
+            // consume the button press
+            ControllerReader.controllerInfos[1].button1Pressed = false;
+          }
+
       }
     } catch (error) {
       // for demo we can't have errors
       console.log("UPDATE ERROR" + error)
     }
   }
+}
+
+
+export function getColorFromString(modelColor: string, opacity: number = -1) {
+  switch (modelColor) {
+    case "blue":
+      return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], opacity > 0 ? opacity : blueRGBA[3]);
+    case "red":
+      return sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], opacity > 0 ? opacity : redRGBA[3]);
+    case "green":
+      return sgWorld.Creator.CreateColor(greenRGBA[0], greenRGBA[1], greenRGBA[2], opacity > 0 ? opacity : greenRGBA[3]);
+    case "black":
+      return sgWorld.Creator.CreateColor(blackRGBA[0], blackRGBA[1], blackRGBA[2], opacity > 0 ? opacity : blackRGBA[3]);
+  }
+  return sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
 }
