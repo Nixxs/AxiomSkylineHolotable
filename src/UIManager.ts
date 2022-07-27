@@ -83,7 +83,7 @@ export class UIManager {
     this.menusWall.push(BookmarksMenuWall);
 
 
-    // sub menu for drawing
+    // sub menu for drawing 
     const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
@@ -94,6 +94,7 @@ export class UIManager {
     drawingMenuTable.addButton(btnGreen);
     drawingMenuTable.show(false);
     drawingMenuWall.show(false);
+    drawingMenuTable.buttons.forEach(b => drawingMenuWall.addButton(b));
     const drawingMenus = [drawingMenuTable, drawingMenuWall]
     this.menusTable.push(drawingMenuTable);
     this.menusWall.push(drawingMenuWall);
@@ -117,10 +118,24 @@ export class UIManager {
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
-    // wall has two extra buttons for controlling view angle
-    toolsMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
-    toolsMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
 
+    const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+
+    viewMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
+    viewMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
+    viewMenuWall.createButton("Pitch Down", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
+    viewMenuWall.createButton("Pitch Up", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
+    viewMenuTable.show(false);
+    viewMenuWall.show(false);
+    viewMenuTable.buttons.forEach(b => viewMenuWall.addButton(b));
+    const viewMenus = [viewMenuTable, viewMenuWall]
+    this.menusTable.push(viewMenuTable);
+    this.menusWall.push(viewMenuWall);
+    this.sharedMenuSpace.push(...viewMenus)
+
+
+    toolsMenuWall.createButton("View", "BUTTON_OBLIQUE.dae", (id) => this.onViewShow(viewMenus), "View");
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
@@ -500,6 +515,31 @@ export class UIManager {
     currentMenu.show(true);
   }
 
+  onViewShow(menus: Menu[]) {
+    const pm = ProgramManager.getInstance().userModeManager;
+    pm?.cleanUpOnChangeMode();
+
+    const getMenu = () => {
+      let [menuTable, menuWall] = menus;
+      switch (this.GetDeviceTypeOverride()) {
+        case DeviceType.Desktop:
+        case DeviceType.Table:
+          return menuTable
+        case DeviceType.Wall:
+          return menuWall;
+      }
+    }
+
+    const currentMenu = getMenu();
+    if (currentMenu.isVisible) {
+      currentMenu.show(false);
+      return;
+    }
+
+    this.hideOtherMenus(currentMenu.menuId);
+    currentMenu.show(true);
+  }
+
   hideOtherMenus(menuId: string) {
     // hides other menus in the shared menu space
     this.sharedMenuSpace.forEach(m => {
@@ -639,6 +679,18 @@ export class UIManager {
       case "ChangeBasemap":
         this.changeBasemap();
         break
+      case "PitchUp":
+        const posUp = sgWorld.Navigate.GetPosition(3);
+        posUp.Yaw = 0;
+        posUp.Pitch = posUp.Pitch + 10;
+        sgWorld.Navigate.JumpTo(posUp)
+        break
+      case "PitchDown":
+        const posDown = sgWorld.Navigate.GetPosition(3);
+        posDown.Yaw = 0;
+        posDown.Pitch = posDown.Pitch - 10;
+        sgWorld.Navigate.JumpTo(posDown)
+        break
       default:
         console.log("onButtonClick:: action not found" + name)
     }
@@ -734,7 +786,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+    // return GetDeviceType();
     // when testing on desktop you can use this to change the view
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
