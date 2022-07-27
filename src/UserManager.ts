@@ -287,7 +287,7 @@ export class UserModeManager {
   public blueRGBA: Array<number> = blueRGBA;
 
   private ModelZScaleFactor: number = 0.25;
-  rectangleColor: string;
+  rectangleColor: string = "";
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
