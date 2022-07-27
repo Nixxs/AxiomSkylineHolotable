@@ -50,7 +50,7 @@ export class ControllerReader {
 
         if (VRControllersInfo.HavePosition != undefined && VRControllersInfo.HavePosition[hand]) {
           const wandPosition = sgWorld.Navigate.GetPosition(3);
-          wandPosition.Distance = 100000;
+          wandPosition.Distance = 10000000; // Maybe it would be better to use the altitude?
           wandPosition.X = VRControllersInfo.Position[hand][0];
           wandPosition.Y = VRControllersInfo.Position[hand][2];
           wandPosition.Altitude = VRControllersInfo.Position[hand][1];

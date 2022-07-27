@@ -21,10 +21,9 @@ export class Laser {
   collision?: collisionInfo;
 
   UpdateTable(userIndex: number) {
-    const position = ControllerReader.controllerInfos[userIndex].wandPosition?.Copy();
+    const position = ControllerReader.controllerInfos[userIndex].wandPosition;
     if (position === undefined)
       return;
-    position.Distance *= 2;
     sgWorld.SetParam(8300, position); // Pick ray
     const hitObjectID = sgWorld.GetParam(8310) as string | undefined;
     let distToHitPoint = sgWorld.GetParam(8312) as number;    // Get distance to hit point
