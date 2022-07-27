@@ -5,7 +5,9 @@ declare const SessionManager: ISessionManager;
 export const sgWorld = SGWorld;
 export const sessionManager = SessionManager;
 // export const basePath = "\\\\Skyline_NAS/Data/C-ARMSAS/Axiom/";
-export const basePath = "C:/dev/Github/AxiomSkylineHolotable/dist/Axiom/";
+// export const basePath = "C:/dev/Github/AxiomSkylineHolotable/dist/Axiom/";
+export const basePath = "\\\\192.168.1.5\\Axiom\\DW\\dist\\axiom\\";
+
 
 if (document.readyState === 'complete')
   ProgramManager.getInstance().Init();

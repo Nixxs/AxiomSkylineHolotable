@@ -21,10 +21,10 @@ export class MenuPaging extends Menu {
 
 
     // if it is vertical we need a bit of space at the bottom for the buttons
-    if (this.rows > this.cols) {
-      this.offset = this.buttonSize / 2;
-      anchor.Add(new Vector([0, this.offset, 0]))
-    }
+    // if (this.rows > this.cols) {
+    //   this.offset = this.buttonSize / 2;
+    //   // anchor.Add(new Vector([0, this.offset, 0]))
+    // }
     this.corner = anchor.Copy().Sub(orientation.Apply(new Vector([width * (anchorPosition[0] - (leftAligned ? 0 : 1)), 0, height * (anchorPosition[1] - (topAligned ? 1 : 0))])));
     console.log(`corner ${this.corner.data}`);
     console.log(`xDirection ${this.xDirection.data}`);
@@ -71,9 +71,9 @@ export class MenuPaging extends Menu {
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
       newPos = this.getButtonPosition(0, 0);
-      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - this.offset, newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - this.buttonSize, newPos.data[1] + (this.buttonSize / 2), newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
       newPos = this.getButtonPosition(1, 0);
-      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + this.offset, newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + this.buttonSize, newPos.data[1] + (this.buttonSize / 2), newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
     const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {

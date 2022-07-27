@@ -122,6 +122,7 @@ export const enum UserMode {
   PlaceModel,
   MoveModel,
   DrawLine,
+  DrawPolygon,
   PlaceLabel // when placing a label it will attach to another object
 }
 
@@ -284,6 +285,7 @@ export class UserModeManager {
   public blueRGBA: Array<number> = blueRGBA;
 
   private ModelZScaleFactor: number = 0.25;
+  rectangleColor: string;
 
   constructor() {
     this.measurementLineColor = sgWorld.Creator.CreateColor(255, 255, 0, 255);
@@ -567,25 +569,10 @@ export class UserModeManager {
   }
 
   toggleDrawRectangle(color: string): void {
-    const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
-    const rect = sgWorld.Drawing.DrawRectangle(DrawingMode.DRAW_MODE_MAGNET, grp);
-
-    const onDraw = (_geometry: IGeometry) => {
-      try {
-        sgWorld.DetachEvent("OnDrawingFinished", onDraw);
-        if (!rect || !rect.ID) {
-          console.log("no rectangle");
-          return;
-        };
-        this.undoObjectIds.push(rect.ID);
-        rect.LineStyle.Color = getColorFromString(color)
-
-      } catch (error) {
-        // don't worry
-        console.log(error)
-      }
-    }
-    sgWorld.AttachEvent("OnDrawingFinished", onDraw);
+    this.userMode = UserMode.DrawPolygon;
+    this.drawLineID = undefined;
+    this.drawLineFirstPoint = null;
+    this.rectangleColor = color;
   }
 
   Update() {
@@ -872,6 +859,70 @@ export class UserModeManager {
             ControllerReader.controllerInfos[1].button1Pressed = false;
           }
           break;
+
+        case UserMode.DrawPolygon:
+          if (this.drawLineFirstPoint !== null && this.drawLineID !== null) {
+            // create a new box
+            const polygon = GetObject(this.drawLineID, ObjectTypeCode.OT_POLYGON);
+            if (!polygon) {
+              // fail
+              this.userMode = UserMode.Standard;
+              return;
+            }
+            if (ProgramManager.getInstance().getButton1Pressed(1)) {
+              this.userMode = UserMode.Standard;
+              return; // we are done
+            }
+            const teStartPos = this.drawLineFirstPoint.Copy();
+            const teEndPos = ProgramManager.getInstance().getCursorPosition(1)?.Copy();
+            if (!teEndPos) return;
+            var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry([
+              teStartPos.X, teStartPos.Y, 0,
+              teEndPos.X, teStartPos.Y, 0,
+              teEndPos.X, teEndPos.Y, 0,
+              teStartPos.X, teEndPos.Y, 0,
+              teStartPos.X, teStartPos.Y, 0
+            ]);
+            const drawPolyGeom = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing);
+            polygon.geometry = drawPolyGeom;
+            // const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            // const poly = sgWorld.Creator.CreatePolygon(drawPolyGeom, this.drawLineColor, this.drawLineColor, 2, grp, "__line");
+            // poly.LineStyle.Width = this.drawLineWidth;
+            // this.drawLineID = poly.ID;
+
+          } else if (ProgramManager.getInstance().getButton1Pressed(1)) {
+            // Create the line
+            console.log("new polygon");
+
+            this.drawLineFirstPoint = this.laser1!.collision!.hitPoint.Copy();
+
+            const teStartPos = this.drawLineFirstPoint.Copy();
+            const teEndPos = teStartPos.Copy();
+            teEndPos.X += 0.0001
+            teEndPos.Y += 0.0001
+            var cRing = sgWorld.Creator.GeometryCreator.CreateLinearRingGeometry([
+              teStartPos.X, teStartPos.Y, 0,
+              teEndPos.X, teStartPos.Y, 0,
+              teEndPos.X, teEndPos.Y, 0,
+              teStartPos.X, teEndPos.Y, 0,
+              teStartPos.X, teStartPos.Y, 0
+            ]);
+            const drawPolyGeom = sgWorld.Creator.GeometryCreator.CreatePolygonGeometry(cRing);
+            const grp = ProgramManager.getInstance().getCollaborationFolderID("drawings");
+            const color = getColorFromString(this.rectangleColor);
+            const poly = sgWorld.Creator.CreatePolygon(drawPolyGeom, color, this.drawLineColor, 2, grp, "__line");
+            poly.LineStyle.Width = this.drawLineWidth;
+            this.drawLineID = poly.ID;
+
+            // add the new item to the array so it can be deleted in sequence via the undo button
+            // if you add any other object types into the lineObjects array make sure you handle them in the undo function
+            this.undoObjectIds.push(this.drawLineID);
+            console.log(this.undoObjectIds.toString());
+
+            // consume the button press
+            ControllerReader.controllerInfos[1].button1Pressed = false;
+          }
+
       }
     } catch (error) {
       // for demo we can't have errors
