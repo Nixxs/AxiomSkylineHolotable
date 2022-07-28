@@ -17,6 +17,8 @@ import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
 import { FixedSizeArray } from "./math/fixedSizeArray";
 
+const tableHeight = 0.65;
+
 export class UIManager {
   menusTable: Menu[] = [];
   menusWall: Menu[] = [];
@@ -75,7 +77,7 @@ export class UIManager {
     const wallPos = this.wallPos;; // distance out from wall
 
     // create a sub menu for the bookmarks.
-    const BookmarksMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "BookmarksMenu");
+    const BookmarksMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "BookmarksMenu");
     const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "BookmarksMenu");
     const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
     bookmarkMenus.forEach(m => m.show(false));
@@ -85,11 +87,11 @@ export class UIManager {
 
 
     // sub menu for drawing 
-    const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
-    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
-    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, 0.7, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
+    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
+    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
     drawingMenuTable.createButton("Line", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     drawingMenuTable.addButton(btnBlack);
     drawingMenuTable.addButton(btnGreen);
@@ -102,8 +104,8 @@ export class UIManager {
     this.sharedMenuSpace.push(...drawingMenus)
 
     // tools menu ============
-    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, true, 0.05, 2, 4);
-    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll);
+    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, true, 0.05, 2, 4);
+    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll);
     toolsMenuWall.rows = 2;
     toolsMenuWall.cols = 5;
     toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
@@ -120,7 +122,7 @@ export class UIManager {
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
 
-    const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
     viewMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
@@ -141,7 +143,7 @@ export class UIManager {
     this.menusWall.push(toolsMenuWall);
 
     // orbat menu ============
-    const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05,);
+    const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05,);
     // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
     // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
     //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
@@ -150,7 +152,7 @@ export class UIManager {
     orbatMenuWall.cols = 1
 
     // Sub menus
-    const subMenuOrbatTable = new Menu(0.04, 0.5, new Vector<3>([-0.4, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const subMenuOrbatTable = new Menu(0.04, 0.5, new Vector<3>([-0.4, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
     const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
@@ -164,8 +166,8 @@ export class UIManager {
     this.menusWall.push(orbatMenuWall);
 
     // create the verb menu
-    // const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const VerbsMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "VerbsMenu");
+    // const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
+    const VerbsMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "VerbsMenu");
     const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "VerbsMenu");
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
@@ -175,7 +177,7 @@ export class UIManager {
     this.menusWall.push(VerbsMenuWall);
 
     // show hide verbs menus
-    const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05);
+    const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
     showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
@@ -228,7 +230,7 @@ export class UIManager {
         sgWorld.ProjectTree.SetVisibility(treeItems.CONPLAN, visibilities[6]);
       }
 
-      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_4_mlcoa.xpl2", this.groupId, () => {
+      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_4_mlcoa.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[1] = !visibilities[1];
         visibilities[0] = visibilities[1];
@@ -236,7 +238,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "MLCOA Red");
 
-      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_3_mdcoa.xpl2", this.groupId, () => {
+      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_3_mdcoa.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[2] = !visibilities[2];
         visibilities[0] = visibilities[2];
@@ -244,7 +246,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "MDCOA Red");
 
-      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_2_master.xpl2", this.groupId, () => {
+      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_2_master.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[4] = !visibilities[4];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -253,7 +255,7 @@ export class UIManager {
 
       }, false, "BlueFor Op");
 
-      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_1_decision.xpl2", this.groupId, () => {
+      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_1_decision.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[5] = !visibilities[5];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -262,7 +264,7 @@ export class UIManager {
 
       }, false, "Decision Support");
 
-      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, 0.71, 4, 0, 6), basePath + "ui/BUTTON_0_conplan.xpl2", this.groupId, () => {
+      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_0_conplan.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[6] = !visibilities[6];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -270,7 +272,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "Conplan");
 
-      const menu = new Menu(0.05, 0.4, new Vector<3>([0.4, -1.13, 0.71]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
+      const menu = new Menu(0.05, 0.4, new Vector<3>([0.4, -1.13, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
       menu.addButton(mlcoaRed);
       menu.addButton(mdcoaRed);
       menu.addButton(blueforOp);
@@ -329,7 +331,7 @@ export class UIManager {
     // 4 buttons. black for control measures, red, blue green task measures, 
 
     // control measures menu ============
-    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [-0.5, 0], false, true, false, 0.05, 2, 10, "ControlsMenu");
+    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, false, 0.05, 2, 10, "ControlsMenu");
     const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10, "ControlsMenu");
 
     ControlsMenuTable.show(false);
@@ -339,8 +341,8 @@ export class UIManager {
 
     const menus = [ControlsMenuTable, ControlsMenuWall];
     // show hide verbs menus
-    const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, 0.7]), Quaternion.FromYPR(0, degsToRads(-80), 0), [0, 0], false, true, false, 0.05, 2, 2);
-    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.5, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
+    const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 2, 2);
+    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.5, this.wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
 
 
     showControlsTable.createButton("taskIndicatorsGreen", "TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
@@ -380,7 +382,7 @@ export class UIManager {
     }
 
     const controls: Button[] = [];
-    const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
+    const pos = sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3);
     const groupId = ProgramManager.getInstance().getGroupID("buttons");
 
     controlConfig.ControlModels.forEach((model) => {
@@ -726,7 +728,7 @@ export class UIManager {
       if (deviceType === DeviceType.Wall) {
         pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
       } else {
-        pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), 0.7, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+        pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
       }
 
       const roomPos = roomToWorldCoord(pos);
