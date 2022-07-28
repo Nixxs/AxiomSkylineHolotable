@@ -6,6 +6,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_812REGT.dae",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "8/12 REGT",
@@ -56,6 +60,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "JACKA CT DELTA",
@@ -268,6 +276,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "TIGER CT DELTA",
@@ -476,6 +488,11 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
+      yCount: 6,
       buttons: [
         {
           modelName: "BOAR CT DELTA",
@@ -684,6 +701,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "enemy",
       buttonIcon: "BUTTON_ORBAT_ENEMY_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.1,
+      yspacing: 0.13,
+      xCount: 6,
       buttons: [
         {
           modelName: "Enemy",
@@ -797,6 +818,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_SCALE_MODEL.xpl2",
+      scaleAdjust: 0.15,
+      xspacing: 0.2,
+      yspacing: 0.25,
+      xCount: 2,
       buttons: [
         {
           modelName: "Models",
@@ -838,6 +863,10 @@ export interface IOrbatMenuItem {
   missionType: string;
   forceType: string;
   buttonIcon: string;
+  scaleAdjust: number,
+  xspacing: number,
+  yspacing: number,
+  xCount: number, // size of grid when placing on screen
   buttons: IOrbatSubMenuItem[]
 }
 

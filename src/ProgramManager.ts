@@ -605,6 +605,10 @@ export function deleteItemSafe(id?: string) {
     const object = sgWorld.Creator.GetObject(id);
     if (object) {
       sgWorld.Creator.DeleteObject(id);
+      const idx = ProgramManager.getInstance().userModeManager!.undoObjectIds.indexOf(id);
+      if (idx > -1) {
+        ProgramManager.getInstance().userModeManager!.undoObjectIds.splice(idx, 1)
+      }
     }
   } catch (error) {
     // fine

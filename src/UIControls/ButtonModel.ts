@@ -16,6 +16,7 @@ export class ButtonModel extends Button {
       if (this.ID === undefined) {
         const obj = sgWorld.Creator.CreateModel(pos, basePath + "/ui/blank.xpl2", this.scale, 0, this.groupID, this.name);
         obj.Terrain.Tint = getColorFromString("black", 100);
+        obj.BestLOD = 0;
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
         // create a model and float above
