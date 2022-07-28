@@ -448,9 +448,9 @@ export class UserModeManager {
   }
 
   cleanUpOnChangeMode() {
-    console.log("cleanUpOnChangeMode");
     switch (this.userMode) {
       case UserMode.DrawLine:
+      case UserMode.DrawPolygon:
         deleteItemSafe(this.drawLineID)
         break;
       case UserMode.Measurement:
@@ -521,6 +521,7 @@ export class UserModeManager {
       model.ScaleFactor *= Math.pow(1.2, scaleVector); // 20% larger/smaller increments
       // adam wanted all the models to be shorter
       model.ScaleZ *= this.ModelZScaleFactor;
+      console.log(`model.ScaleFactor ${model.ScaleFactor}`)
     }
   }
 

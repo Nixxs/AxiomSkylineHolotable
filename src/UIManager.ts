@@ -738,10 +738,16 @@ export class UIManager {
         ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
         var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
-
         // scale of models need to be set differently
         if (deviceType === DeviceType.Wall) {
           scaleValue *= 0.5;
+        } else {
+          // if we are less than 1000m use a smaller
+          scaleValue = roomPos.Altitude < 1000 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 0.8;
+        }
+
+        if (deviceType === DeviceType.Desktop) {
+          scaleValue = 0.1
         }
 
         // if the model is a scale model then start it with a smaller scale
@@ -751,6 +757,9 @@ export class UIManager {
         if (modelName.indexOf('abrahms') !== -1) {
           scaleValue *= 0.2;
         }
+
+        console.log(`scale value ${scaleValue}`)
+        console.log(`roomPos.Altitude ${roomPos.Altitude}`)
 
         modelObject.ScaleFactor = scaleValue;
         this.modelsToPlace.push(modelObject);
