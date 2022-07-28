@@ -492,7 +492,6 @@ export const orbatConfig: IOrbatConfig = {
       xspacing: 0.2,
       yspacing: 0.12,
       xCount: 6,
-      yCount: 6,
       buttons: [
         {
           modelName: "BOAR CT DELTA",
