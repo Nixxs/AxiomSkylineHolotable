@@ -13,6 +13,7 @@ export class GpsTracking {
   modelFile = basePath + `model/ScaleModels/Boxer_IFV.xpl2`;
   modelIds: { user: string; id: string; }[] = []
   previousPoints: GpsObject[] = [];
+  modelScaleFactor = 10; // if you need it to be bigger increase this
 
   constructor() {
     this.init();
@@ -70,7 +71,7 @@ export class GpsTracking {
             const grp = ProgramManager.getInstance().getGroupID("TrackedUsers");
             const model = sgWorld.Creator.CreateModel(pos, this.modelFile, 1, 0, grp, location.user);
             this.modelIds.push({ user: location.user, id: model.ID });
-            model.ScaleFactor = 3
+            model.ScaleFactor = this.modelScaleFactor;
           }
         }
       })
