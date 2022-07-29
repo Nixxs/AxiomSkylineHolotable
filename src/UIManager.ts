@@ -33,14 +33,12 @@ export class UIManager {
   wallPos: number = -0.3; // distance out from wall
   buttonSizeWAll = 0.1;
 
-  private orbatScaleFactor: number;
   private verbsMenus: MenuVerbs[] = [];
 
   private sharedMenuSpace: Menu[] = [];
-  private modelsToPlace: ITerrainModel[] = [];
+  private modelsToPlace: string[] = [];
 
   constructor() {
-    this.orbatScaleFactor = 1.2;
   }
 
   Init() {
@@ -78,7 +76,7 @@ export class UIManager {
 
     // create a sub menu for the bookmarks.
     const BookmarksMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "BookmarksMenu");
-    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "BookmarksMenu");
+    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "BookmarksMenu");
     const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
     bookmarkMenus.forEach(m => m.show(false));
     this.sharedMenuSpace.push(...bookmarkMenus)
@@ -88,7 +86,7 @@ export class UIManager {
 
     // sub menu for drawing 
     const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
     const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
     const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
@@ -123,7 +121,7 @@ export class UIManager {
 
 
     const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
     viewMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
     viewMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
@@ -158,7 +156,16 @@ export class UIManager {
     this.menusWall.push(subMenuOrbatWall);
     this.sharedMenuSpace.push(...[subMenuOrbatTable, subMenuOrbatWall])
     orbatConfig.OrbatModels.forEach((model, i) => {
-      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]), model.modelName);
+      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => {
+        if (GetDeviceType() === DeviceType.Wall) {
+          this.onButtonClick("ViewAbove");
+          setTimeout(() => {
+            this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]);
+          }, 300)
+        } else {
+          this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]);
+        }
+      }, model.modelName)
     });
 
     this.menusTable.push(orbatMenuTable);
@@ -168,7 +175,7 @@ export class UIManager {
     // create the verb menu
     // const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const VerbsMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "VerbsMenu");
-    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "VerbsMenu");
+    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "VerbsMenu");
     VerbsMenuTable.show(false);
     VerbsMenuWall.show(false);
     this.verbsMenus = [VerbsMenuTable, VerbsMenuWall];
@@ -178,7 +185,7 @@ export class UIManager {
 
     // show hide verbs menus
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
     showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", this.verbsMenus);
@@ -272,7 +279,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "Conplan");
 
-      const menu = new Menu(0.05, 0.4, new Vector<3>([0.4, -1.13, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
+      const menu = new Menu(0.05, 0.4, new Vector<3>([0.45, -1.13, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
       menu.addButton(mlcoaRed);
       menu.addButton(mdcoaRed);
       menu.addButton(blueforOp);
@@ -301,21 +308,24 @@ export class UIManager {
     const currentMenu = getMenu();
     this.hideOtherMenus(getMenu().menuId)
 
-    menus.forEach(m => m.removeAllButtons())
+    menus.forEach(m => m.removeAllButtons());
+
+    // create a done/remove others button. This will remove any models which have not been moved
+    currentMenu.createButton("Done", "blank.xpl2", () => {
+      this.removeOtherModels();
+      menus.forEach(m => m.removeAllButtons());
+    });
 
     if (menuItems.buttons.length === 1) {
       /// no sub menu items just show the models
-      this.onOrbatModelAdd(menuItems.buttons[0])
+      setTimeout(() => {
+        this.onOrbatModelAdd(menuItems.buttons[0], menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount)
+      }, 300); // give it time to jump
     } else {
-      // create a done/remove others button. This will remove any models which have not been moved
-      currentMenu.createButton("Done", "blank.xpl2", () => {
-        this.removeOtherModels();
-        menus.forEach(m => m.removeAllButtons());
-      });
       // create a menu that has the sub menu items
       menuItems.buttons.forEach(btn => {
         currentMenu.createButton(btn.modelName, btn.buttonIcon, () => {
-          this.onOrbatModelAdd(btn)
+          this.onOrbatModelAdd(btn, menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount)
         }, btn.modelName);
       });
     }
@@ -400,13 +410,6 @@ export class UIManager {
         }
       }
     });
-
-    // for green we need a specific button which allows a rectangle to be drawn
-    if (color === "green") {
-      const buttonRGBA = getColorFromString(color, 150);
-      const btn = new Button("Obstacle Group", pos, basePath + "ui/CM_-_ObstacleGroup.xpl2", groupId, () => this.onButtonClick("Draw:Rectangle"), false, "Obstacle Group", buttonRGBA)
-      controls.push(btn);
-    }
 
     controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0);
 
@@ -554,6 +557,8 @@ export class UIManager {
         m.show(false);
       }
     })
+    // also clear any unplaced models
+    this.removeOtherModels();
   }
 
   changeBasemap() {
@@ -709,26 +714,32 @@ export class UIManager {
   }
 
 
-  onOrbatModelAdd(model: IOrbatSubMenuItem): void {
+  onOrbatModelAdd(model: IOrbatSubMenuItem, xspacing: number, yspacing: number, scaleAdjust: number, xCount: number): void {
+
+    // remove unplaced models
+    this.removeOtherModels();
+
     // add the orbat model to world space in the centre of the screen
     this.modelsToPlace = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
-    model.models.forEach((orbatModel, i) => {
-      const x = Math.floor(i / 6);
-      const y = i % 6;
-      let xspacing = 0.2;
-      let yspacing = 0.12;
-      if (model.forceType === "enemy") {
-        xspacing = 0.1;
-        yspacing = 0.13;
-      }
 
-      var deviceType = GetDeviceType();
+
+    model.models.forEach((orbatModel, i) => {
+      const x = Math.floor(i / xCount);
+      const y = i % xCount;
+      var deviceType = this.GetDeviceTypeOverride();
       var pos;
       if (deviceType === DeviceType.Wall) {
-        pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
+        // pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
+        pos = sgWorld.Creator.CreatePosition(-0.6 + (x * xspacing), -0.2, 1.7 - (y * yspacing), AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, 0, 90);
+        console.log(`pos.X ${pos.X}`)
+        console.log(`pos.Y ${pos.Y}`)
+        console.log(`pos.z ${pos.Altitude}`)
       } else {
         pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+        console.log(`pos.X ${pos.X}`)
+        console.log(`pos.Y ${pos.Y}`)
+        console.log(`pos.z ${pos.Altitude}`)
       }
 
       const roomPos = roomToWorldCoord(pos);
@@ -739,51 +750,33 @@ export class UIManager {
         // add the created model to the undo list
         ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
-        var scaleValue = roomPos.Altitude * this.orbatScaleFactor;
+        var scaleValue = 0;
         // scale of models need to be set differently
         if (deviceType === DeviceType.Wall) {
-          scaleValue *= 0.5;
+          //scaleValue *= 0.5;
+          scaleValue = roomPos.Altitude * 0.1;
+          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
         } else {
           // if we are less than 1000m use a smaller
-          scaleValue = roomPos.Altitude < 1000 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 0.8;
+          scaleValue = roomPos.Altitude < 300 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 1.2;
+          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
         }
 
         if (deviceType === DeviceType.Desktop) {
-          scaleValue = 0.1
-        }
-
-        // if the model is a scale model then start it with a smaller scale
-        var modelName = sgWorld.ProjectTree.GetItemName(modelObject.ID);
-        modelName = modelName.toLocaleLowerCase();
-        // if its an auscam scale model, it should start with a smaller scale because they come in too large and was too hard to edith model file
-        if (modelName.indexOf('abrahms') !== -1) {
-          scaleValue *= 0.2;
+          scaleValue = 0.1 * scaleAdjust
         }
 
         console.log(`scale value ${scaleValue}`)
         console.log(`roomPos.Altitude ${roomPos.Altitude}`)
 
         modelObject.ScaleFactor = scaleValue;
-        this.modelsToPlace.push(modelObject);
+        this.modelsToPlace.push(modelObject.ID);
 
         SetClientData(modelObject, "moved", "false")
       } catch (e) {
         console.log(e);
         console.log("could not add model: " + modelPath);
       }
-
-      // this is to tint models on the way in
-      // if (model.forceType === "enemy"){
-      //   var redRGBA = ProgramManager.getInstance().userModeManager?.redRGBA;
-      //   if (redRGBA !== undefined){
-      //     modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(redRGBA[0], redRGBA[1], redRGBA[2], redRGBA[3]);
-      //   }
-      // } else {
-      //   var blueRGBA = ProgramManager.getInstance().userModeManager?.blueRGBA;
-      //   if (blueRGBA !== undefined){
-      //     modelObject.Terrain.Tint = sgWorld.Creator.CreateColor(blueRGBA[0], blueRGBA[1], blueRGBA[2], blueRGBA[3]);
-      //   }
-      // }
     });
 
   }
@@ -791,9 +784,8 @@ export class UIManager {
   removeOtherModels() {
     // removes the orbat models which have not been moved
     console.log("removeOtherModels")
-    this.modelsToPlace.forEach(m => {
-
-      const model = GetObject(m.ID, ObjectTypeCode.OT_MODEL);
+    this.modelsToPlace.forEach(id => {
+      const model = GetObject(id, ObjectTypeCode.OT_MODEL);
       if (model) {
         if (model.ClientData("moved") === "false") {
           deleteItemSafe(model.ID);

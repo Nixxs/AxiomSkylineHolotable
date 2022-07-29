@@ -1,11 +1,73 @@
 export const orbatConfig: IOrbatConfig = {
   OrbatModels: [
     {
+      modelName: "CT Scorpion",
+      modelType: "orbat",
+      missionType: "na",
+      forceType: "friendly",
+      buttonIcon: "OrbatScorpion/Scorp3.xpl2",
+      scaleAdjust: 0.1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
+      buttons: [
+        {
+          modelName: "Scorpion",
+          modelType: "orbat",
+          missionType: "na",
+          forceType: "friendly",
+          buttonIcon: "BUTTON_ORBAT_FRIENDLY_HQ.xpl2",
+          models: [
+            {
+              modelFile: "OrbatScorpion/Scorp1.xpl2",
+              modelName: "Orbat_Scorp1"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp2.xpl2",
+              modelName: "Orbat_Scorp2"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp3.xpl2",
+              modelName: "Orbat_Scorp3"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp4.xpl2",
+              modelName: "Orbat_Scorp4"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp5.xpl2",
+              modelName: "Orbat_Scorp5"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp6.xpl2",
+              modelName: "Orbat_Scorp6"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp7.xpl2",
+              modelName: "Orbat_Scorp7"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp8.xpl2",
+              modelName: "Orbat_Scorp8"
+            },
+            {
+              modelFile: "OrbatScorpion/Scorp9.xpl2",
+              modelName: "Orbat_Scorp9"
+            },
+          ]
+        }
+      ]
+    },
+    {
       modelName: "8/12 REGT",
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_812REGT.dae",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "8/12 REGT",
@@ -56,6 +118,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "JACKA CT DELTA",
@@ -268,6 +334,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_5_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "TIGER CT DELTA",
@@ -476,6 +546,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_FRIENDLY_7_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.2,
+      yspacing: 0.12,
+      xCount: 6,
       buttons: [
         {
           modelName: "BOAR CT DELTA",
@@ -684,6 +758,10 @@ export const orbatConfig: IOrbatConfig = {
       missionType: "na",
       forceType: "enemy",
       buttonIcon: "BUTTON_ORBAT_ENEMY_HQ.xpl2",
+      scaleAdjust: 1,
+      xspacing: 0.1,
+      yspacing: 0.13,
+      xCount: 6,
       buttons: [
         {
           modelName: "Enemy",
@@ -791,12 +869,17 @@ export const orbatConfig: IOrbatConfig = {
           ]
         }
       ]
-    }, {
+    },
+    {
       modelName: "Models",
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
       buttonIcon: "BUTTON_ORBAT_SCALE_MODEL.xpl2",
+      scaleAdjust: 0.15,
+      xspacing: 0.2,
+      yspacing: 0.25,
+      xCount: 2,
       buttons: [
         {
           modelName: "Models",
@@ -810,16 +893,16 @@ export const orbatConfig: IOrbatConfig = {
               modelName: "M1A1 Abrahms"
             },
             {
-              modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
-              modelName: "M1A1 Abrahms"
+              modelFile: "ScaleModels/Boxer_IFV.xpl2",
+              modelName: "Boxer IFV"
             },
             {
-              modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
-              modelName: "M1A1 Abrahms"
+              modelFile: "ScaleModels/tiger.xpl2",
+              modelName: "Eurocopter"
             },
             {
-              modelFile: "ScaleModels/M1A1-Auscam texture_4.xpl2",
-              modelName: "M1A1 Abrahms"
+              modelFile: "ScaleModels/M1Abram.xpl2",
+              modelName: "M1A1 Abram"
             }
           ]
         }
@@ -838,6 +921,10 @@ export interface IOrbatMenuItem {
   missionType: string;
   forceType: string;
   buttonIcon: string;
+  scaleAdjust: number,
+  xspacing: number,
+  yspacing: number,
+  xCount: number, // size of grid when placing on screen
   buttons: IOrbatSubMenuItem[]
 }
 
