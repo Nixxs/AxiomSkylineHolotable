@@ -53,6 +53,24 @@ export const orbatConfig: IOrbatConfig = {
             {
               modelFile: "OrbatScorpion/Scorp9.xpl2",
               modelName: "Orbat_Scorp9"
+            }, {
+              modelFile: "OrbatScorpion/Scorp10.xpl2",
+              modelName: "Orbat_Scorp10"
+            }, {
+              modelFile: "OrbatScorpion/Scorp11.xpl2",
+              modelName: "Orbat_Scorp11"
+            }, {
+              modelFile: "OrbatScorpion/Scorp12.xpl2",
+              modelName: "Orbat_Scorp12"
+            }, {
+              modelFile: "OrbatScorpion/Scorp13.xpl2",
+              modelName: "Orbat_Scorp13"
+            }, {
+              modelFile: "OrbatScorpion/Scorp14.xpl2",
+              modelName: "Orbat_Scorp14"
+            }, {
+              modelFile: "OrbatScorpion/Scorp15.xpl2",
+              modelName: "Orbat_Scorp15"
             },
           ]
         }
