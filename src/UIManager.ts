@@ -715,6 +715,10 @@ export class UIManager {
 
 
   onOrbatModelAdd(model: IOrbatSubMenuItem, xspacing: number, yspacing: number, scaleAdjust: number, xCount: number): void {
+
+    // remove unplaced models
+    this.removeOtherModels();
+
     // add the orbat model to world space in the centre of the screen
     this.modelsToPlace = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
@@ -723,15 +727,19 @@ export class UIManager {
     model.models.forEach((orbatModel, i) => {
       const x = Math.floor(i / xCount);
       const y = i % xCount;
-      var deviceType = GetDeviceType();
+      var deviceType = this.GetDeviceTypeOverride();
       var pos;
       if (deviceType === DeviceType.Wall) {
         // pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
         pos = sgWorld.Creator.CreatePosition(-0.6 + (x * xspacing), -0.2, 1.7 - (y * yspacing), AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, 0, 90);
         console.log(`pos.X ${pos.X}`)
         console.log(`pos.Y ${pos.Y}`)
+        console.log(`pos.z ${pos.Altitude}`)
       } else {
         pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+        console.log(`pos.X ${pos.X}`)
+        console.log(`pos.Y ${pos.Y}`)
+        console.log(`pos.z ${pos.Altitude}`)
       }
 
       const roomPos = roomToWorldCoord(pos);
@@ -747,15 +755,15 @@ export class UIManager {
         if (deviceType === DeviceType.Wall) {
           //scaleValue *= 0.5;
           scaleValue = roomPos.Altitude * 0.1;
-          scaleValue *= scaleAdjust;
+          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
         } else {
           // if we are less than 1000m use a smaller
-          scaleValue = roomPos.Altitude < 1000 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 0.8;
-          scaleValue *= scaleAdjust;
+          scaleValue = roomPos.Altitude < 300 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 1.2;
+          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
         }
 
         if (deviceType === DeviceType.Desktop) {
-          scaleValue = 0.1
+          scaleValue = 0.1 * scaleAdjust
         }
 
         console.log(`scale value ${scaleValue}`)
