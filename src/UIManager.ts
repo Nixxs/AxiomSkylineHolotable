@@ -16,6 +16,7 @@ import { getColorFromString, UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
 import { FixedSizeArray } from "./math/fixedSizeArray";
+import { GpsTracking } from "./GpsTracking";
 
 const tableHeight = 0.65;
 
@@ -39,6 +40,7 @@ export class UIManager {
   private modelsToPlace: string[] = [];
 
   constructor() {
+    new GpsTracking();
   }
 
   Init() {
