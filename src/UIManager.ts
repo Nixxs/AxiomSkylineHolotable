@@ -90,9 +90,9 @@ export class UIManager {
     const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
-    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
-    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/CM_-_ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
-    drawingMenuTable.createButton("Line", "add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
+    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
+    drawingMenuTable.createButton("Line", "Buttons/AddLine.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     drawingMenuTable.addButton(btnBlack);
     drawingMenuTable.addButton(btnGreen);
     drawingMenuTable.show(false);
@@ -108,27 +108,26 @@ export class UIManager {
     const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll);
     toolsMenuWall.rows = 2;
     toolsMenuWall.cols = 5;
-    toolsMenuTable.createButton("Undo", "undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
-    toolsMenuTable.createButton("Delete", "delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
-    toolsMenuTable.createButton("ScaleModelUp", "plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
-    toolsMenuTable.createButton("ScaleModelDown", "minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
-    toolsMenuTable.createButton("Draw", "add_line.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
-    toolsMenuTable.createButton("Measure", "measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("Basemap", "BUTTON_BASEMAP.dae", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
-    toolsMenuTable.createButton("NextBookmark", "BUTTON_Bookmark_Next.xpl2", (id) => {
+    toolsMenuTable.createButton("Undo", "Buttons/Undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
+    toolsMenuTable.createButton("Delete", "Buttons/Delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
+    toolsMenuTable.createButton("ScaleModelUp", "Buttons/Plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
+    toolsMenuTable.createButton("ScaleModelDown", "Buttons/Minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
+    toolsMenuTable.createButton("Draw", "Buttons/AddLine.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
+    toolsMenuTable.createButton("Measure", "Buttons/Measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
+    toolsMenuTable.createButton("Basemap", "Buttons/Basemap.dae", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
+    toolsMenuTable.createButton("NextBookmark", "Buttons/BookmarkNext.xpl2", (id) => {
       this.onBookmarkShow(bookmarkMenus)
     }, "Show bookmarks");
 
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
-
     const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
-    viewMenuWall.createButton("ViewAbove", "BUTTON_NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
-    viewMenuWall.createButton("ViewOblique", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
-    viewMenuWall.createButton("Pitch Down", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
-    viewMenuWall.createButton("Pitch Up", "BUTTON_OBLIQUE.dae", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
+    viewMenuWall.createButton("ViewAbove", "Buttons/NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
+    viewMenuWall.createButton("ViewOblique", "Buttons/Oblique.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
+    viewMenuWall.createButton("Pitch Down", "Buttons/Oblique.dae", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
+    viewMenuWall.createButton("Pitch Up", "Buttons/Oblique.dae", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
     viewMenuTable.show(false);
     viewMenuWall.show(false);
     viewMenuTable.buttons.forEach(b => viewMenuWall.addButton(b));
@@ -137,8 +136,7 @@ export class UIManager {
     this.menusWall.push(viewMenuWall);
     this.sharedMenuSpace.push(...viewMenus)
 
-
-    toolsMenuWall.createButton("View", "BUTTON_OBLIQUE.dae", (id) => this.onViewShow(viewMenus), "View");
+    toolsMenuWall.createButton("View", "Buttons/Oblique.dae", (id) => this.onViewShow(viewMenus), "View");
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
@@ -189,16 +187,16 @@ export class UIManager {
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
-    showVerbsTable.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
+    showVerbsTable.createButton("TaskVerbs", "Buttons/TaskVerb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
-    showVerbsTable.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
+    showVerbsTable.createButton("MissionTaskVerbs", "Buttons/MissionVerb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
-    showVerbsWall.createButton("TaskVerbs", "BUTTON_Task_Verb.xpl2", () => {
+    showVerbsWall.createButton("TaskVerbs", "Buttons/TaskVerb.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
-    showVerbsWall.createButton("MissionTaskVerbs", "BUTTON_Mission_Verb.xpl2", () => {
+    showVerbsWall.createButton("MissionTaskVerbs", "Buttons/MissionVerb.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
     this.menusTable.push(showVerbsTable);
@@ -239,7 +237,7 @@ export class UIManager {
         sgWorld.ProjectTree.SetVisibility(treeItems.CONPLAN, visibilities[6]);
       }
 
-      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_4_mlcoa.xpl2", this.groupId, () => {
+      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/MLCOA.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[1] = !visibilities[1];
         visibilities[0] = visibilities[1];
@@ -247,7 +245,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "MLCOA Red");
 
-      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_3_mdcoa.xpl2", this.groupId, () => {
+      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/MDCOA.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[2] = !visibilities[2];
         visibilities[0] = visibilities[2];
@@ -255,7 +253,7 @@ export class UIManager {
         setVisibilities(visibilities);
       }, false, "MDCOA Red");
 
-      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_2_master.xpl2", this.groupId, () => {
+      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Master.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[4] = !visibilities[4];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -264,7 +262,7 @@ export class UIManager {
 
       }, false, "BlueFor Op");
 
-      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_1_decision.xpl2", this.groupId, () => {
+      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Decision.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[5] = !visibilities[5];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -273,7 +271,7 @@ export class UIManager {
 
       }, false, "Decision Support");
 
-      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/BUTTON_0_conplan.xpl2", this.groupId, () => {
+      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Conplan.xpl2", this.groupId, () => {
         const visibilities = getVisibilities();
         visibilities[6] = !visibilities[6];
         visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
@@ -357,10 +355,10 @@ export class UIManager {
     const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.5, this.wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
 
 
-    showControlsTable.createButton("taskIndicatorsGreen", "TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
-    showControlsTable.createButton("taskIndicatorsBlue", "TaskIndicatorsBlue.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
-    showControlsTable.createButton("controlMeasures", "controlMeasures.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
-    showControlsTable.createButton("taskIndicatorsRed", "TaskIndicatorsRed.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsGreen", "Buttons/TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
+    showControlsTable.createButton("taskIndicatorsBlue", "Buttons/TaskIndicatorsBlue.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
+    showControlsTable.createButton("controlMeasures", "Buttons/ControlMeasures.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
+    showControlsTable.createButton("taskIndicatorsRed", "Buttons/TaskIndicatorsRed.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
 
 
     showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));

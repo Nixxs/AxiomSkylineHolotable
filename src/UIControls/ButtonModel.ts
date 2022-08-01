@@ -1,7 +1,7 @@
 import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
 import { ControllerReader } from "../ControllerReader";
-import { deleteItemSafe, GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
+import { deleteItemSafe, GetObject, roomToWorldCoord } from "../ProgramManager";
 import { getColorFromString } from "../UserManager";
 
 export class ButtonModel extends Button {

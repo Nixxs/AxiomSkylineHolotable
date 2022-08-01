@@ -1,7 +1,6 @@
 import { basePath, sgWorld } from "./Axiom";
 import { GetObject, ProgramManager } from "./ProgramManager";
 
-
 /**
  * Android app reports locations to an endpoint
  *
@@ -27,34 +26,34 @@ export class GpsTracking {
     }, 1000);
   }
 
-  getLocation(): Promise<GpsObject[]> {
-    return new Promise((resolve) => {
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          // sadly this response is horribly structured. Should have been an array...
-          const data = JSON.parse(this.response);
-          const newData = []
-          for (var key in data) {
-            newData.push({
-              user: key.split(":")[1].trim(),
-              position: data[key]
-            });
-          }
-          // console.log(JSON.stringify(newData))
-          resolve(newData)
+  getLocation(): { then: (callback: (data: GpsObject[]) => void) => void } {
+    const xhr = new XMLHttpRequest();
+    let callback: undefined | ((data: GpsObject[]) => void);
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        // sadly this response is horribly structured. Should have been an array...
+        const data = JSON.parse(this.response);
+        const newData = []
+        for (let key in data) {
+          newData.push({
+            user: key.split(":")[1].trim(),
+            position: data[key]
+          });
         }
-      };
-      xhr.open("GET", this.jsonURL, false);
-      xhr.send();
-    })
-
+        callback?.(newData);
+      }
+    };
+    xhr.open("GET", this.jsonURL, false);
+    xhr.send();
+    return {
+      then: (newCallback: (data: GpsObject[]) => void) => {
+        callback = newCallback;
+      }
+    }
   }
-
 
   updateLocation(locations: GpsObject[]) {
     try {
-
       locations.forEach((location) => {
         if (location.user !== "36ad9289e2eeaf1f") { // no idea who this is and they are in perth
           const pos = sgWorld.Creator.CreatePosition(location.position.longitude, location.position.latitude, 10, AltitudeTypeCode.ATC_TERRAIN_RELATIVE);

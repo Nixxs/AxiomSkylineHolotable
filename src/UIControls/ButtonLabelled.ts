@@ -11,6 +11,7 @@ export class ButtonLabelled extends Button {
     const pos = roomToWorldCoord(this.roomPosition);
     if (this.ID === undefined) {
       const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+      obj.BestLOD = 0;
       this.ID = obj.ID;
       const labelStyle = sgWorld.Creator.CreateLabelStyle(0);
       labelStyle.TextAlignment = "Left";
