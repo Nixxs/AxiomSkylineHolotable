@@ -68,9 +68,10 @@ export class MenuPaging extends Menu {
 
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
-      const LVec = this.getButtonPosition(-1 + 0.5, 0 + 0.5);
+      // These positions assume there is one doubly wide column
+      const LVec = this.getButtonPosition(-1, 0 + 0.5);
       posL = sgWorld.Creator.CreatePosition(LVec.data[0], LVec.data[1], LVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      const RVec = this.getButtonPosition(1 + 0.5, 0 + 0.5);
+      const RVec = this.getButtonPosition(2, 0 + 0.5);
       posR = sgWorld.Creator.CreatePosition(RVec.data[0], RVec.data[1], RVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     } else {
       const LVec = this.getButtonPosition(-1 + 0.5, ((this.rows - 1) / 2) + 0.5);
