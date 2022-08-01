@@ -88,7 +88,7 @@ export class UIManager {
 
     // sub menu for drawing 
     const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
     const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/blackSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group")
     const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/greenSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group")
@@ -122,7 +122,7 @@ export class UIManager {
     toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
 
     const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
     viewMenuWall.createButton("ViewAbove", "Buttons/NADIR.xpl2", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
     viewMenuWall.createButton("ViewOblique", "Buttons/Oblique.xpl2", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
@@ -145,13 +145,13 @@ export class UIManager {
     // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
     // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
     //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
-    const orbatMenuWall = new Menu(0.4, 0.6, new Vector<3>([wallLhs, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
-    orbatMenuWall.rows = 6;
-    orbatMenuWall.cols = 1
+    const orbatMenuWall = new Menu(0.4, 0.6, new Vector<3>([wallLhs, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    orbatMenuWall.rows = 7;
+    orbatMenuWall.cols = 1;
 
     // Sub menus
     const subMenuOrbatTable = new Menu(0.04, 0.5, new Vector<3>([-0.4, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
-    const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+    const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
     this.menusTable.push(subMenuOrbatTable);
     this.menusWall.push(subMenuOrbatWall);
     this.sharedMenuSpace.push(...[subMenuOrbatTable, subMenuOrbatWall])
