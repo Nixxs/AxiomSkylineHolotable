@@ -5,7 +5,7 @@ export const orbatConfig: IOrbatConfig = {
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
-      buttonIcon: "ORBAT/Scorp3.xpl2",
+      buttonIcon: "ORBAT/Scorp.xpl2",
       scaleAdjust: 0.1,
       xspacing: 0.2,
       yspacing: 0.12,
@@ -16,7 +16,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_HQ.xpl2",
+          buttonIcon: "ORBAT/Scorp.xpl2",
           models: [
             {
               modelFile: "OrbatScorpion/Scorp1.xpl2",
@@ -81,7 +81,7 @@ export const orbatConfig: IOrbatConfig = {
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
-      buttonIcon: "ORBAT/812REGT.dae",
+      buttonIcon: "ORBAT/812regt.xpl2",
       scaleAdjust: 1,
       xspacing: 0.2,
       yspacing: 0.12,
@@ -92,7 +92,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/812REGT.dae",
+          buttonIcon: "ORBAT/812regt.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_I_CSS.dae",
@@ -135,7 +135,7 @@ export const orbatConfig: IOrbatConfig = {
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
-      buttonIcon: "ORBAT/FRIENDLY_BG_JACKA_HQ.xpl2",
+      buttonIcon: "ORBAT/BGHQ.xpl2",
       scaleAdjust: 1,
       xspacing: 0.2,
       yspacing: 0.12,
@@ -146,7 +146,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_BG_JACKA_CTD.xpl2",
+          buttonIcon: "ORBAT/BGCTD.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
@@ -200,7 +200,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_BG_JACKA_CTC.xpl2",
+          buttonIcon: "ORBAT/BGCTC.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
@@ -250,7 +250,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_BG_JACKA_CTB.xpl2",
+          buttonIcon: "ORBAT/BGCTB.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
@@ -300,7 +300,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_BG_JACKA_CTA.xpl2",
+          buttonIcon: "ORBAT/BGCTA.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_BG_JACKA_HQ.xpl2",
@@ -351,7 +351,7 @@ export const orbatConfig: IOrbatConfig = {
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
-      buttonIcon: "ORBAT/FRIENDLY_5_HQ.xpl2",
+      buttonIcon: "ORBAT/5HQ.xpl2",
       scaleAdjust: 1,
       xspacing: 0.2,
       yspacing: 0.12,
@@ -362,7 +362,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_5_CTD.xpl2",
+          buttonIcon: "ORBAT/5CTD.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
@@ -412,7 +412,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_5_CTC.xpl2",
+          buttonIcon: "ORBAT/5CTC.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
@@ -462,7 +462,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_5_CTB.xpl2",
+          buttonIcon: "ORBAT/5CTB.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
@@ -512,7 +512,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_5_CTA.xpl2",
+          buttonIcon: "ORBAT/5CTA.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_5_HQ.xpl2",
@@ -563,7 +563,7 @@ export const orbatConfig: IOrbatConfig = {
       modelType: "orbat",
       missionType: "na",
       forceType: "friendly",
-      buttonIcon: "ORBAT/FRIENDLY_7_HQ.xpl2",
+      buttonIcon: "ORBAT/7HQ.xpl2",
       scaleAdjust: 1,
       xspacing: 0.2,
       yspacing: 0.12,
@@ -574,7 +574,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_7_CTD.xpl2",
+          buttonIcon: "ORBAT/7CTD.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
@@ -624,7 +624,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_7_CTC.xpl2",
+          buttonIcon: "ORBAT/7CTC.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
@@ -674,7 +674,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_7_CTB.xpl2",
+          buttonIcon: "ORBAT/7CTB.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
@@ -724,7 +724,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_7_CTA.xpl2",
+          buttonIcon: "ORBAT/7CTA.xpl2",
           models: [
             {
               modelFile: "OrbatFriendly/ORBAT_ORBAT_FRIENDLY_7_HQ.xpl2",
@@ -786,7 +786,7 @@ export const orbatConfig: IOrbatConfig = {
           modelType: "orbat",
           missionType: "na",
           forceType: "friendly",
-          buttonIcon: "ORBAT/FRIENDLY_HQ.xpl2",
+          buttonIcon: "ORBAT/ENEMY_HQ.xpl2",
           models: [
             {
               modelFile: "OrbatEnemy/ORBAT_Enemy_1_XW_X.obj",

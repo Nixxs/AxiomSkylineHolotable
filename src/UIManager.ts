@@ -90,9 +90,9 @@ export class UIManager {
     const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
-    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group", getColorFromString("black", 150))
-    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/ObstacleGroup.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group", getColorFromString("green", 150))
-    drawingMenuTable.createButton("Line", "Buttons/AddLine.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
+    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/blackSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group")
+    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/greenSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group")
+    drawingMenuTable.createButton("Line", "Buttons/add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
     drawingMenuTable.addButton(btnBlack);
     drawingMenuTable.addButton(btnGreen);
     drawingMenuTable.show(false);
@@ -112,10 +112,10 @@ export class UIManager {
     toolsMenuTable.createButton("Delete", "Buttons/Delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
     toolsMenuTable.createButton("ScaleModelUp", "Buttons/Plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
     toolsMenuTable.createButton("ScaleModelDown", "Buttons/Minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
-    toolsMenuTable.createButton("Draw", "Buttons/AddLine.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
+    toolsMenuTable.createButton("Draw", "Buttons/add_line.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
     toolsMenuTable.createButton("Measure", "Buttons/Measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("Basemap", "Buttons/Basemap.dae", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
-    toolsMenuTable.createButton("NextBookmark", "Buttons/BookmarkNext.xpl2", (id) => {
+    toolsMenuTable.createButton("Basemap", "Buttons/Basemap.xpl2", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
+    toolsMenuTable.createButton("NextBookmark", "Buttons/next_bookmark.xpl2", (id) => {
       this.onBookmarkShow(bookmarkMenus)
     }, "Show bookmarks");
 
@@ -124,10 +124,10 @@ export class UIManager {
     const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
     const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.9]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
 
-    viewMenuWall.createButton("ViewAbove", "Buttons/NADIR.dae", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
-    viewMenuWall.createButton("ViewOblique", "Buttons/Oblique.dae", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
-    viewMenuWall.createButton("Pitch Down", "Buttons/Oblique.dae", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
-    viewMenuWall.createButton("Pitch Up", "Buttons/Oblique.dae", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
+    viewMenuWall.createButton("ViewAbove", "Buttons/NADIR.xpl2", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
+    viewMenuWall.createButton("ViewOblique", "Buttons/Oblique.xpl2", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
+    viewMenuWall.createButton("Pitch Down", "Buttons/LookDown.xpl2", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
+    viewMenuWall.createButton("Pitch Up", "Buttons/LookUp.xpl2", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
     viewMenuTable.show(false);
     viewMenuWall.show(false);
     viewMenuTable.buttons.forEach(b => viewMenuWall.addButton(b));
@@ -136,7 +136,7 @@ export class UIManager {
     this.menusWall.push(viewMenuWall);
     this.sharedMenuSpace.push(...viewMenus)
 
-    toolsMenuWall.createButton("View", "Buttons/Oblique.dae", (id) => this.onViewShow(viewMenus), "View");
+    toolsMenuWall.createButton("View", "Buttons/View.xpl2", (id) => this.onViewShow(viewMenus), "View");
     this.menusTable.push(toolsMenuTable);
     this.menusWall.push(toolsMenuWall);
 
@@ -187,16 +187,16 @@ export class UIManager {
     const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
     const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
 
-    showVerbsTable.createButton("TaskVerbs", "Buttons/TaskVerb.xpl2", () => {
+    showVerbsTable.createButton("TaskVerbs", "Buttons/TV.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
-    showVerbsTable.createButton("MissionTaskVerbs", "Buttons/MissionVerb.xpl2", () => {
+    showVerbsTable.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
-    showVerbsWall.createButton("TaskVerbs", "Buttons/TaskVerb.xpl2", () => {
+    showVerbsWall.createButton("TaskVerbs", "Buttons/TV.xpl2", () => {
       this.onVerbMenuShow("TaskVerb", this.verbsMenus);
     }, "Task Verbs")
-    showVerbsWall.createButton("MissionTaskVerbs", "Buttons/MissionVerb.xpl2", () => {
+    showVerbsWall.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => {
       this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
     }, "Mission Task Verbs");
     this.menusTable.push(showVerbsTable);
@@ -311,7 +311,7 @@ export class UIManager {
     menus.forEach(m => m.removeAllButtons());
 
     // create a done/remove others button. This will remove any models which have not been moved
-    currentMenu.createButton("Done", "blank.xpl2", () => {
+    currentMenu.createButton("Done", "Buttons/Done.xpl2", () => {
       this.removeOtherModels();
       menus.forEach(m => m.removeAllButtons());
     });
@@ -357,7 +357,7 @@ export class UIManager {
 
     showControlsTable.createButton("taskIndicatorsGreen", "Buttons/TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
     showControlsTable.createButton("taskIndicatorsBlue", "Buttons/TaskIndicatorsBlue.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
-    showControlsTable.createButton("controlMeasures", "Buttons/ControlMeasures.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
+    showControlsTable.createButton("controlMeasures", "Buttons/CM.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
     showControlsTable.createButton("taskIndicatorsRed", "Buttons/TaskIndicatorsRed.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
 
 
@@ -810,7 +810,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+    //return GetDeviceType();
     // when testing on desktop you can use this to change the view
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;
