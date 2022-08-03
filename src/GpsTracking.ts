@@ -13,6 +13,7 @@ export class GpsTracking {
   modelFile = basePath + `model/ScaleModels/Boxer_IFV.xpl2`;
   modelIds: { user: string; id: string; }[] = []
   previousPoints: GpsObject[] = [];
+  modelScaleFactor = 10; // if you need it to be bigger increase this
 
   constructor() {
     this.init();
@@ -24,7 +25,7 @@ export class GpsTracking {
       this.getLocation().then(gps => {
         this.updateLocation(gps)
       })
-    }, 1000);
+    }, 5000);
   }
 
   getLocation(): Promise<GpsObject[]> {
@@ -54,23 +55,47 @@ export class GpsTracking {
 
   updateLocation(locations: GpsObject[]) {
     try {
-
+      if (this.previousPoints.length === 0) this.previousPoints = locations;
       locations.forEach((location) => {
         if (location.user !== "36ad9289e2eeaf1f") { // no idea who this is and they are in perth
           const pos = sgWorld.Creator.CreatePosition(location.position.longitude, location.position.latitude, 10, AltitudeTypeCode.ATC_TERRAIN_RELATIVE);
           const modelId = this.modelIds.filter((m) => m.user === location.user);
           if (modelId.length > 0) {
-            const model = GetObject(modelId[0].id, ObjectTypeCode.OT_MODEL);
-            if (model) {
-              model.Position = pos;
-              model.Position.Yaw = this.getBearing(location)
+            // delta x
+            const points = this.previousPoints.filter(p => p.user === location.user);
+            const deltaX = location.position.longitude - points[0].position.longitude;
+            const deltaY = location.position.latitude - points[0].position.latitude;
+            // 5 seconds between updates
+            const changeX = deltaX / 400;
+            const changeY = deltaY / 400;
+            if (changeX !== 0 && changeY !== 0) {
+              console.log(`changeX ${changeX}`)
+              let model = GetObject(modelId[0].id, ObjectTypeCode.OT_MODEL);
+              if (model) {
+                for (let index = 0; index < 100; index++) {
+                  this.sleep(100).then(() => {
+                    if (model) {
+                      if (model.Position.X !== location.position.longitude) {
+                        model.Position.X += changeX;
+                      }
+                      if (model.Position.Y !== location.position.latitude) {
+                        model.Position.Y += changeY;
+                      }
+                    }
+                  })
+                }
+
+                model.Position.Yaw = this.getBearing(location)
+              }
+
             }
+
           } else {
             // create a new model
             const grp = ProgramManager.getInstance().getGroupID("TrackedUsers");
             const model = sgWorld.Creator.CreateModel(pos, this.modelFile, 1, 0, grp, location.user);
             this.modelIds.push({ user: location.user, id: model.ID });
-            model.ScaleFactor = 3
+            model.ScaleFactor = this.modelScaleFactor;
           }
         }
       })
@@ -78,6 +103,10 @@ export class GpsTracking {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   getBearing(currentPoint: GpsObject) {
