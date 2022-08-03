@@ -349,4 +349,4 @@ MigrationBackup/
 .ionide/
 dist/**/*.js
 !dist/Axiom/polyfill.min.js
-!dist/Axiom/require.js
+!dist/Axiom/libs/**/*.js
