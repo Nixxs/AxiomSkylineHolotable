@@ -63,13 +63,18 @@ export class GpsTracking {
           if (modelId.length > 0) {
             // delta x
             const points = this.previousPoints.filter(p => p.user === location.user);
+            // something is going wrong. occasional nan
+            if (!location.position.longitude || !location.position.latitude) {
+              location.position.longitude = points[0].position.longitude;
+              location.position.latitude = points[0].position.latitude;
+            }
             const deltaX = location.position.longitude - points[0].position.longitude;
             const deltaY = location.position.latitude - points[0].position.latitude;
             // 5 seconds between updates
             const changeX = deltaX / 400;
             const changeY = deltaY / 400;
             if (changeX !== 0 && changeY !== 0) {
-              console.log(`changeX ${changeX}`)
+              console.log(`${location.user} deltaX ${Math.round(deltaX * 100) / 100} deltaY ${Math.round(deltaY * 100) / 100}`)
               let model = GetObject(modelId[0].id, ObjectTypeCode.OT_MODEL);
               if (model) {
                 for (let index = 0; index < 100; index++) {
@@ -84,7 +89,11 @@ export class GpsTracking {
                     }
                   })
                 }
-
+                // something is going wrong. occasional nan
+                if (!location.position.longitude || !location.position.latitude) {
+                  location.position.longitude = points[0].position.longitude;
+                  location.position.latitude = points[0].position.latitude;
+                }
                 model.Position.Yaw = this.getBearing(location)
               }
 
@@ -101,6 +110,7 @@ export class GpsTracking {
       })
       this.previousPoints = locations;
     } catch (error) {
+      console.log("updateLocation error")
       console.log(error)
     }
   }
