@@ -27,30 +27,26 @@ export class GpsTracking {
     }, 5000);
   }
 
-  getLocation(): { then: (callback: (data: GpsObject[]) => void) => void } {
-    const xhr = new XMLHttpRequest();
-    let callback: undefined | ((data: GpsObject[]) => void);
-    xhr.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        // sadly this response is horribly structured. Should have been an array...
-        const data = JSON.parse(this.response);
-        const newData = []
-        for (let key in data) {
-          newData.push({
-            user: key.split(":")[1].trim(),
-            position: data[key]
-          });
+  getLocation(): Promise<GpsObject[]> {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          // sadly this response is horribly structured. Should have been an array...
+          const data = JSON.parse(this.response);
+          const newData = [];
+          for (let key in data) {
+            newData.push({
+              user: key.split(":")[1].trim(),
+              position: data[key]
+            });
+          }
+          resolve(newData);
         }
-        callback?.(newData);
-      }
-    };
-    xhr.open("GET", this.jsonURL, false);
-    xhr.send();
-    return {
-      then: (newCallback: (data: GpsObject[]) => void) => {
-        callback = newCallback;
-      }
-    }
+      };
+      xhr.open("GET", this.jsonURL, false);
+      xhr.send();
+    });
   }
 
   updateLocation(locations: GpsObject[]) {
