@@ -225,7 +225,6 @@ function showTooltipIntersected(laser: Laser) {
 function highlightById(highlight: boolean, oid?: string): void {
   const model = GetObject(oid, ObjectTypeCode.OT_MODEL);
   if (model && oid) {
-
     if (highlight) {
       if (highlightedId != oid) {
         let deltaA = -50; // make it slightly lighter
