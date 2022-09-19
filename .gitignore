@@ -348,3 +348,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 dist/**/*.js
+!dist/Axiom/polyfill.min.js
+!dist/Axiom/libs/**/*.js
