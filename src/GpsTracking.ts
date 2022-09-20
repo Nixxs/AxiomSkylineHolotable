@@ -1,7 +1,6 @@
 import { basePath, sgWorld } from "./Axiom";
 import { GetObject, ProgramManager } from "./ProgramManager";
 
-
 /**
  * Android app reports locations to an endpoint
  *
@@ -30,28 +29,25 @@ export class GpsTracking {
 
   getLocation(): Promise<GpsObject[]> {
     return new Promise((resolve) => {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
           // sadly this response is horribly structured. Should have been an array...
           const data = JSON.parse(this.response);
-          const newData = []
-          for (var key in data) {
+          const newData = [];
+          for (let key in data) {
             newData.push({
               user: key.split(":")[1].trim(),
               position: data[key]
             });
           }
-          // console.log(JSON.stringify(newData))
-          resolve(newData)
+          resolve(newData);
         }
       };
       xhr.open("GET", this.jsonURL, false);
       xhr.send();
-    })
-
+    });
   }
-
 
   updateLocation(locations: GpsObject[]) {
     try {

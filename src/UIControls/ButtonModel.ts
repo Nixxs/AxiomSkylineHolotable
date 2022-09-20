@@ -1,11 +1,9 @@
 import { basePath, sgWorld } from "../Axiom";
 import { Button } from "../Button";
 import { ControllerReader } from "../ControllerReader";
-import { deleteItemSafe, GetObject, ProgramManager, roomToWorldCoord } from "../ProgramManager";
-import { getColorFromString } from "../UserManager";
+import { deleteItemSafe, GetObject, roomToWorldCoord } from "../ProgramManager";
 
 export class ButtonModel extends Button {
-
   modelId: string = "";
 
   Draw() {
@@ -15,7 +13,6 @@ export class ButtonModel extends Button {
 
       if (this.ID === undefined) {
         const obj = sgWorld.Creator.CreateModel(pos, basePath + "/ui/blank.xpl2", this.scale, 0, this.groupID, this.name);
-        obj.Terrain.Tint = getColorFromString("black", 100);
         obj.BestLOD = 0;
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
@@ -29,7 +26,6 @@ export class ButtonModel extends Button {
         const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
         if (obj === null) return;
         obj.Position = pos;
-        obj.Position.Altitude = obj.Position.Altitude
         obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
 
         const model = GetObject(this.modelId, ObjectTypeCode.OT_MODEL);
@@ -61,8 +57,4 @@ export class ButtonModel extends Button {
     if (!this.modelId) return;
     deleteItemSafe(this.modelId)
   }
-
-
-
-
 }

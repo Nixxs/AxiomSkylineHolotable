@@ -31,22 +31,13 @@ export function getRoomExtent() {
 }
 
 function roomToWorldCoordEx(position: IPosition) {
-  let pos = sgWorld.SetParamEx(9014, position) as IPosition;
-  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(pos.Roll));
-  const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
-  const newOri = worldOri.Mul(originalOri);
-  const newYPR = newOri.GetYPR();
-  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(-newYPR[2]), pos.Distance);
+  const pos = sgWorld.SetParamEx(9014, position) as IPosition;
+  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
 }
+
 function worldToRoomCoordEx(position: IPosition) {
   let pos = sgWorld.SetParamEx(9013, position) as IPosition;
-  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(-pos.Roll));
-  const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
-  const newOri = worldOri.Conjugate().Mul(originalOri);
-  const newYPR = newOri.GetYPR();
-  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(newYPR[2]), pos.Distance);
+  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
 }
 
 function roomToWorldCoordD(position: IPosition) {
@@ -59,6 +50,7 @@ function roomToWorldCoordD(position: IPosition) {
   ret.Roll = position.Roll;
   return ret;
 }
+
 function worldToRoomCoordD(position: IPosition) {
   const ret = sgWorld.Navigate.GetPosition(3);
   ret.Cartesian = true;
@@ -77,19 +69,15 @@ let roomToWorldCoordF = roomToWorldCoordEx;
 let worldToRoomCoordF = worldToRoomCoordEx;
 
 export function roomToWorldCoord(position: IPosition) {
-  const temp = position.Y;
-  position.Y = position.Altitude;
-  position.Altitude = temp;
+  [position.Y, position.Altitude] = [position.Altitude, position.Y];
   const ret = roomToWorldCoordF(position);
-  position.Altitude = position.Y;
-  position.Y = temp;
+  [position.Y, position.Altitude] = [position.Altitude, position.Y];
   return ret;
 }
+
 export function worldToRoomCoord(position: IPosition) {
   const ret = worldToRoomCoordF(position);
-  const temp = ret.Y;
-  ret.Y = ret.Altitude;
-  ret.Altitude = temp;
+  [ret.Y, ret.Altitude] = [ret.Altitude, ret.Y];
   return ret;
 }
 

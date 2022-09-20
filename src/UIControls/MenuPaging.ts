@@ -4,7 +4,7 @@ import { Quaternion } from "../math/quaternion";
 import { Vector } from "../math/vector";
 import { radsToDegs } from "../Mathematics";
 import { Menu } from "../Menu";
-import { GetDeviceType, DeviceType, ProgramManager } from "../ProgramManager";
+import { ProgramManager } from "../ProgramManager";
 
 
 export class MenuPaging extends Menu {
@@ -61,27 +61,30 @@ export class MenuPaging extends Menu {
   private addPagingButtons() {
     // add the paging buttons to the left and the right
     const ypr = this.orientation.GetYPR();
-    let newPos = this.getButtonPosition(0 - 0.5, ((this.rows - 1) / 2) + 0.5);
     let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
-    var posL = sgWorld.Creator.CreatePosition(newPos.data[0], newPos.data[1], newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
 
-    const newPos2 = this.getButtonPosition(this.cols + 0.5, this.rows / 2);
-    let posR = sgWorld.Creator.CreatePosition(newPos2.data[0], newPos2.data[1], newPos2.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+    let posL;
+    let posR;
 
     if (this.rows > this.cols) {
       // vertical. show them at the bottom
-      newPos = this.getButtonPosition(0, 0);
-      posL = sgWorld.Creator.CreatePosition(newPos.data[0] - this.buttonSize, newPos.data[1] + (this.buttonSize / 2), newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      newPos = this.getButtonPosition(1, 0);
-      posR = sgWorld.Creator.CreatePosition(newPos.data[0] + this.buttonSize, newPos.data[1] + (this.buttonSize / 2), newPos.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      // These positions assume there is one doubly wide column
+      const LVec = this.getButtonPosition(-1, 0 + 0.5);
+      posL = sgWorld.Creator.CreatePosition(LVec.data[0], LVec.data[1], LVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      const RVec = this.getButtonPosition(2, 0 + 0.5);
+      posR = sgWorld.Creator.CreatePosition(RVec.data[0], RVec.data[1], RVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+    } else {
+      const LVec = this.getButtonPosition(-1 + 0.5, ((this.rows - 1) / 2) + 0.5);
+      posL = sgWorld.Creator.CreatePosition(LVec.data[0], LVec.data[1], LVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      const RVec = this.getButtonPosition(this.cols + 0.5, this.rows / 2);
+      posR = sgWorld.Creator.CreatePosition(RVec.data[0], RVec.data[1], RVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
     }
 
-    const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Button_Prev.xpl2", groupIdPager, () => {
+    const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Buttons/page_left.xpl2", groupIdPager, () => {
       this.pageLeft()
-    }, true, "Previous")
+    }, true, "Previous");
 
-
-    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Button_Next.xpl2", groupIdPager, () => {
+    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Buttons/page_right.xpl2", groupIdPager, () => {
       this.pageRight();
     }, true, "Next");
 
@@ -140,7 +143,6 @@ export class MenuPaging extends Menu {
       for (let i = startAt; i < endAt; ++i) {
         if (i > this.buttons.length - 1) break;
         const button = this.buttons[i];
-        console.log(i - startAt);
         const newPosition = this.getNthButtonPosition(i - startAt);
         const ypr = this.orientation.GetYPR();
         // There is a 90 degree difference between wall and table
