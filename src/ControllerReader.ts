@@ -79,6 +79,8 @@ export class ControllerReader {
       this.controllerInfos[1].triggerPressed = false;
       this.controllerInfos[1].button1Pressed = false;
       this.controllerInfos[1].button2Pressed = false;
+      this.controllerInfos[0].scaleFactor = 1;
+      this.controllerInfos[1].scaleFactor = 1;
     }
     if (this.roomExtent === undefined) {
       const roomExtent = getRoomExtent();

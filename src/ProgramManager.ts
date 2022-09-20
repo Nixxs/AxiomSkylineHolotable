@@ -1,12 +1,10 @@
 import { sgWorld } from "./Axiom";
 import { sessionManager } from "./Axiom";
-import { Button } from "./Button";
 import { ControllerReader } from "./ControllerReader";
 import { debug, debugHandleRefreshGesture } from "./Debug";
 import { DesktopInputManager } from "./DesktopInputManager";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { degsToRads, radsToDegs } from "./Mathematics";
 import { UIManager } from "./UIManager";
 import { getColorFromString, UserModeManager } from "./UserManager";
 

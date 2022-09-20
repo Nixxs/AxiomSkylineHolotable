@@ -90,8 +90,8 @@ function dragMode() {
       } else if (GetDeviceType() === DeviceType.Wall && worldPos.Altitude > maxWallAltitude) {
         worldPos.Altitude = maxWallAltitude;
       }
-      if (worldPos.Altitude < 250) {
-        worldPos.Altitude = 250;
+      if (worldPos.Altitude < 50) {
+        worldPos.Altitude = 50;
       }
     }
 

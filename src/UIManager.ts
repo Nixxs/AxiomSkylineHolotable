@@ -17,6 +17,7 @@ import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
 import { FixedSizeArray } from "./math/fixedSizeArray";
 import { GpsTracking } from "./GpsTracking";
+import { ControllerReader } from "./ControllerReader";
 
 const tableHeight = 0.65;
 
@@ -291,7 +292,7 @@ export class UIManager {
 
   }
 
-  onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: Menu[]): void {
+  onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: FixedSizeArray<Menu, 2>): void {
     console.log("onOrbatShowMenu  ===========================")
 
     const getMenu = () => {
@@ -715,7 +716,6 @@ export class UIManager {
 
 
   onOrbatModelAdd(model: IOrbatSubMenuItem, xspacing: number, yspacing: number, scaleAdjust: number, xCount: number): void {
-
     // remove unplaced models
     this.removeOtherModels();
 
@@ -723,51 +723,33 @@ export class UIManager {
     this.modelsToPlace = [];
     const grp = ProgramManager.getInstance().getCollaborationFolderID("models");
 
-
     model.models.forEach((orbatModel, i) => {
       const x = Math.floor(i / xCount);
       const y = i % xCount;
-      var deviceType = this.GetDeviceTypeOverride();
-      var pos;
+      const deviceType = this.GetDeviceTypeOverride();
+      let roomPos;
       if (deviceType === DeviceType.Wall) {
         // pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
-        pos = sgWorld.Creator.CreatePosition(-0.6 + (x * xspacing), -0.2, 1.7 - (y * yspacing), AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, 0, 90);
-        console.log(`pos.X ${pos.X}`)
-        console.log(`pos.Y ${pos.Y}`)
-        console.log(`pos.z ${pos.Altitude}`)
+        roomPos = sgWorld.Creator.CreatePosition(-0.6 + (x * xspacing), -0.2, 1.7 - (y * yspacing), AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, 0, 90);
+        console.log(`pos.X ${roomPos.X}`)
+        console.log(`pos.Y ${roomPos.Y}`)
+        console.log(`pos.z ${roomPos.Altitude}`)
       } else {
-        pos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
-        console.log(`pos.X ${pos.X}`)
-        console.log(`pos.Y ${pos.Y}`)
-        console.log(`pos.z ${pos.Altitude}`)
+        roomPos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+        console.log(`pos.X ${roomPos.X}`)
+        console.log(`pos.Y ${roomPos.Y}`)
+        console.log(`pos.z ${roomPos.Altitude}`)
       }
 
-      const roomPos = roomToWorldCoord(pos);
+      const worldPos = roomToWorldCoord(roomPos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
 
       try {
-        const modelObject = sgWorld.Creator.CreateModel(roomPos, modelPath, 1, 0, grp, orbatModel.modelName);
+        const modelObject = sgWorld.Creator.CreateModel(worldPos, modelPath, 1, 0, grp, orbatModel.modelName);
         // add the created model to the undo list
         ProgramManager.getInstance().userModeManager?.undoObjectIds.push(modelObject.ID);
         // set the scale value based on the current zoom level
-        var scaleValue = 0;
-        // scale of models need to be set differently
-        if (deviceType === DeviceType.Wall) {
-          //scaleValue *= 0.5;
-          scaleValue = roomPos.Altitude * 0.1;
-          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
-        } else {
-          // if we are less than 1000m use a smaller
-          scaleValue = roomPos.Altitude < 300 ? roomPos.Altitude * 0.6 : roomPos.Altitude * 1.2;
-          scaleValue *= scaleAdjust; // the models are all different sizes. This in the config allows us to roughly get them the same
-        }
-
-        if (deviceType === DeviceType.Desktop) {
-          scaleValue = 0.1 * scaleAdjust
-        }
-
-        console.log(`scale value ${scaleValue}`)
-        console.log(`roomPos.Altitude ${roomPos.Altitude}`)
+        let scaleValue = 0.1 * scaleAdjust * (ControllerReader.controllerInfos[1].scaleFactor ?? 1);
 
         modelObject.ScaleFactor = scaleValue;
         this.modelsToPlace.push(modelObject.ID);
@@ -778,7 +760,6 @@ export class UIManager {
         console.log("could not add model: " + modelPath);
       }
     });
-
   }
 
   removeOtherModels() {
