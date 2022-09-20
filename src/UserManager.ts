@@ -75,7 +75,6 @@ function dragMode() {
       let powerStrength = 1;
       if (GetDeviceType() == DeviceType.Wall) {
         let curAltitudeRatio = worldPos.Altitude / 2000; // scaling now works less as you go from 1000 down to 10 altitude
-        console.log("worldPos.Altitude " + worldPos.Altitude)
         powerStrength = Math.min(Math.max(curAltitudeRatio, 0.25), 1);
       }
       const factor = Math.pow(scaleRatio, power * powerStrength);
