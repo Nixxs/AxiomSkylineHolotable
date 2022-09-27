@@ -1,12 +1,9 @@
-import { sgWorld } from "./Axiom";
-import { sessionManager } from "./Axiom";
-import { Button } from "./Button";
+import { sgWorld, sessionManager } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
 import { debug, debugHandleRefreshGesture } from "./Debug";
 import { DesktopInputManager } from "./DesktopInputManager";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { degsToRads, radsToDegs } from "./Mathematics";
 import { UIManager } from "./UIManager";
 import { getColorFromString, UserModeManager } from "./UserManager";
 
@@ -31,22 +28,13 @@ export function getRoomExtent() {
 }
 
 function roomToWorldCoordEx(position: IPosition) {
-  let pos = sgWorld.SetParamEx(9014, position) as IPosition;
-  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(pos.Roll));
-  const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
-  const newOri = worldOri.Mul(originalOri);
-  const newYPR = newOri.GetYPR();
-  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(-newYPR[2]), pos.Distance);
+  const pos = sgWorld.SetParamEx(9014, position) as IPosition;
+  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
 }
+
 function worldToRoomCoordEx(position: IPosition) {
   let pos = sgWorld.SetParamEx(9013, position) as IPosition;
-  const originalOri = Quaternion.FromYPR(degsToRads(pos.Yaw), degsToRads(pos.Pitch), degsToRads(-pos.Roll));
-  const worldIPos = sgWorld.Navigate.GetPosition(3);
-  const worldOri = Quaternion.FromYPR(degsToRads(worldIPos.Yaw), degsToRads(worldIPos.Pitch + (GetDeviceType() === DeviceType.Wall ? 0 : 90)), degsToRads(-worldIPos.Roll));
-  const newOri = worldOri.Conjugate().Mul(originalOri);
-  const newYPR = newOri.GetYPR();
-  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, radsToDegs(newYPR[0]), radsToDegs(newYPR[1]), radsToDegs(newYPR[2]), pos.Distance);
+  return sgWorld.Creator.CreatePosition(pos.X, pos.Y, pos.Altitude, 3, pos.Yaw, pos.Pitch, pos.Roll, pos.Distance);
 }
 
 function roomToWorldCoordD(position: IPosition) {
@@ -59,6 +47,7 @@ function roomToWorldCoordD(position: IPosition) {
   ret.Roll = position.Roll;
   return ret;
 }
+
 function worldToRoomCoordD(position: IPosition) {
   const ret = sgWorld.Navigate.GetPosition(3);
   ret.Cartesian = true;
@@ -77,19 +66,15 @@ let roomToWorldCoordF = roomToWorldCoordEx;
 let worldToRoomCoordF = worldToRoomCoordEx;
 
 export function roomToWorldCoord(position: IPosition) {
-  const temp = position.Y;
-  position.Y = position.Altitude;
-  position.Altitude = temp;
+  [position.Y, position.Altitude] = [position.Altitude, position.Y];
   const ret = roomToWorldCoordF(position);
-  position.Altitude = position.Y;
-  position.Y = temp;
+  [position.Y, position.Altitude] = [position.Altitude, position.Y];
   return ret;
 }
+
 export function worldToRoomCoord(position: IPosition) {
   const ret = worldToRoomCoordF(position);
-  const temp = ret.Y;
-  ret.Y = ret.Altitude;
-  ret.Altitude = temp;
+  [ret.Y, ret.Altitude] = [ret.Altitude, ret.Y];
   return ret;
 }
 
@@ -130,8 +115,7 @@ export function GetDeviceType() {
  * Handles running the script in any program mode
  */
 export class ProgramManager {
-
-  static OnFrame() { }
+  static OnFrame() { /* Empty to begin with */ }
   static OneFrame = function () { }
   static DoOneFrame(f: () => void) { ProgramManager.OneFrame = f; }
 
@@ -168,8 +152,11 @@ export class ProgramManager {
     return this.instance;
   }
 
+  groupID: string;
+
   private constructor() {
-    console.log("ProgramManager:: constructor");
+    this.deleteGroup("Axiom");
+    this.groupID = sgWorld.ProjectTree.CreateGroup("Axiom");
   }
 
   deleteGroup(groupName: string) {
@@ -182,22 +169,18 @@ export class ProgramManager {
     return false;
   }
 
-  getGroupID(groupName: string, parentGroup?: string) {
-    return sgWorld.ProjectTree.FindItem(groupName) || sgWorld.ProjectTree.CreateGroup(groupName, parentGroup);
-  }
-
   getCollaborationFolderID(groupName: string) {
-    var collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
-    var grp = "";
+    const collaborationSessionFolder = sessionManager.GetPropertyValue("CollaborationSession");
+    let grp = "";
     // if there is a collaboration session going then put the model in the collaboration session otherwise 
     // just put it in the models group
     if (collaborationSessionFolder.indexOf("Collaboration") !== -1) {
-      grp = ProgramManager.getInstance().getGroupID(collaborationSessionFolder);
+      grp = sgWorld.ProjectTree.CreateGroup(collaborationSessionFolder, this.groupID);
       // sub group
       try {
         let id = sgWorld.ProjectTree.GetNextItem(grp, ItemCode.CHILD);
 
-        while (id) {
+        while (id !== "") {
           console.log(sgWorld.ProjectTree.GetItemName(id))
           if (sgWorld.ProjectTree.GetItemName(id) === groupName) {
             return id;
@@ -205,13 +188,13 @@ export class ProgramManager {
           id = sgWorld.ProjectTree.GetNextItem(grp, ItemCode.NEXT);
         }
       } catch (error) {
-        console.log("error no children")
+        console.log("error no children"); // FIXME don't discard and assume the error
       }
       console.log("create new group under collab tree");
-      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);;
-      return grp
+      grp = sgWorld.ProjectTree.CreateGroup(groupName, grp);
+      return grp;
     } else {
-      grp = ProgramManager.getInstance().getGroupID(groupName);
+      grp = sgWorld.ProjectTree.CreateGroup(groupName, this.groupID);
     }
     return grp;
   }
@@ -334,18 +317,27 @@ export class ProgramManager {
         // was not working in collab mode so just doing every 5 seconds
         setInterval(() => colourItemsOnStartup(), 5000);
         sgWorld.AttachEvent("OnFrame", () => {
-          const prev = ProgramManager.OneFrame;
-          ProgramManager.OneFrame = () => { };
-          ProgramManager.getInstance().setMode(ProgramMode.Desktop);
-          if (ProgramManager.getInstance().getMode() == ProgramMode.Desktop) {
-            roomToWorldCoordF = roomToWorldCoordD;
-            worldToRoomCoordF = worldToRoomCoordD;
-            prev();
-            ProgramManager.OnFrame();
-            Update();
-            Draw();
-            roomToWorldCoordF = roomToWorldCoordEx;
-            worldToRoomCoordF = worldToRoomCoordEx;
+          try {
+            const prev = ProgramManager.OneFrame;
+            ProgramManager.OneFrame = () => { };
+            ProgramManager.getInstance().setMode(ProgramMode.Desktop);
+            if (ProgramManager.getInstance().getMode() == ProgramMode.Desktop) {
+              roomToWorldCoordF = roomToWorldCoordD;
+              worldToRoomCoordF = worldToRoomCoordD;
+              prev();
+              ProgramManager.OnFrame();
+              Update();
+              Draw();
+              roomToWorldCoordF = roomToWorldCoordEx;
+              worldToRoomCoordF = worldToRoomCoordEx;
+            }
+          } catch (error: any) {
+            console.log("Program error:");
+            try {
+              console.log((error.stack as string).replace(/^/mg, "\t"));
+            } catch {
+              console.log("\tStrange error");
+            }
           }
         });
         sgWorld.AttachEvent("OnSGWorld", (eventID, _eventParam) => {
@@ -375,6 +367,7 @@ export class ProgramManager {
       };
       const firstTableFrame = (eventID: number, _eventParam: unknown) => {
         if (eventID == 14) {
+          // TODO these should not be allowed to be undefined during the lifetime of a Program object.
           this.userModeManager = new UserModeManager();
           this.uiManager = new UIManager();
           this.userModeManager?.Init();
@@ -533,22 +526,20 @@ function colourItemsOnStartup() {
 }
 
 function getFirstID(): string {
-  var id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
+  let id = sgWorld.ProjectTree.GetNextItem(sgWorld.ProjectTree.RootID, ItemCode.ROOT);
   id = sgWorld.ProjectTree.GetNextItem(id, ItemCode.ROOT);
   return id;
 }
 
 function traverseTree(current: string) {
-
   while (current) {
-    var currentName = sgWorld.ProjectTree.GetItemName(current);
+    const currentName = sgWorld.ProjectTree.GetItemName(current);
     if (sgWorld.ProjectTree.IsGroup(current)) {
-      if (currentName.toLocaleLowerCase().indexOf("_red") > -1 || currentName.toLocaleLowerCase().indexOf("_green") > -1
-        || currentName.toLocaleLowerCase().indexOf("_blue") > -1 || currentName.toLocaleLowerCase().indexOf("_black") > -1) {
-        const colName = currentName.split("_")[currentName.split("_").length - 1]
+      const colName = currentName.match(/_([^_]*)$/)?.[1];
+      if (colName === "Red" || colName === "Green" || colName === "Black" || colName === "Blue")
         colorItems(current, colName);
-      }
-      var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
+
+      const child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
       traverseTree(child);
     }
     current = sgWorld.ProjectTree.GetNextItem(current, ItemCode.NEXT);
@@ -557,12 +548,12 @@ function traverseTree(current: string) {
 
 function findInTree(current: string, find: string): string | null {
   while (current) {
-    var currentName = sgWorld.ProjectTree.GetItemName(current);
+    const currentName = sgWorld.ProjectTree.GetItemName(current);
     if (currentName === find) {
       return current; //  return the ID
     }
     if (sgWorld.ProjectTree.IsGroup(current)) {
-      var child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
+      const child = sgWorld.ProjectTree.GetNextItem(current, ItemCode.CHILD);
       const findVal = findInTree(child, find);
       if (findVal) return findVal;
     }
@@ -571,14 +562,14 @@ function findInTree(current: string, find: string): string | null {
   return null;
 }
 
-function colorItems(parentId: string, color: string) {
+function colorItems(parentId: string, color: "Blue" | "Green" | "Red" | "Black") {
   try {
     // get the next item as this will be a parent
     let id = sgWorld.ProjectTree.GetNextItem(parentId, ItemCode.CHILD);
     while (id) {
-      const obj = GetObject(id, ObjectTypeCode.OT_MODEL); // sgWorld.ProjectTree.GetObject(id);
+      const obj = GetObject(id, ObjectTypeCode.OT_MODEL);
       if (obj && obj.ObjectType === ObjectTypeCode.OT_MODEL) {
-        const col = getColorFromString(color.toLocaleLowerCase());
+        const col = getColorFromString(color);
         if (col !== undefined) {
           obj.Terrain.Tint = col;
         }

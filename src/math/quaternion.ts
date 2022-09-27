@@ -44,7 +44,7 @@ export class Quaternion {
     return this;
   }
 
-  GetYPR() {
+  GetYPR(): FixedSizeArray<number, 3> {
     const x = this.data[0];
     const y = this.data[1];
     const z = this.data[2];

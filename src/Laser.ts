@@ -33,9 +33,6 @@ export class Laser {
       isNothing = true;
     }
 
-    if (isNothing !== this.collision?.isNothing) {
-      // console.log(isNothing ? "Nothing" : "Something");
-    }
     const hitPosition = position.Copy().Move(distToHitPoint, position.Yaw, position.Pitch);
     hitPosition.Cartesian = true;
     this.collision = {
@@ -48,12 +45,6 @@ export class Laser {
   }
 
   UpdateDesktop() {
-    if (this.collision?.isNothing && DesktopInputManager.getCursor().ObjectID !== '') {
-      console.log(`hitting ${DesktopInputManager.getCursor().ObjectID}`);
-    } else if (!this.collision?.isNothing && DesktopInputManager.getCursor().ObjectID === '') {
-      console.log('Not hitting');
-    }
-
     this.collision = {
       originPoint: sgWorld.Navigate.GetPosition(3),
       hitPoint: DesktopInputManager.getCursorPosition(),
