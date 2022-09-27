@@ -1,167 +1,133 @@
-import { basePath, sgWorld } from "../Axiom";
+import { basePath } from "../Axiom";
 import { Button } from "../Button";
-import { Quaternion } from "../math/quaternion";
+import { FixedSizeArray } from "../math/fixedSizeArray";
 import { Vector } from "../math/vector";
-import { radsToDegs } from "../Mathematics";
+import { degsToRads, radsToDegs } from "../Mathematics";
 import { Menu } from "../Menu";
-import { ProgramManager } from "../ProgramManager";
-
+import { CreatePosition } from "../SGWorld";
 
 export class MenuPaging extends Menu {
-
   // for paging
   private pageNumber: number = 0;
   private totalPages: number = 0;
   private btnPL!: Button;
   private btnPR!: Button;
-  private offset: number = 0;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number, public cols: number, menuId: string) {
-    super(width, height, anchor, orientation, anchorPosition, topAligned, leftAligned, horizontal, Infinity, 0, 0, menuId);
+  constructor(public lineCountLimit: number, ...args: ConstructorParameters<typeof Menu>) {
+    super(...args);
 
-
-    // if it is vertical we need a bit of space at the bottom for the buttons
-    // if (this.rows > this.cols) {
-    //   this.offset = this.buttonSize / 2;
-    //   // anchor.Add(new Vector([0, this.offset, 0]))
-    // }
-    this.corner = anchor.Copy().Sub(orientation.Apply(new Vector([width * (anchorPosition[0] - (leftAligned ? 0 : 1)), 0, height * (anchorPosition[1] - (topAligned ? 1 : 0))])));
-    console.log(`corner ${this.corner.data}`);
-    console.log(`xDirection ${this.xDirection.data}`);
-    console.log(`yDirection ${this.yDirection.data}`);
     this.addPagingButtons();
   }
 
-  /**
-   * Adds all the buttons as an array at once
-   *
-   * @param {Button[]} buttons
-   * @memberof MenuPaging
-   */
-  addButtons(buttons: Button[]) {
-    this.recomputeButtons = false; // stop recompute while we destroy the old ones
-    this.buttons.forEach(b => b.destroy());
-    this.buttons = [];
-    this.buttons.push(...buttons);
-    this.totalPages = Math.ceil(this.buttons.length / (this.cols * this.rows));
-    console.log("totalPages" + this.totalPages)
-    this.recomputeButtons = true;
-    this.show(true);
+  override getButtonPosition(line: number, step: number): Vector<3> {
+    return super.getButtonPosition(line % this.lineCountLimit, step);
   }
-
-  createButton(name: string, icon: string, callback?: (id?: string) => void) {
-    // override and return the button as we need to add them all at once
-    const groupId = ProgramManager.getInstance().getGroupID("buttons");
-    const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
-    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback, false, name);
-    return btn;
-  }
-
 
   private addPagingButtons() {
     // add the paging buttons to the left and the right
-    const ypr = this.orientation.GetYPR();
-    let groupIdPager = ProgramManager.getInstance().getGroupID("buttons");
+    const ypr = this.orientation.Copy().PostApplyXAxis(degsToRads(90)).GetYPR().map(radsToDegs) as FixedSizeArray<number, 3>;
 
     let posL;
     let posR;
 
-    if (this.rows > this.cols) {
-      // vertical. show them at the bottom
-      // These positions assume there is one doubly wide column
-      const LVec = this.getButtonPosition(-1, 0 + 0.5);
-      posL = sgWorld.Creator.CreatePosition(LVec.data[0], LVec.data[1], LVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      const RVec = this.getButtonPosition(2, 0 + 0.5);
-      posR = sgWorld.Creator.CreatePosition(RVec.data[0], RVec.data[1], RVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+    if (this.horizontalLines) {
+      // horizontal. show them on the left and right
+      const LVec = super.getButtonPosition((this.lineCountLimit - 1) / 2, -1);
+      posL = CreatePosition(...LVec.data, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, ...ypr);
+      const RVec = super.getButtonPosition((this.lineCountLimit - 1) / 2, this.lineLengthLimit);
+      posR = CreatePosition(...RVec.data, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, ...ypr);
     } else {
-      const LVec = this.getButtonPosition(-1 + 0.5, ((this.rows - 1) / 2) + 0.5);
-      posL = sgWorld.Creator.CreatePosition(LVec.data[0], LVec.data[1], LVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
-      const RVec = this.getButtonPosition(this.cols + 0.5, this.rows / 2);
-      posR = sgWorld.Creator.CreatePosition(RVec.data[0], RVec.data[1], RVec.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2]));
+      // vertical. show them at the bottom
+      const LVec = super.getButtonPosition(this.lineCountLimit / 2 - 1, -1);
+      posL = CreatePosition(...LVec.data, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, ...ypr);
+      const RVec = super.getButtonPosition(this.lineCountLimit / 2, -1);
+      posR = CreatePosition(...RVec.data, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, ...ypr);
     }
 
-    const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Buttons/page_left.xpl2", groupIdPager, () => {
+    const btnPL = new Button("ButtonPageLeft", posL, basePath + "ui/Buttons/page_left.xpl2", this.groupID, () => {
       this.pageLeft()
     }, true, "Previous");
 
-    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Buttons/page_right.xpl2", groupIdPager, () => {
+    const btnPR = new Button("ButtonPageRight1", posR, basePath + "ui/Buttons/page_right.xpl2", this.groupID, () => {
       this.pageRight();
     }, true, "Next");
 
-    btnPL.setScale(this.buttonSize * 0.9); // 10% used for borders
-    btnPR.setScale(this.buttonSize * 0.9); // 10% used for borders
+    btnPL.setScale(this.pageButtonSize());
+    btnPR.setScale(this.pageButtonSize());
     this.btnPL = btnPL;
     this.btnPR = btnPR;
   }
 
-  show(visibility: boolean) {
-    // override show and only show buttons for this page
-    const startAt = (this.cols * this.rows) * this.pageNumber; // button to start at
-    this.buttons.forEach((btn, i) => {
-      btn.show(false);
-      if (i >= startAt && i < startAt + (this.cols * this.rows)) {
-        btn.show(visibility);
-      }
-    });
-    const showPaging = this.totalPages > 1 && visibility
+  pageButtonSize() {
+    return super.buttonScale();
+  }
+
+  /**
+   * Adds all the buttons as an array at once
+   */
+  override addButton(button: Button) {
+    super.addButton(button);
+    this.totalPages = Math.ceil(this.buttonLines.length / this.lineCountLimit);
+    const showPaging = this.totalPages > 1 && this.isVisible;
     this.btnPL.show(showPaging);
     this.btnPR.show(showPaging);
+  }
+
+  visibleLines() {
+    if (!this.isVisible)
+      return [];
+    return this.buttonLines.filter((_l, i) =>
+      i >= this.pageNumber * this.lineCountLimit && i < (this.pageNumber + 1) * this.lineCountLimit
+    );
+  }
+
+  override show(visibility: boolean) {
     this.isVisible = visibility;
-    if (!visibility) {
+    this.buttonLines.forEach(l => l.forEach(btn => btn.show(false)));
+    this.visibleLines().forEach(l => l.forEach(btn => btn.show(true)));
+    if (!visibility)
       this.pageNumber = 0; // when hidden reset to page 1
-    }
+
+    const showPaging = this.totalPages > 1 && this.isVisible;
+
+    this.btnPL.show(showPaging);
+    this.btnPR.show(showPaging);
   }
 
   // paging controls
   public pageRight() {
-    this.pageNumber += 1;
+    ++this.pageNumber;
     if (this.pageNumber >= this.totalPages) {
       this.pageNumber = 0;
     }
-    console.log(`page right. page number = ${this.pageNumber} of ${this.totalPages}`);
     this.show(true);
     this.recomputeButtons = true;
     this.Draw();
   }
 
   public pageLeft() {
-    this.pageNumber += -1;
+    --this.pageNumber;
     if (this.pageNumber < 0) {
       this.pageNumber = this.totalPages - 1;
     }
-    console.log(`page left. page number = ${this.pageNumber} of ${this.totalPages}`);
     this.show(true);
     this.recomputeButtons = true;
     this.Draw();
   }
 
   Draw() {
-    if (this.recomputeButtons) {
-      // we only draw the buttons we need for this page
-      const startAt = (this.cols * this.rows) * this.pageNumber; // button to start at
-      const endAt = startAt + (this.cols * this.rows); // button to end with.
-      for (let i = startAt; i < endAt; ++i) {
-        if (i > this.buttons.length - 1) break;
-        const button = this.buttons[i];
-        const newPosition = this.getNthButtonPosition(i - startAt);
-        const ypr = this.orientation.GetYPR();
-        // There is a 90 degree difference between wall and table
-        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
-        button.setScale(this.buttonSize * 0.9); // 10% used for borders
-      }
-      this.recomputeButtons = false;
+    for (let line of this.visibleLines())
+      for (let button of line)
+        button.Draw();
+    if (this.isVisible) {
+      this.btnPL.Draw();
+      this.btnPR.Draw();
     }
-    for (let button of this.buttons) {
-      button.Draw();
-    }
-    this.btnPL.Draw();
-    this.btnPR.Draw();
   }
 
   public Update(): void {
-    super.Update()
+    super.Update();
     this.btnPL.Update();
     this.btnPR.Update();
   }
-
 }

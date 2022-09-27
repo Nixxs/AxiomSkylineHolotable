@@ -4,14 +4,14 @@ import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
 import { degsToRads } from "./Mathematics";
 import { Menu } from "./Menu";
-import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName, deleteItemSafe, worldToRoomCoord, SetClientData } from "./ProgramManager";
+import { DeviceType, GetDeviceType, ProgramManager, roomToWorldCoord, setFilmMode, GetObject, GetItemIDByName, deleteItemSafe, SetClientData } from "./ProgramManager";
 import { BookmarkManager } from "./UIControls/BookmarkManager";
 import { MenuPaging } from "./UIControls/MenuPaging"
 import { controlConfig } from "./config/ControlModels";
-import { IOrbatMenuItem, IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
-import { Button, SimulateSelectedButton } from "./Button";
+import { IOrbatSubMenuItem, orbatConfig } from "./config/OrbatModels";
+import { SimulateSelectedButton } from "./Button";
 import { verbsConfig } from "./config/verbs";
-import { MenuVerbs } from "./UIControls/MenuVerbs";
+import { TextMenu } from "./UIControls/TextMenu";
 import { getColorFromString, UserMode } from "./UserManager";
 import { ButtonModel } from "./UIControls/ButtonModel";
 import { bookmarksConfig } from "./config/bookmarks";
@@ -28,20 +28,19 @@ export class UIManager {
   bookmarkManager = new BookmarkManager();
   polygonId: string = "";
 
-  groupId: string = ""
-  modelId: string = "";
+  groupIDTable?: string;
+  groupIDWall?: string;
 
   wallLs: number = -1; // left hand side for wall buttons
   wallPos: number = -0.3; // distance out from wall
-  buttonSizeWAll = 0.1;
-
-  private verbsMenus: MenuVerbs[] = [];
+  buttonSizeWall = new Vector<3>([0.1, 0.1, 0.1]);
+  buttonSizeTable = new Vector<3>([0.1, 0.1, 0.1]);
 
   private sharedMenuSpace: Menu[] = [];
   private modelsToPlace: string[] = [];
 
   constructor() {
-    new GpsTracking();
+    new GpsTracking(); // FIXME an object is created then released immediately. Objects should be held by other objects.
   }
 
   Init() {
@@ -52,11 +51,9 @@ export class UIManager {
       setFilmMode(e.currentTarget.checked);
     });
     document.getElementById("simulate")?.addEventListener("click", SimulateSelectedButton);
-    ProgramManager.getInstance().deleteGroup("buttons");
-    ProgramManager.getInstance().deleteGroup("models");
-    ProgramManager.getInstance().deleteGroup("drawings");
-    const groupId = ProgramManager.getInstance().getGroupID("buttons");
-    this.groupId = groupId;
+    const groupID = sgWorld.ProjectTree.CreateGroup("UI", ProgramManager.getInstance().groupID);
+    this.groupIDTable = sgWorld.ProjectTree.CreateGroup("Table", groupID);
+    this.groupIDWall = sgWorld.ProjectTree.CreateGroup("Wall", groupID);
     // the table has an origin at the top centre of the table. minX = -0.6 maxX = 0.6. minY = 0 maxY = -1.2
 
     this.createMenus();
@@ -71,141 +68,269 @@ export class UIManager {
   }
 
   createMenus() {
-    // create the main control menu. Each menu must be replicated twice, once for wall once for table
-
     // LR, FB, UD. Bottom left corner around -1.2, -0.5
     const wallLhs = this.wallLs;
-    const wallPos = this.wallPos;; // distance out from wall
+    const wallPos = this.wallPos; // distance out from wall
 
-    // create a sub menu for the bookmarks.
-    const BookmarksMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "BookmarksMenu");
-    const BookmarksMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "BookmarksMenu");
-    const bookmarkMenus = [BookmarksMenuTable, BookmarksMenuWall];
-    bookmarkMenus.forEach(m => m.show(false));
-    this.sharedMenuSpace.push(...bookmarkMenus)
-    this.menusTable.push(BookmarksMenuTable);
-    this.menusWall.push(BookmarksMenuWall);
+    const bookmarkSubMenus = (() => {
+      const bookmarksMenuTable = new TextMenu(1, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, 8, sgWorld.ProjectTree.CreateGroup("Bookmarks", this.groupIDTable));
+      const bookmarksMenuWall = new TextMenu(1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 8, sgWorld.ProjectTree.CreateGroup("Bookmarks", this.groupIDWall));
+      const bookmarkSubMenus = [bookmarksMenuTable, bookmarksMenuWall];
+      this.sharedMenuSpace.push(...bookmarkSubMenus);
+      this.menusTable.push(bookmarksMenuTable);
+      this.menusWall.push(bookmarksMenuWall);
 
+      bookmarksConfig.bookmarks.forEach(b => {
+        for (let submenu of bookmarkSubMenus)
+          submenu.createButton(b.name, "blank.xpl2", () => {
+            this.bookmarkManager.ZoomTo(b.name);
+            submenu.show(false);
+          });
+      });
+      bookmarkSubMenus.forEach(m => m.show(false));
 
-    // sub menu for drawing 
-    const drawingMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const drawingMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+      return bookmarkSubMenus;
+    })();
 
-    const btnBlack = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/blackSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:black"), false, "Obstacle Group")
-    const btnGreen = new Button("Obstacle Group", sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3), basePath + "ui/Buttons/greenSquare.xpl2", this.groupId, () => this.onButtonClick("Draw:Rectangle:green"), false, "Obstacle Group")
-    drawingMenuTable.createButton("Line", "Buttons/add_line.xpl2", (id) => this.onButtonClick("Draw:Line"), "Draw Line");
-    drawingMenuTable.addButton(btnBlack);
-    drawingMenuTable.addButton(btnGreen);
-    drawingMenuTable.show(false);
-    drawingMenuWall.show(false);
-    drawingMenuTable.buttons.forEach(b => drawingMenuWall.addButton(b));
-    const drawingMenus = [drawingMenuTable, drawingMenuWall]
-    this.menusTable.push(drawingMenuTable);
-    this.menusWall.push(drawingMenuWall);
-    this.sharedMenuSpace.push(...drawingMenus)
+    const drawingSubMenus = (() => {
+      const drawingSubMenuTable = new Menu(new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, 8, sgWorld.ProjectTree.CreateGroup("Drawing", this.groupIDTable));
+      const drawingSubMenuWall = new Menu(new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 8, sgWorld.ProjectTree.CreateGroup("Drawing", this.groupIDWall));
 
-    // tools menu ============
-    const toolsMenuTable = new Menu(0.2, 0.1, new Vector<3>([-0.5, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, true, 0.05, 2, 4);
-    const toolsMenuWall = new Menu(0.4, 1, new Vector<3>([wallLhs, wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll);
-    toolsMenuWall.rows = 2;
-    toolsMenuWall.cols = 5;
-    toolsMenuTable.createButton("Undo", "Buttons/Undo.xpl2", (id) => this.onButtonClick("Undo"), "Undo");
-    toolsMenuTable.createButton("Delete", "Buttons/Delete.xpl2", (id) => this.onButtonClick("Delete"), "Delete");
-    toolsMenuTable.createButton("ScaleModelUp", "Buttons/Plus.xpl2", (id) => this.onButtonClick("ScaleModelUp"), "Scale up model");
-    toolsMenuTable.createButton("ScaleModelDown", "Buttons/Minus.xpl2", (id) => this.onButtonClick("ScaleModelDown"), "Scale down model");
-    toolsMenuTable.createButton("Draw", "Buttons/add_line.xpl2", (id) => this.onDrawingShow(drawingMenus), "Drawing Tools");
-    toolsMenuTable.createButton("Measure", "Buttons/Measure.xpl2", (id) => this.onButtonClick("Measure"), "Measure");
-    toolsMenuTable.createButton("Basemap", "Buttons/Basemap.xpl2", (id) => { this.onButtonClick("ChangeBasemap") }, "Show basemap");
-    toolsMenuTable.createButton("NextBookmark", "Buttons/next_bookmark.xpl2", (id) => {
-      this.onBookmarkShow(bookmarkMenus)
-    }, "Show bookmarks");
+      const drawingSubMenus = [drawingSubMenuTable, drawingSubMenuWall];
 
-    toolsMenuTable.buttons.forEach(b => toolsMenuWall.addButton(b));
+      for (let subMenu of drawingSubMenus) {
+        subMenu.createButton("Line", "Buttons/add_line.xpl2", () => this.onButtonClick("Draw:Line"), "Draw Line");
+        subMenu.createButton("Obstacle Group", "Buttons/blackSquare.xpl2", () => this.onButtonClick("Draw:Rectangle:black"), "Obstacle Group");
+        subMenu.createButton("Obstacle Group", "Buttons/greenSquare.xpl2", () => this.onButtonClick("Draw:Rectangle:green"), "Obstacle Group");
+        subMenu.show(false);
+      }
 
-    const viewMenuTable = new Menu(0.1, 0.65, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const viewMenuWall = new Menu(0.04, 0.1, new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1);
+      this.menusTable.push(drawingSubMenuTable);
+      this.menusWall.push(drawingSubMenuWall);
+      this.sharedMenuSpace.push(...drawingSubMenus);
 
-    viewMenuWall.createButton("ViewAbove", "Buttons/NADIR.xpl2", (id) => this.onButtonClick("ViewAbove"), "View from nadir");
-    viewMenuWall.createButton("ViewOblique", "Buttons/Oblique.xpl2", (id) => this.onButtonClick("ViewOblique"), "View from oblique");
-    viewMenuWall.createButton("Pitch Down", "Buttons/LookDown.xpl2", (id) => this.onButtonClick("PitchDown"), "Pitch Down");
-    viewMenuWall.createButton("Pitch Up", "Buttons/LookUp.xpl2", (id) => this.onButtonClick("PitchUp"), "Pitch Up");
-    viewMenuTable.show(false);
-    viewMenuWall.show(false);
-    viewMenuTable.buttons.forEach(b => viewMenuWall.addButton(b));
-    const viewMenus = [viewMenuTable, viewMenuWall]
-    this.menusTable.push(viewMenuTable);
-    this.menusWall.push(viewMenuWall);
-    this.sharedMenuSpace.push(...viewMenus)
+      return drawingSubMenus;
+    })();
 
-    toolsMenuWall.createButton("View", "Buttons/View.xpl2", (id) => this.onViewShow(viewMenus), "View");
-    this.menusTable.push(toolsMenuTable);
-    this.menusWall.push(toolsMenuWall);
+    const viewSubMenu = (() => {
+      const viewSubMenuWall = new Menu(new Vector<3>([wallLhs + 0.20, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 8, sgWorld.ProjectTree.CreateGroup("View", this.groupIDWall));
 
-    // orbat menu ============
-    const orbatMenuTable = new Menu(0.04, 0.3, new Vector<3>([-0.5, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05,);
-    // LR, FB, UD. Bottom left corner around -1.3, -0.5, 0.5
-    // const orbatMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], true, false, false, 0.06);
-    //const toolsMenuWall = new Menu(0.4, 0.4, new Vector<3>([-1.3, -0.5, 0.5]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, false, false, 0.06);
-    const orbatMenuWall = new Menu(0.4, 0.6, new Vector<3>([wallLhs, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
-    orbatMenuWall.rows = 7;
-    orbatMenuWall.cols = 1;
+      viewSubMenuWall.createButton("ViewAbove", "Buttons/NADIR.xpl2", () => this.onButtonClick("ViewAbove"), "View from nadir");
+      viewSubMenuWall.createButton("ViewOblique", "Buttons/Oblique.xpl2", () => this.onButtonClick("ViewOblique"), "View from oblique");
+      viewSubMenuWall.createButton("Pitch Down", "Buttons/LookDown.xpl2", () => this.onButtonClick("PitchDown"), "Pitch Down");
+      viewSubMenuWall.createButton("Pitch Up", "Buttons/LookUp.xpl2", () => this.onButtonClick("PitchUp"), "Pitch Up");
+      viewSubMenuWall.createButton("Yaw Left", "Buttons/LookLeft.xpl2", () => this.onButtonClick("YawLeft"), "Yaw Left");
+      viewSubMenuWall.createButton("Yaw Right", "Buttons/LookRight.xpl2", () => this.onButtonClick("YawRight"), "Yaw Right");
+      viewSubMenuWall.show(false);
 
-    // Sub menus
-    const subMenuOrbatTable = new Menu(0.04, 0.5, new Vector<3>([-0.4, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
-    const subMenuOrbatWall = new Menu(0.04, 0.5, new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
-    this.menusTable.push(subMenuOrbatTable);
-    this.menusWall.push(subMenuOrbatWall);
-    this.sharedMenuSpace.push(...[subMenuOrbatTable, subMenuOrbatWall])
-    orbatConfig.OrbatModels.forEach((model, i) => {
-      orbatMenuTable.createButton(model.modelName, model.buttonIcon, () => {
-        if (GetDeviceType() === DeviceType.Wall) {
-          this.onButtonClick("ViewAbove");
-          setTimeout(() => {
-            this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]);
-          }, 300)
-        } else {
-          this.onOrbatShowMenu(model, [subMenuOrbatTable, subMenuOrbatWall]);
+      this.menusWall.push(viewSubMenuWall);
+      this.sharedMenuSpace.push(viewSubMenuWall);
+      return viewSubMenuWall;
+    })();
+
+    const toolsMenus = (() => {
+      const toolsMenuTable = new Menu(new Vector<3>([-0.5, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, 2, sgWorld.ProjectTree.CreateGroup("Tools", this.groupIDTable));
+      const toolsMenuWall = new Menu(new Vector<3>([wallLhs, wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 2, sgWorld.ProjectTree.CreateGroup("Tools", this.groupIDWall));
+      const toolsMenus = [toolsMenuTable, toolsMenuWall];
+
+      for (let [menu, bookmarkSubMenu, drawingSubMenu] of [[toolsMenuTable, bookmarkSubMenus[0], drawingSubMenus[0]], [toolsMenuWall, bookmarkSubMenus[1], drawingSubMenus[1]]] as const) {
+        menu.createButton("Undo", "Buttons/Undo.xpl2", () => this.onButtonClick("Undo"), "Undo");
+        menu.createButton("Delete", "Buttons/Delete.xpl2", () => this.onButtonClick("Delete"), "Delete");
+        menu.createButton("ScaleModelUp", "Buttons/Plus.xpl2", () => this.onButtonClick("ScaleModelUp"), "Scale up model");
+        menu.createButton("ScaleModelDown", "Buttons/Minus.xpl2", () => this.onButtonClick("ScaleModelDown"), "Scale down model");
+        menu.createButton("Draw", "Buttons/add_line.xpl2", () => this.showSubMenu(drawingSubMenu), "Drawing Tools");
+        menu.createButton("Measure", "Buttons/Measure.xpl2", () => this.onButtonClick("Measure"), "Measure");
+        menu.createButton("Basemap", "Buttons/Basemap.xpl2", () => this.onButtonClick("ChangeBasemap"), "Show basemap");
+        menu.createButton("ListBookmarks", "Buttons/list_bookmark.xpl2", () => this.showSubMenu(bookmarkSubMenu), "Show bookmarks");
+      }
+      toolsMenuWall.createButton("View", "Buttons/View.xpl2", () => this.showSubMenu(viewSubMenu), "View");
+      for (let menu of toolsMenus) {
+        menu.newLine();
+        // Start Control Measures now
+      }
+
+      this.menusTable.push(toolsMenuTable);
+      this.menusWall.push(toolsMenuWall);
+      return toolsMenus;
+    })();
+
+    // Control Measures
+    {
+      // 4 buttons. black for control measures, red, blue green task measures
+
+      // show hide verbs menus
+      const tempPos = sgWorld.Creator.CreatePosition(0, 0, 0, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
+
+      const tableGroupID = sgWorld.ProjectTree.CreateGroup("Control", this.groupIDTable);
+      const wallGroupID = sgWorld.ProjectTree.CreateGroup("Control", this.groupIDWall);
+
+      controlConfig.ControlModels.sort((a, b) => a.modelName.localeCompare(b.modelName));
+
+      for (let colour of ["Green", "Blue", "Red"] as const) {
+        const subMenuTable = new MenuPaging(2, new Vector<3>([-0.15, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, true, this.buttonSizeTable, 10, sgWorld.ProjectTree.CreateGroup(colour, tableGroupID));
+        const subMenuWall = new MenuPaging(2, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), true, true, true, this.buttonSizeWall, 10, sgWorld.ProjectTree.CreateGroup(colour, wallGroupID));
+        this.menusTable.push(subMenuTable);
+        this.menusWall.push(subMenuWall);
+
+        for (let [menu, submenu] of [[toolsMenus[0], subMenuTable], [toolsMenus[1], subMenuWall]]) {
+          this.sharedMenuSpace.push(submenu);
+          // Add the models to the submenu
+          controlConfig.ControlModels.forEach(model => {
+            if (model.modelType === "taskIndicator") {
+              // if its blue or red then add the black models too.
+              let buttonColour: typeof colour | "Black";
+              if (model.Black && colour !== "Green")
+                buttonColour = "Black";
+              else if (colour === "Blue" && model.Blue || colour === "Red" && model.Red || colour === "Green" && model.Green)
+                buttonColour = colour;
+              else
+                return;
+
+              const buttonRGBA = getColorFromString(buttonColour, 150);
+              const btn = new ButtonModel(model.modelName, tempPos, basePath + "model/" + model.modelPath, submenu.groupID, () => this.onControlModelAdd(model, buttonColour), false, model.modelName, buttonRGBA);
+              submenu.addButton(btn);
+            }
+          });
+
+          menu.createButton(`taskIndicators${colour}`, `Buttons/TaskIndicators${colour}.xpl2`, () => {
+            ProgramManager.getInstance().userModeManager!.cleanUpOnChangeMode();
+            this.hideOtherMenus(submenu.groupID);
+            submenu.show(!submenu.isVisible);
+          }, "Task Indicators");
+
+          submenu.show(false);
         }
-      }, model.modelName)
-    });
+      }
+      // Do the same for CM
+      {
+        const subMenuTable = new MenuPaging(2, new Vector<3>([-0.15, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, true, this.buttonSizeTable, 10, sgWorld.ProjectTree.CreateGroup(`Black`, tableGroupID));
+        const subMenuWall = new MenuPaging(2, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), true, true, true, this.buttonSizeWall, 10, sgWorld.ProjectTree.CreateGroup(`Black`, wallGroupID));
+        this.menusTable.push(subMenuTable);
+        this.menusWall.push(subMenuWall);
+        for (let [menu, submenu] of [[toolsMenus[0], subMenuTable], [toolsMenus[1], subMenuWall]]) {
+          this.sharedMenuSpace.push(submenu);
+          // Add the models to the submenu
+          controlConfig.ControlModels.forEach(model => {
+            if (model.modelType === "controlMeasure") {
+              if (!model.Black)
+                return;
 
-    this.menusTable.push(orbatMenuTable);
-    orbatMenuTable.buttons.forEach(b => orbatMenuWall.addButton(b));
-    this.menusWall.push(orbatMenuWall);
+              const buttonRGBA = getColorFromString("Black", 150);
+              const btn = new ButtonModel(model.modelName, tempPos, basePath + "model/" + model.modelPath, submenu.groupID, () => this.onControlModelAdd(model, "Black"), false, model.modelName, buttonRGBA);
+              submenu.addButton(btn);
+            }
+          });
+
+          menu.createButton("controlMeasures", "Buttons/CM.xpl2", () => {
+            ProgramManager.getInstance().userModeManager!.cleanUpOnChangeMode();
+            this.hideOtherMenus(submenu.groupID);
+            submenu.show(!submenu.isVisible);
+          }, "Control Measures");
+
+          submenu.show(false);
+        }
+      }
+    }
+
+    // orbat menu
+    {
+      const orbatMenuTable = new Menu(new Vector<3>([-0.5, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, true, this.buttonSizeTable, 1, sgWorld.ProjectTree.CreateGroup("Orbat", this.groupIDTable));
+      const orbatMenuWall = new Menu(new Vector<3>([wallLhs, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, true, this.buttonSizeWall, 1, sgWorld.ProjectTree.CreateGroup("Orbat", this.groupIDWall));
+
+      orbatConfig.OrbatModels.forEach(menuItems => {
+        if (menuItems.buttons.length === 1) {
+          for (let orbatMenu of [orbatMenuTable, orbatMenuWall]) {
+            orbatMenu.createButton(menuItems.modelName, menuItems.buttonIcon, () => {
+              this.hideOtherMenus();
+              if (GetDeviceType() === DeviceType.Wall) {
+                this.onButtonClick("ViewAbove");
+                setTimeout(() => {
+                  this.onOrbatModelAdd(menuItems.buttons[0], menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount);
+                }, 300);
+              } else {
+                this.onOrbatModelAdd(menuItems.buttons[0], menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount);
+              }
+            }, menuItems.modelName);
+          }
+        } else {
+          const subMenuOrbatTable = new Menu(new Vector<3>([-0.4, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, true, this.buttonSizeTable, 1, sgWorld.ProjectTree.CreateGroup("", orbatMenuTable.groupID));
+          const subMenuOrbatWall = new Menu(new Vector<3>([this.wallLs + 0.2, this.wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, true, this.buttonSizeWall, 1, sgWorld.ProjectTree.CreateGroup("", orbatMenuWall.groupID));
+          this.menusTable.push(subMenuOrbatTable);
+          this.menusWall.push(subMenuOrbatWall);
+          const menus = [[orbatMenuTable, subMenuOrbatTable], [orbatMenuWall, subMenuOrbatWall]];
+          for (let [orbatMenu, subMenu] of menus) {
+            subMenu.createButton("Done", "Buttons/Done.xpl2", () => {
+              this.removeOtherModels();
+              subMenu.show(false);
+            });
+
+            orbatMenu.createButton(menuItems.modelName, menuItems.buttonIcon, () => {
+              this.hideOtherMenus(subMenu.groupID);
+              if (GetDeviceType() === DeviceType.Wall) {
+                this.onButtonClick("ViewAbove");
+                setTimeout(() => {
+                  subMenu.show(true);
+                }, 300)
+              } else {
+                subMenu.show(true);
+              }
+            }, menuItems.modelName);
+
+            menuItems.buttons.forEach(btn => {
+              subMenu.createButton(btn.modelName, btn.buttonIcon, () => {
+                this.onOrbatModelAdd(btn, menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount);
+              }, btn.modelName);
+            });
+
+            this.sharedMenuSpace.push(subMenu);
+            subMenu.show(false);
+          }
+        }
+      });
+
+      this.menusTable.push(orbatMenuTable);
+      this.menusWall.push(orbatMenuWall);
+    }
 
     // create the verb menu
-    // const BookmarksMenuTable = new MenuVerbs(0.04, 0.6, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1);
-    const VerbsMenuTable = new MenuVerbs(0.1, 0.65, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, true, 0.05, 8, 1, "VerbsMenu");
-    const VerbsMenuWall = new MenuVerbs(0.04, 0.1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 8, 1, "VerbsMenu");
-    VerbsMenuTable.show(false);
-    VerbsMenuWall.show(false);
-    this.verbsMenus = [VerbsMenuTable, VerbsMenuWall];
-    this.sharedMenuSpace.push(...this.verbsMenus)
-    this.menusTable.push(VerbsMenuTable);
-    this.menusWall.push(VerbsMenuWall);
+    {
+      const showVerbsTable = new Menu(new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, -1, sgWorld.ProjectTree.CreateGroup("Verbs", this.groupIDTable));
+      const showVerbsWall = new Menu(new Vector<3>([wallLhs + 0.1, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, -1, sgWorld.ProjectTree.CreateGroup("Verbs", this.groupIDWall));
 
-    // show hide verbs menus
-    const showVerbsTable = new Menu(0.04, 0.2, new Vector<3>([-0.45, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05);
-    const showVerbsWall = new Menu(0.04, 0.2, new Vector<3>([wallLhs + 0.1, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll);
+      const verbsSubMenuTableTV = new TextMenu(1, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, 8, sgWorld.ProjectTree.CreateGroup("TV", showVerbsTable.groupID));
+      const verbsSubMenuTableMV = new TextMenu(1, new Vector<3>([-0.36, -1.05, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), true, true, false, this.buttonSizeTable, 8, sgWorld.ProjectTree.CreateGroup("MV", showVerbsTable.groupID));
+      const verbsSubMenuWallTV = new TextMenu(1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 8, sgWorld.ProjectTree.CreateGroup("TV", showVerbsWall.groupID));
+      const verbsSubMenuWallMV = new TextMenu(1, new Vector<3>([wallLhs + 0.35, wallPos, 0.95]), Quaternion.FromYPR(0, 0, 0), true, true, false, this.buttonSizeWall, 8, sgWorld.ProjectTree.CreateGroup("MV", showVerbsWall.groupID));
+      this.sharedMenuSpace.push(verbsSubMenuTableTV, verbsSubMenuTableMV, verbsSubMenuWallTV, verbsSubMenuWallMV);
+      this.menusTable.push(verbsSubMenuTableTV, verbsSubMenuTableMV);
+      this.menusWall.push(verbsSubMenuWallTV, verbsSubMenuWallMV);
+      verbsSubMenuTableTV.show(false);
+      verbsSubMenuTableMV.show(false);
+      verbsSubMenuWallTV.show(false);
+      verbsSubMenuWallMV.show(false);
 
-    showVerbsTable.createButton("TaskVerbs", "Buttons/TV.xpl2", () => {
-      this.onVerbMenuShow("TaskVerb", this.verbsMenus);
-    }, "Task Verbs")
-    showVerbsTable.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => {
-      this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
-    }, "Mission Task Verbs");
-    showVerbsWall.createButton("TaskVerbs", "Buttons/TV.xpl2", () => {
-      this.onVerbMenuShow("TaskVerb", this.verbsMenus);
-    }, "Task Verbs")
-    showVerbsWall.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => {
-      this.onVerbMenuShow("MissionTaskVerb", this.verbsMenus);
-    }, "Mission Task Verbs");
-    this.menusTable.push(showVerbsTable);
-    this.menusWall.push(showVerbsWall);
+      verbsConfig.verbs.sort((a, b) => a.verbName.localeCompare(b.verbName));
 
-    this.createControlMeasuresMenu();
+      verbsConfig.verbs.filter((v) => v.verbType === "TaskVerb").forEach((verb) => {
+        verbsSubMenuTableTV.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, verbsSubMenuTableTV));
+        verbsSubMenuWallTV.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, verbsSubMenuWallTV));
+      });
+      verbsConfig.verbs.filter((v) => v.verbType === "MissionTaskVerb").forEach((verb) => {
+        verbsSubMenuTableMV.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, verbsSubMenuTableMV));
+        verbsSubMenuWallMV.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, verbsSubMenuWallMV));
+      });
 
-    const rightMenu = (() => {
+      showVerbsTable.createButton("TaskVerbs", "Buttons/TV.xpl2", () => { this.showSubMenu(verbsSubMenuTableTV); }, "Task Verbs");
+      showVerbsTable.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => { this.showSubMenu(verbsSubMenuTableMV); }, "Mission Task Verbs");
+      showVerbsWall.createButton("TaskVerbs", "Buttons/TV.xpl2", () => { this.showSubMenu(verbsSubMenuWallTV); }, "Task Verbs");
+      showVerbsWall.createButton("MissionTaskVerbs", "Buttons/MV.xpl2", () => { this.showSubMenu(verbsSubMenuWallMV); }, "Mission Task Verbs");
+
+      this.menusTable.push(showVerbsTable);
+      this.menusWall.push(showVerbsWall);
+    }
+
+    // Layer menu
+    {
       const treeItems = {
         OPFOR_MASTER_OVERLAY: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\OPFOR MASTER OVERLAY"),
         MLCOA_RED: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\MLCOA_RED"),
@@ -216,347 +341,129 @@ export class UIManager {
         CONPLAN: sgWorld.ProjectTree.FindItem("C-ARMSAS\\C-ARMSAS TABLE DEMONSTRATION\\CONPLAN_BLUE")
       };
 
-      function getVisibilities(): FixedSizeArray<boolean, 7> {
-        return [
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.OPFOR_MASTER_OVERLAY),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.MLCOA_RED),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.MDCOA_RED),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Master_OP),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Op),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.DECISION_SUPORT),
-          0 < sgWorld.ProjectTree.GetVisibility(treeItems.CONPLAN)
-        ];
+      const getVisibilities = (): FixedSizeArray<boolean, 7> => {
+        try {
+          return [
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.OPFOR_MASTER_OVERLAY),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.MLCOA_RED),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.MDCOA_RED),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Master_OP),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.BLUEFOR_Op),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.DECISION_SUPORT),
+            0 < sgWorld.ProjectTree.GetVisibility(treeItems.CONPLAN)
+          ];
+        } catch (error: any) {
+          console.log("Can't get layer visibility:");
+          try {
+            console.log((error.stack as string).replace(/^/mg, "\t"));
+          } catch {
+            console.log("\tStrange error");
+          }
+          return [false, false, false, false, false, false, false];
+        }
       }
 
-      function setVisibilities(visibilities: FixedSizeArray<boolean, 7>) {
-        sgWorld.ProjectTree.SetVisibility(treeItems.OPFOR_MASTER_OVERLAY, visibilities[0]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.MLCOA_RED, visibilities[1]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.MDCOA_RED, visibilities[2]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Master_OP, visibilities[3]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Op, visibilities[4]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.DECISION_SUPORT, visibilities[5]);
-        sgWorld.ProjectTree.SetVisibility(treeItems.CONPLAN, visibilities[6]);
+      const setVisibilities = (visibilities: FixedSizeArray<boolean, 7>) => {
+        try {
+          sgWorld.ProjectTree.SetVisibility(treeItems.OPFOR_MASTER_OVERLAY, visibilities[0]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.MLCOA_RED, visibilities[1]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.MDCOA_RED, visibilities[2]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Master_OP, visibilities[3]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.BLUEFOR_Op, visibilities[4]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.DECISION_SUPORT, visibilities[5]);
+          sgWorld.ProjectTree.SetVisibility(treeItems.CONPLAN, visibilities[6]);
+        } catch (error) {
+          console.log("Can't set layer visibility. " + JSON.stringify(error));
+        }
       }
 
-      const mlcoaRed = new Button("mlcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/MLCOA.xpl2", this.groupId, () => {
-        const visibilities = getVisibilities();
-        visibilities[1] = !visibilities[1];
-        visibilities[0] = visibilities[1];
-        visibilities[2] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
-        setVisibilities(visibilities);
-      }, false, "MLCOA Red");
+      const layerTableMenu = new Menu(new Vector<3>([0.45, -1.13, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), false, true, false, this.buttonSizeTable, -1, sgWorld.ProjectTree.CreateGroup("Layers", this.groupIDTable));
+      this.menusTable.push(layerTableMenu);
 
-      const mdcoaRed = new Button("mdcoaRed", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/MDCOA.xpl2", this.groupId, () => {
-        const visibilities = getVisibilities();
-        visibilities[2] = !visibilities[2];
-        visibilities[0] = visibilities[2];
-        visibilities[1] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
-        setVisibilities(visibilities);
-      }, false, "MDCOA Red");
+      const layerWallMenu = new Menu(new Vector<3>([-wallLhs, wallPos, 1]), new Quaternion([0, 0, 0, 1]), false, true, false, this.buttonSizeWall, -1, sgWorld.ProjectTree.CreateGroup("Layers", this.groupIDWall));
+      this.menusWall.push(layerWallMenu);
 
-      const blueforOp = new Button("blueforOp", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Master.xpl2", this.groupId, () => {
-        const visibilities = getVisibilities();
-        visibilities[4] = !visibilities[4];
-        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
-        visibilities[0] = visibilities[1] = visibilities[2] = false;
-        setVisibilities(visibilities);
+      for (let menu of [layerTableMenu, layerWallMenu]) {
+        menu.createButton("mlcoaRed", "Buttons/MLCOA.xpl2", () => {
+          const visibilities = getVisibilities();
+          visibilities[1] = !visibilities[1];
+          visibilities[0] = visibilities[1];
+          visibilities[2] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
+          setVisibilities(visibilities);
+        }, "MLCOA Red");
 
-      }, false, "BlueFor Op");
+        menu.createButton("mdcoaRed", "Buttons/MDCOA.xpl2", () => {
+          const visibilities = getVisibilities();
+          visibilities[2] = !visibilities[2];
+          visibilities[0] = visibilities[2];
+          visibilities[1] = visibilities[3] = visibilities[4] = visibilities[5] = visibilities[6] = false;
+          setVisibilities(visibilities);
+        }, "MDCOA Red");
 
-      const decisionSuport = new Button("decisionSuport", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Decision.xpl2", this.groupId, () => {
-        const visibilities = getVisibilities();
-        visibilities[5] = !visibilities[5];
-        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
-        visibilities[0] = visibilities[1] = visibilities[2] = false;
-        setVisibilities(visibilities);
+        menu.createButton("blueforOp", "Buttons/Master.xpl2", () => {
+          const visibilities = getVisibilities();
+          visibilities[4] = !visibilities[4];
+          visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+          visibilities[0] = visibilities[1] = visibilities[2] = false;
+          setVisibilities(visibilities);
+        }, "BlueFor Op");
 
-      }, false, "Decision Support");
+        menu.createButton("decisionSupport", "Buttons/Decision.xpl2", () => {
+          const visibilities = getVisibilities();
+          visibilities[5] = !visibilities[5];
+          visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+          visibilities[0] = visibilities[1] = visibilities[2] = false;
+          setVisibilities(visibilities);
+        }, "Decision Support");
 
-      const conplan = new Button("conplan", sgWorld.Creator.CreatePosition(0.5, -1.13, tableHeight, 4, 0, 6), basePath + "ui/Buttons/Conplan.xpl2", this.groupId, () => {
-        const visibilities = getVisibilities();
-        visibilities[6] = !visibilities[6];
-        visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
-        visibilities[0] = visibilities[1] = visibilities[2] = false;
-        setVisibilities(visibilities);
-      }, false, "Conplan");
-
-      const menu = new Menu(0.05, 0.4, new Vector<3>([0.45, -1.13, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 1, 1);
-      menu.addButton(mlcoaRed);
-      menu.addButton(mdcoaRed);
-      menu.addButton(blueforOp);
-      menu.addButton(decisionSuport);
-      menu.addButton(conplan);
-      return menu;
-    })();
-    this.menusTable.push(rightMenu);
-
-  }
-
-  onOrbatShowMenu(menuItems: IOrbatMenuItem, menus: FixedSizeArray<Menu, 2>): void {
-    console.log("onOrbatShowMenu  ===========================")
-
-    const getMenu = () => {
-      const [subMenuOrbatTable, subMenuOrbatWall] = menus;
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          return subMenuOrbatTable
-        case DeviceType.Wall:
-          return subMenuOrbatWall;
+        menu.createButton("conplan", "Buttons/Conplan.xpl2", () => {
+          const visibilities = getVisibilities();
+          visibilities[6] = !visibilities[6];
+          visibilities[3] = visibilities[4] || visibilities[5] || visibilities[6];
+          visibilities[0] = visibilities[1] = visibilities[2] = false;
+          setVisibilities(visibilities);
+        }, "Conplan");
       }
     }
 
-    const currentMenu = getMenu();
-    this.hideOtherMenus(getMenu().menuId)
+    // bookmark navigation
+    {
+      const bookmarkNavigationGroupID = sgWorld.ProjectTree.CreateGroup("Navigation", this.groupIDWall);
 
-    menus.forEach(m => m.removeAllButtons());
+      const bookmarkNavigationMenuLeft = new Menu(new Vector<3>([wallLhs, wallPos, 1.8]), new Quaternion([0, 0, 0, 1]), true, true, true, this.buttonSizeWall, 1, bookmarkNavigationGroupID);
+      const bookmarkNavigationMenuRight = new Menu(new Vector<3>([-wallLhs, wallPos, 1.8]), new Quaternion([0, 0, 0, 1]), false, true, true, this.buttonSizeWall, 1, bookmarkNavigationGroupID);
 
-    // create a done/remove others button. This will remove any models which have not been moved
-    currentMenu.createButton("Done", "Buttons/Done.xpl2", () => {
-      this.removeOtherModels();
-      menus.forEach(m => m.removeAllButtons());
-    });
+      bookmarkNavigationMenuLeft.createButton("prevBookmark", "Buttons/prev_bookmark.xpl2", () => {
+        this.onButtonClick("PreviousBookmark");
+      }, "Previous Bookmark");
+      bookmarkNavigationMenuRight.createButton("nextBookmark", "Buttons/next_bookmark.xpl2", () => {
+        this.onButtonClick("NextBookmark");
+      }, "Next Bookmark");
 
-    if (menuItems.buttons.length === 1) {
-      /// no sub menu items just show the models
-      setTimeout(() => {
-        this.onOrbatModelAdd(menuItems.buttons[0], menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount)
-      }, 300); // give it time to jump
-    } else {
-      // create a menu that has the sub menu items
-      menuItems.buttons.forEach(btn => {
-        currentMenu.createButton(btn.modelName, btn.buttonIcon, () => {
-          this.onOrbatModelAdd(btn, menuItems.xspacing, menuItems.yspacing, menuItems.scaleAdjust, menuItems.xCount)
-        }, btn.modelName);
-      });
+      this.menusWall.push(bookmarkNavigationMenuLeft);
+      this.menusWall.push(bookmarkNavigationMenuRight);
     }
   }
 
-  onVerbAdd(verb: { verbName: string; verbType: string; }, menu: MenuVerbs): void {
+  onVerbAdd(verb: { verbName: string; verbType: string; }, menu: TextMenu): void {
     menu.show(false);
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.toggleLabel(verb.verbName);
   }
 
-  private createControlMeasuresMenu() {
-    // 4 buttons. black for control measures, red, blue green task measures, 
-
-    // control measures menu ============
-    const ControlsMenuTable = new MenuPaging(0.04, 0.1, new Vector<3>([-0.15, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [-0.5, 0], false, true, false, 0.05, 2, 10, "ControlsMenu");
-    const ControlsMenuWall = new MenuPaging(0.04, 1, new Vector<3>([this.wallLs + 0.9, this.wallPos, 0.7]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, true, this.buttonSizeWAll, 2, 10, "ControlsMenu");
-
-    ControlsMenuTable.show(false);
-    ControlsMenuWall.show(false);
-    this.menusTable.push(ControlsMenuTable);
-    this.menusWall.push(ControlsMenuWall);
-
-    const menus = [ControlsMenuTable, ControlsMenuWall];
-    // show hide verbs menus
-    const showControlsTable = new Menu(0.04, 0.2, new Vector<3>([-0.3, -1.18, tableHeight]), Quaternion.FromYPR(0, degsToRads(-90), 0), [0, 0], false, true, false, 0.05, 2, 2);
-    const showControlsWall = new Menu(0.04, 0.2, new Vector<3>([this.wallLs + 0.5, this.wallPos, tableHeight]), Quaternion.FromYPR(0, 0, 0), [0, 0], false, true, false, this.buttonSizeWAll, 2, 2);
-
-
-    showControlsTable.createButton("taskIndicatorsGreen", "Buttons/TaskIndicatorsGreen.xpl2", () => { this.onShowControlMeasures("taskIndicator", "green", menus) }, "Task Indicators");
-    showControlsTable.createButton("taskIndicatorsBlue", "Buttons/TaskIndicatorsBlue.xpl2", () => { this.onShowControlMeasures("taskIndicator", "blue", menus) }, "Task Indicators");
-    showControlsTable.createButton("controlMeasures", "Buttons/CM.xpl2", () => { this.onShowControlMeasures("controlMeasure", "black", menus) }, "Control Measures");
-    showControlsTable.createButton("taskIndicatorsRed", "Buttons/TaskIndicatorsRed.xpl2", () => { this.onShowControlMeasures("taskIndicator", "red", menus) }, "Task Indicators");
-
-
-    showControlsTable.buttons.forEach(b => showControlsWall.addButton(b));
-    this.menusTable.push(showControlsTable);
-    this.menusWall.push(showControlsWall);
-  }
-
-  onShowControlMeasures(controlType: string, color: string, menus: MenuPaging[]) {
-    console.log(`show menu ${controlType} ${color}`);
-
+  showSubMenu(subMenu: Menu) {
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.cleanUpOnChangeMode();
 
-    const getMenu = () => {
-      const [ControlsMenuTable, ControlsMenuWall] = menus;
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          return ControlsMenuTable
-        case DeviceType.Wall:
-          return ControlsMenuWall;
-      }
-    }
-
-    const currentMenu = getMenu();
-    if (currentMenu.isVisible) {
-      currentMenu.show(false);
-      if (currentMenu.menuId === "ControlsMenu" + color) {
-        return;
-      }
-    }
-
-    const controls: Button[] = [];
-    const pos = sgWorld.Creator.CreatePosition(0, 0, tableHeight, 3);
-    const groupId = ProgramManager.getInstance().getGroupID("buttons");
-
-    controlConfig.ControlModels.forEach((model) => {
-      if (model.modelType === controlType) {
-        // some weird logic here... if its blue or red then add the black models too.
-        if (model.Black === 1 && color !== "green") {
-          const buttonRGBA = getColorFromString("black", 150);
-          const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, "black"), false, model.modelName, buttonRGBA)
-          controls.push(btn);
-        }
-        if (color === "blue" && model.Blue || color === "red" && model.Red || color === "green" && model.Green) {
-          const buttonRGBA = getColorFromString(color, 150);
-          const btn = new ButtonModel(model.modelName, pos, basePath + "model/" + model.modelPath, groupId, () => this.onControlModelAdd(model, color), false, model.modelName, buttonRGBA)
-          controls.push(btn);
-        }
-      }
-    });
-
-    controls.sort((a, b) => a.tooltip < b.tooltip ? -1 : 0);
-
-    currentMenu.addButtons(controls);
-
-    // update the id
-    currentMenu.menuId = "ControlsMenu" + color
+    this.hideOtherMenus(subMenu.groupID);
+    subMenu.show(!subMenu.isVisible);
   }
 
-  onVerbMenuShow(verbType: string, menus: MenuVerbs[]) {
-    try {
-
-      const pm = ProgramManager.getInstance().userModeManager;
-      pm?.cleanUpOnChangeMode();
-
-
-      const getMenu = () => {
-        let [VerbsMenuTable, VerbsMenuWall] = menus;
-        switch (this.GetDeviceTypeOverride()) {
-          case DeviceType.Desktop:
-          case DeviceType.Table:
-            return VerbsMenuTable
-          case DeviceType.Wall:
-            return VerbsMenuWall;
-        }
-      }
-
-
-      const currentMenu = getMenu();
-      if (currentMenu.isVisible) {
-        currentMenu.show(false);
-        if (currentMenu.menuId === "VerbsMenu" + verbType) {
-          return;
-        }
-      }
-
-      this.hideOtherMenus(currentMenu.menuId);
-
-      let verbControlsTable: Button[] = [];
-      let verbControlsWall: Button[] = [];
-
-      // sort and filter
-      const filtered = verbsConfig.verbs.filter((v) => v.verbType === verbType)
-      filtered.sort((a, b) => a.verbName.localeCompare(b.verbName))
-      filtered.forEach((verb) => {
-        verbControlsTable.push(currentMenu.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, currentMenu)));
-        verbControlsWall.push(currentMenu.createButton(verb.verbName, "blank.xpl2", () => this.onVerbAdd(verb, currentMenu)));
-      });
-      currentMenu.addButtons(verbControlsTable);
-
-      currentMenu.menuId = "VerbsMenu" + verbType;
-
-    } catch (error) {
-      console.log(JSON.stringify(error));
-    }
-  }
-
-  onBookmarkShow(menus: MenuVerbs[]) {
-
-    const pm = ProgramManager.getInstance().userModeManager;
-    pm?.cleanUpOnChangeMode();
-
-    const getMenu = () => {
-      let [bookmarksMenuTable, bookmarksMenuWall] = menus;
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          return bookmarksMenuTable
-        case DeviceType.Wall:
-          return bookmarksMenuWall;
-      }
-    }
-
-    if (getMenu().isVisible) {
-      getMenu().show(false);
-      return;
-    }
-
-    const bookmarks: Button[] = [];
-    bookmarksConfig.bookmarks.forEach(b => {
-      bookmarks.push(getMenu().createButton(b.name, "blank.xpl2", () => {
-        this.bookmarkManager.ZoomTo(b.name);
-        getMenu().show(false);
-      }))
-    })
-    getMenu().addButtons(bookmarks);
-
-    this.hideOtherMenus(getMenu().menuId)
-  }
-
-  onDrawingShow(menus: Menu[]) {
-    const pm = ProgramManager.getInstance().userModeManager;
-    pm?.cleanUpOnChangeMode();
-
-    const getMenu = () => {
-      let [drawingMenuTable, drawingMenuWall] = menus;
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          return drawingMenuTable
-        case DeviceType.Wall:
-          return drawingMenuWall;
-      }
-    }
-
-    const currentMenu = getMenu();
-    if (currentMenu.isVisible) {
-      currentMenu.show(false);
-      return;
-    }
-
-    this.hideOtherMenus(currentMenu.menuId);
-    currentMenu.show(true);
-  }
-
-  onViewShow(menus: Menu[]) {
-    const pm = ProgramManager.getInstance().userModeManager;
-    pm?.cleanUpOnChangeMode();
-
-    const getMenu = () => {
-      let [menuTable, menuWall] = menus;
-      switch (this.GetDeviceTypeOverride()) {
-        case DeviceType.Desktop:
-        case DeviceType.Table:
-          return menuTable
-        case DeviceType.Wall:
-          return menuWall;
-      }
-    }
-
-    const currentMenu = getMenu();
-    if (currentMenu.isVisible) {
-      currentMenu.show(false);
-      return;
-    }
-
-    this.hideOtherMenus(currentMenu.menuId);
-    currentMenu.show(true);
-  }
-
-  hideOtherMenus(menuId: string) {
+  hideOtherMenus(menuID?: string) {
     // hides other menus in the shared menu space
-    this.sharedMenuSpace.forEach(m => {
-      if (menuId.indexOf(m.menuId) === -1) {
-        m.show(false);
-      }
+    this.sharedMenuSpace.forEach(menu => {
+      if (menu.groupID !== menuID || menuID === undefined)
+        menu.show(false);
     })
     // also clear any unplaced models
     this.removeOtherModels();
@@ -564,10 +471,9 @@ export class UIManager {
 
   changeBasemap() {
     try {
-
       // fallback hard coded as this was not tested yet
-      const itemIdStreets = GetItemIDByName("Streets") ? GetItemIDByName("Streets") as string : "0_28095807";
-      const itemIdSatellite = GetItemIDByName("Satellite") ? GetItemIDByName("Satellite") as string : "0_264" as string;
+      const itemIdStreets = GetItemIDByName("Streets") || "0_28095807";
+      const itemIdSatellite = GetItemIDByName("Satellite") || "0_264";
       console.log("itemIdStreets:: " + itemIdStreets);
       console.log("itemIdSatellite:: " + itemIdSatellite);
       const ImageryLayer = GetObject(itemIdStreets, ObjectTypeCode.OT_IMAGERY_LAYER);
@@ -586,7 +492,7 @@ export class UIManager {
       ImageryLayer.Visibility.Show = !val
       TerrainLayer.Visibility.Show = val;
     } catch (error) {
-      console.log("Error in show basemap" + error);
+      console.log("Error in show basemap. " + error);
     }
   }
 
@@ -624,7 +530,7 @@ export class UIManager {
         poly.geometry = cPolygonGeometry;
       }
     } else {
-      const polygon = sgWorld.Creator.CreatePolygon(cPolygonGeometry, nLineColor, nFillColor, eAltitudeTypeCode, this.groupId, "Table");
+      const polygon = sgWorld.Creator.CreatePolygon(cPolygonGeometry, nLineColor, nFillColor, eAltitudeTypeCode, this.groupIDTable, "Table");
       this.polygonId = polygon.ID;
     }
   }
@@ -634,7 +540,7 @@ export class UIManager {
   }
 
   private onButtonClick(name: string) {
-    console.log("onButtonClick " + name)
+    console.log("onButtonClick " + name);
     const um = ProgramManager.getInstance().userModeManager;
     if (um === undefined) throw new Error("Could not find userModeManager");
     um.cleanUpOnChangeMode();
@@ -652,15 +558,15 @@ export class UIManager {
         break;
       case "Draw:Line":
         um.toggleDrawLine();
-        this.hideOtherMenus("")
+        this.hideOtherMenus("");
         break;
       case "Draw:Rectangle:black":
-        um.toggleDrawRectangle("black")
-        this.hideOtherMenus("")
+        um.toggleDrawRectangle("Black");
+        this.hideOtherMenus("");
         break;
       case "Draw:Rectangle:green":
-        um.toggleDrawRectangle("green")
-        this.hideOtherMenus("")
+        um.toggleDrawRectangle("Green");
+        this.hideOtherMenus("");
         break;
       case "Measure":
         um.toggleMeasurementMode();
@@ -681,39 +587,45 @@ export class UIManager {
         const pos1 = sgWorld.Navigate.GetPosition(3);
         pos1.Yaw = 0;
         pos1.Pitch = -90;
-        sgWorld.Navigate.JumpTo(pos1)
+        sgWorld.Navigate.JumpTo(pos1);
         break;
       case "ViewOblique":
         const pos2 = sgWorld.Navigate.GetPosition(3);
-        pos2.Yaw = 0;
         pos2.Pitch = -50;
-        sgWorld.Navigate.JumpTo(pos2)
+        sgWorld.Navigate.JumpTo(pos2);
         break;
       case "ChangeBasemap":
         this.changeBasemap();
-        break
+        break;
       case "PitchUp":
         const posUp = sgWorld.Navigate.GetPosition(3);
-        posUp.Yaw = 0;
-        posUp.Pitch = posUp.Pitch + 10;
-        sgWorld.Navigate.JumpTo(posUp)
-        break
+        posUp.Pitch = posUp.Pitch + 15;
+        sgWorld.Navigate.SetPosition(posUp);
+        break;
       case "PitchDown":
         const posDown = sgWorld.Navigate.GetPosition(3);
-        posDown.Yaw = 0;
-        posDown.Pitch = posDown.Pitch - 10;
-        sgWorld.Navigate.JumpTo(posDown)
-        break
+        posDown.Pitch = posDown.Pitch - 15;
+        sgWorld.Navigate.SetPosition(posDown);
+        break;
+      case "YawLeft":
+        const posLeft = sgWorld.Navigate.GetPosition(3);
+        posLeft.Yaw = posLeft.Yaw - 15;
+        sgWorld.Navigate.SetPosition(posLeft);
+        break;
+      case "YawRight":
+        const posRight = sgWorld.Navigate.GetPosition(3);
+        posRight.Yaw = posRight.Yaw + 15;
+        sgWorld.Navigate.SetPosition(posRight);
+        break;
       default:
-        console.log("onButtonClick:: action not found" + name)
+        console.log("onButtonClick:: action not found" + name);
     }
   }
 
-  onControlModelAdd(model: { modelName: string; modelType: string; buttonIcon: string; modelPath: string; }, color: string) {
+  onControlModelAdd(model: { modelName: string; modelType: string; buttonIcon: string; modelPath: string; }, color: "Red" | "Green" | "Blue" | "Black") {
     const pm = ProgramManager.getInstance().userModeManager;
     pm?.toggleModelMode(model.modelPath, model.modelName, color)
   }
-
 
   onOrbatModelAdd(model: IOrbatSubMenuItem, xspacing: number, yspacing: number, scaleAdjust: number, xCount: number): void {
     // remove unplaced models
@@ -728,18 +640,10 @@ export class UIManager {
       const y = i % xCount;
       const deviceType = this.GetDeviceTypeOverride();
       let roomPos;
-      if (deviceType === DeviceType.Wall) {
-        // pos = sgWorld.Creator.CreatePosition(-0.7 + (x * xspacing), -0.2, 1.7 - (y * yspacing), 3, 0, 90, 0);
+      if (deviceType === DeviceType.Wall)
         roomPos = sgWorld.Creator.CreatePosition(-0.6 + (x * xspacing), -0.2, 1.7 - (y * yspacing), AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, 0, 90);
-        console.log(`pos.X ${roomPos.X}`)
-        console.log(`pos.Y ${roomPos.Y}`)
-        console.log(`pos.z ${roomPos.Altitude}`)
-      } else {
+      else
         roomPos = sgWorld.Creator.CreatePosition(-0.2 + (x * xspacing), -0.4 - (y * yspacing), tableHeight, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE);
-        console.log(`pos.X ${roomPos.X}`)
-        console.log(`pos.Y ${roomPos.Y}`)
-        console.log(`pos.z ${roomPos.Altitude}`)
-      }
 
       const worldPos = roomToWorldCoord(roomPos);
       const modelPath = basePath + `model/${orbatModel.modelFile}`;
@@ -764,7 +668,6 @@ export class UIManager {
 
   removeOtherModels() {
     // removes the orbat models which have not been moved
-    console.log("removeOtherModels")
     this.modelsToPlace.forEach(id => {
       const model = GetObject(id, ObjectTypeCode.OT_MODEL);
       if (model) {
@@ -791,7 +694,7 @@ export class UIManager {
   }
 
   GetDeviceTypeOverride() {
-    return GetDeviceType();
+    return DeviceType.Wall;
     // when testing on desktop you can use this to change the view
     if (GetDeviceType() === DeviceType.Desktop) {
       return DeviceType.Wall;

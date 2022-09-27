@@ -41,6 +41,7 @@ function getBasePath() {
 export let basePath = "";
 (async () => {
   basePath = await getBasePath();
+  console.log(`basePath = "${basePath}"`);
   if (document.readyState === 'complete')
     ProgramManager.getInstance().Init();
   else

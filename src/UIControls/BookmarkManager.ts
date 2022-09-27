@@ -4,8 +4,6 @@ import { deleteItemSafe, ProgramManager } from "../ProgramManager";
 import { UserMode } from "../UserManager";
 
 export class BookmarkManager {
-
-
   private bookmarks = bookmarksConfig.bookmarks;
   private currentIndex = 0;
 

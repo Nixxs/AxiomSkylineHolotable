@@ -2,41 +2,38 @@ type Listener = (...args: any[]) => void
 type Events = { [event: string]: Listener[] };
 
 export class EventEmitter {
-    private readonly events: Events = {};
+  private readonly events: Events = {};
 
-    constructor() {
-    }
+  public on(event: string, listener: Listener): () => void {
+    if (typeof this.events[event] !== 'object') this.events[event] = [];
 
-    public on(event: string, listener: Listener): () => void {
-        if(typeof this.events[event] !== 'object') this.events[event] = [];
-        
-        this.events[event].push(listener);
-        return () => this.removeListener(event, listener);
-    }
+    this.events[event].push(listener);
+    return () => this.removeListener(event, listener);
+  }
 
-    public removeListener(event: string, listener: Listener): void {
-        if(typeof this.events[event] !== 'object') return;
-        
-        const idx: number = this.events[event].indexOf(listener);
-        if(idx > -1) this.events[event].splice(idx, 1);
-    }
+  public removeListener(event: string, listener: Listener): void {
+    if (typeof this.events[event] !== 'object') return;
 
-    public removeAllListeners(): void {
-        Object.keys(this.events).forEach((event: string) => 
-            this.events[event].splice(0, this.events[event].length)
-        );
-    }
+    const idx: number = this.events[event].indexOf(listener);
+    if (idx > -1) this.events[event].splice(idx, 1);
+  }
 
-    public emit(event: string, ...args: any[]): void {
-        if(typeof this.events[event] !== 'object') return;
+  public removeAllListeners(): void {
+    Object.keys(this.events).forEach((event: string) =>
+      this.events[event].splice(0, this.events[event].length)
+    );
+  }
 
-        this.events[event].forEach(listener => listener.apply(this, args));
-    }
+  public emit(event: string, ...args: any[]): void {
+    if (typeof this.events[event] !== 'object') return;
 
-    public once(event: string, listener: Listener): void {
-        const remove: (() => void) = this.on(event, (...args: any[]) => {
-            remove();
-            listener.apply(this, args);
-        });
-    }
+    this.events[event].forEach(listener => listener.apply(this, args));
+  }
+
+  public once(event: string, listener: Listener): void {
+    const remove: (() => void) = this.on(event, (...args: any[]) => {
+      remove();
+      listener.apply(this, args);
+    });
+  }
 }

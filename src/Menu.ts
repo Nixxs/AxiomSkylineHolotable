@@ -8,139 +8,83 @@ import { basePath, sgWorld } from "./Axiom";
 import { Button } from "./Button";
 import { Quaternion } from "./math/quaternion";
 import { Vector } from "./math/vector";
-import { radsToDegs } from "./Mathematics";
+import { degsToRads, radsToDegs } from "./Mathematics";
 import { ProgramManager } from "./ProgramManager";
+import { CreatePosition } from "./SGWorld";
 
 export class Menu {
-  // buttonSize is the roomspace width of one button
-  public buttons: Button[] = [];
-  public corner: Vector<3>;
+  public buttonLines: Button[][] = [[]];
   public xDirection: Vector<3>;
   public yDirection: Vector<3>;
   public recomputeButtons = true;
   public isVisible: boolean = true;
-  public menuId: string
+  public roomOrigin: IPosition;
 
-  constructor(public width: number, public height: number, public anchor: Vector<3>, public orientation: Quaternion, public anchorPosition: [number, number], public topAligned: boolean, public leftAligned: boolean, public horizontal: boolean, public buttonSize: number = Infinity, public rows: number = 0, public cols: number = 0, menuId?: string) {
-    // anchorPosition is bottomLeft + [x * width, y * height]
+  private static uniqueGroupID() { return Date.now().toString() + Math.floor(Math.random() * 100000000).toString(); }
 
-    // let anchor = topLeft  + orientation.apply([width *  anchorPosition[0]     , 0, height * (anchorPosition[1] - 1)]);
-    // let anchor = topRight + orientation.apply([width * (anchorPosition[0] - 1), 0, height * (anchorPosition[1] - 1)]);
-    // let anchor = botLeft  + orientation.apply([width *  anchorPosition[0]     , 0, height *  anchorPosition[1]     ]);
-    // let anchor = botRight + orientation.apply([width * (anchorPosition[0] - 1), 0, height *  anchorPosition[1]     ]);
+  constructor(public anchor: Vector<3>, public orientation: Quaternion, public xPositive: boolean, public zPositive: boolean, public horizontalLines: boolean, public buttonSize: Vector<3>, public lineLengthLimit: number = 0, public groupID: string = sgWorld.ProjectTree.CreateGroup(Menu.uniqueGroupID(), ProgramManager.getInstance().groupID)) {
+    this.xDirection = orientation.GetXAxis(xPositive ? 1 : -1);
+    this.yDirection = orientation.GetZAxis(zPositive ? 1 : -1);
+    this.roomOrigin = CreatePosition(...anchor.data, AltitudeTypeCode.ATC_TERRAIN_ABSOLUTE, ...orientation.Copy().PostApplyXAxis(degsToRads(90)).GetYPR().map(radsToDegs), 1);
+  }
 
-    // then topLeft = anchor - orientation.apply([width *  anchorPosition[0]     , 0, height * (anchorPosition[1] - 1)]);
-    // and topRight = anchor - orientation.apply([width * (anchorPosition[0] - 1), 0, height * (anchorPosition[1] - 1)]);
-    // and botLeft  = anchor - orientation.apply([width *  anchorPosition[0]     , 0, height *  anchorPosition[1]     ]);
-    // and botRight = anchor - orientation.apply([width * (anchorPosition[0] - 1), 0, height *  anchorPosition[1]     ]);
-    this.corner = anchor.Copy().Sub(orientation.Apply(new Vector([width * (anchorPosition[0] - (leftAligned ? 0 : 1)), 0, height * (anchorPosition[1] - (topAligned ? 1 : 0))])));
-    this.xDirection = orientation.GetXAxis(leftAligned ? 1 : -1); // positive x to the right
-    this.yDirection = orientation.GetZAxis(topAligned ? -1 : 1); // negative z to the bottom
-    console.log(`corner ${this.corner.data}`);
-    console.log(`xDirection ${this.xDirection.data}`);
-    console.log(`yDirection ${this.yDirection.data}`);
-
-    if (!menuId) {
-      // give it a unique id so it can be identified.
-      this.menuId = Date.now().toString() + Math.floor(Math.random() * 100000000).toString()
-    } else {
-      this.menuId = menuId;
+  protected nextButtonLine() {
+    let line = this.buttonLines.length - 1;
+    let step = this.buttonLines[line].length;
+    if (step === this.lineLengthLimit) {
+      this.newLine();
+      ++line;
+      step = 0;
     }
+    return { line, step };
+  }
+
+  protected buttonScale() {
+    return this.buttonSize.Copy().Mul(0.9);
   }
 
   addButton(button: Button) {
-    this.buttons.push(button);
-    if (this.buttons.length > this.cols * this.rows) {
-      this.recomputeButtons = true;
-    } else {
-      // no more work to do
-      return;
-    }
-    if (this.buttonSize * (this.cols + 1) <= this.width) {
-      ++this.cols;
-    } else if (this.buttonSize * (this.rows + 1) <= this.height) {
-      ++this.rows;
-    } else {
-      // must shrink
-      // Figure out what size we would be if we grew in either direction and pick the one with less shrinkage
-      const extraRowSize = this.height / (this.rows + 1);
-      const extraColSize = this.width / (this.cols + 1);
-      if (extraColSize >= extraRowSize) {
-        this.buttonSize = extraColSize;
-        ++this.cols;
-      } else {
-        this.buttonSize = extraRowSize;
-        ++this.rows;
-      }
-    }
+    let { line, step } = this.nextButtonLine();
+    this.buttonLines[line].push(button);
+    button.roomPosition = this.roomOrigin.Copy();
+    [button.roomPosition.X, button.roomPosition.Y, button.roomPosition.Altitude]
+      = this.getButtonPosition(line, step).data;
+    button.setScale(this.buttonScale());
+  }
+
+  newLine() {
+    this.buttonLines.push([]);
   }
 
   createButton(name: string, icon: string, callback?: (id?: string) => void, tooltip: string = ""): Button {
-    const groupId = ProgramManager.getInstance().getGroupID("buttons");
     const pos = sgWorld.Creator.CreatePosition(0, 0, 0.7, 3);
-    const btn = new Button(name, pos, basePath + "ui/" + icon, groupId, callback, false, tooltip);
+    const btn = new Button(name, pos, basePath + "ui/" + icon, this.groupID, callback, false, tooltip);
     this.addButton(btn);
     return btn;
   }
 
   Update() {
-    for (let button of this.buttons) {
-      button.Update();
-    }
+    for (let line of this.buttonLines)
+      for (let button of line)
+        button.Update();
   }
 
-  getNthButtonPosition(n: number) {
-    const strip = Math.floor(n / (this.horizontal ? this.cols : this.rows));
-    const along = n - strip * (this.horizontal ? this.cols : this.rows);
-    console.log(`${n}th at ${strip}th strip, ${along}th along`);
-    const x = (this.horizontal ? along : strip);
-    const y = (this.horizontal ? strip : along);
-    //console.log(`${n}th at ${x}, ${y}`);
-    //console.log(`${n}th at ${this.corner.Copy().Add(this.xDirection.Copy().Mul(x + 0.5 * this.buttonSize)).Add(this.yDirection.Copy().Mul(y + 0.5 * this.buttonSize)).data}`);
-    // Add 0.5 so the origin of the button is at the center of the button area
-    return this.getButtonPosition(x + 0.5, y + 0.5);
-  }
-
-  /**
-   * Get the button position for a button with specific grid indices.
-   * returns the position that is x buttonSizes in xDirection and y buttonSizes in yDirection away from corner.
-   * The first button will be at [0.5, 0.5], the next may be at [1.5, 0.5] and so on
-   */
-  getButtonPosition(x: number, y: number) {
-    // corner + xDirection * x * size + yDirection * y * size
-    return this.corner.Copy().Add(this.xDirection.Copy().Mul(x * this.buttonSize)).Add(this.yDirection.Copy().Mul(y * this.buttonSize));
+  getButtonPosition(line: number, step: number) {
+    const x = this.horizontalLines ? step : line;
+    const y = this.horizontalLines ? line : step;
+    return this.anchor.Copy().Add(this.xDirection.Copy().Mul((x + 0.5) * this.buttonSize.data[0])).Add(this.yDirection.Copy().Mul((y + 0.5) * this.buttonSize.data[1]));
   }
 
   Draw() {
-    if (this.recomputeButtons) {
-      for (let i = 0; i < this.buttons.length; ++i) {
-        const button = this.buttons[i];
-        const newPosition = this.getNthButtonPosition(i);
-        const ypr = this.orientation.GetYPR();
-        // There is a 90 degree difference between wall and table
-        button.setPosition(sgWorld.Creator.CreatePosition(newPosition.data[0], newPosition.data[1], newPosition.data[2], 3, radsToDegs(ypr[0]), 90 + radsToDegs(ypr[1]), radsToDegs(ypr[2])));
-        button.setScale(this.buttonSize * 0.9); // 10% used for borders
-      }
-      this.recomputeButtons = false;
-    }
-    for (let button of this.buttons) {
-      button.Draw();
-    }
+    for (let line of this.buttonLines)
+      for (let button of line)
+        button.Draw();
   }
-
-  removeAllButtons() {
-    this.recomputeButtons = false; // stop recompute while we destroy the old ones
-    this.buttons.forEach(b => b.destroy());
-    this.buttons = [];
-    this.rows = 0;
-    this.cols = 0;
-    this.recomputeButtons = true;
-  }
-
 
   show(visibility: boolean) {
-    for (let button of this.buttons)
-      button.show(visibility);
+    for (let line of this.buttonLines)
+      for (let button of line)
+        button.show(visibility);
     this.isVisible = visibility;
   }
 }

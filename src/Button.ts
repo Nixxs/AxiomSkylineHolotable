@@ -1,5 +1,6 @@
 import { sgWorld } from "./Axiom";
 import { ControllerReader } from "./ControllerReader";
+import { Vector } from "./math/vector";
 import { deleteItemSafe, GetObject, ProgramManager, roomToWorldCoord } from "./ProgramManager";
 
 let selectedButton: Button | null = null;
@@ -9,7 +10,7 @@ export function SimulateSelectedButton() {
 
 export class Button {
   ID?: string;
-  scale = 1;
+  scale = new Vector<3>([1, 1, 1]);
   initError = false;
 
   constructor(public name: string, public roomPosition: IPosition, public modelPath: string, public groupID: string = "", public callback: (id?: string) => void = () => { }, hidden?: boolean, public tooltip: string = "", public color?: IColor) {
@@ -44,7 +45,7 @@ export class Button {
     if (this.initError) return;
     if (this.ID === undefined) {
       try {
-        const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, this.scale, 0, this.groupID, this.name);
+        const obj = sgWorld.Creator.CreateModel(pos, this.modelPath, 1, 0, this.groupID, this.name);
         obj.BestLOD = 0;
         obj.Tooltip.Text = this.tooltip;
         this.ID = obj.ID;
@@ -61,7 +62,9 @@ export class Button {
       const obj = GetObject(this.ID, ObjectTypeCode.OT_MODEL);
       if (obj === null) return;
       obj.Position = pos;
-      obj.ScaleFactor = this.scale * (ControllerReader.controllerInfos[1].scaleFactor ?? 1.5);
+      obj.ScaleX = this.scale.data[0] * (ControllerReader.controllerInfos[1].scaleFactor ?? 1);
+      obj.ScaleY = this.scale.data[1] * (ControllerReader.controllerInfos[1].scaleFactor ?? 1);
+      obj.ScaleZ = this.scale.data[2] * (ControllerReader.controllerInfos[1].scaleFactor ?? 1);
     }
   }
 
@@ -69,9 +72,9 @@ export class Button {
     this.roomPosition = pos;
   }
 
-  // scale should be the actual side length of the button in room space
+  // scale should be the actual side lengths of the button in room space
   // (for the math to work then, the button model should have 1m side length)
-  setScale(scale: number) {
+  setScale(scale: Vector<3>) {
     this.scale = scale;
   }
 
@@ -86,7 +89,7 @@ export class Button {
   destroy() {
     if (this.ID === undefined) return;
     try {
-      deleteItemSafe(this.ID!)
+      deleteItemSafe(this.ID)
     } catch (error) {
       // its already been destroyed don't worry
     }

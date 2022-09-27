@@ -346,7 +346,8 @@ export const orbatConfig: IOrbatConfig = {
           ]
         }
       ]
-    }, {
+    },
+    {
       modelName: "BG TIGER - 5 RAR",
       modelType: "orbat",
       missionType: "na",
@@ -558,7 +559,8 @@ export const orbatConfig: IOrbatConfig = {
           ]
         }
       ]
-    }, {
+    },
+    {
       modelName: "BG BOAR - 7 RAR",
       modelType: "orbat",
       missionType: "na",
@@ -770,7 +772,8 @@ export const orbatConfig: IOrbatConfig = {
           ]
         }
       ]
-    }, {
+    },
+    {
       modelName: "Enemy",
       modelType: "orbat",
       missionType: "na",
@@ -929,11 +932,11 @@ export const orbatConfig: IOrbatConfig = {
   ]
 }
 
-export interface IOrbatConfig {
+export type IOrbatConfig = {
   OrbatModels: IOrbatMenuItem[];
 }
 
-export interface IOrbatMenuItem {
+export type IOrbatMenuItem = {
   modelName: string;
   modelType: string;
   missionType: string;
@@ -946,7 +949,7 @@ export interface IOrbatMenuItem {
   buttons: IOrbatSubMenuItem[]
 }
 
-export interface IOrbatSubMenuItem {
+export type IOrbatSubMenuItem = {
   modelName: string;
   modelType: string;
   missionType: string;
@@ -955,7 +958,7 @@ export interface IOrbatSubMenuItem {
   models: IOrbatModel[]
 }
 
-export interface IOrbatModel {
+export type IOrbatModel = {
   modelFile: string;
   modelName: string;
 }
